@@ -5,7 +5,7 @@
 #include <Adafruit_SSD1306.h>
 
 extern int menu;
-void updateMenu();
+void updateMenu(int menu);
 void Logger_act();
 void Output_mode_act();
 void Input_mode_act();

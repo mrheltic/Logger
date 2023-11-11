@@ -16,6 +16,7 @@ boolean initializeDevices();
 boolean goUp();
 boolean goDown();
 boolean select();
-void soundBuzzer();
+void soundBuzzerSelect();
+void soundBuzzerScroll();
 
 #endif // CONTROLLER_H

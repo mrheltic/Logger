@@ -103,25 +103,21 @@ boolean initializeDevices()
 
 boolean goUp()
 {
-
     return digitalRead(UP_BUTTON);
 }
 
 boolean goDown()
 {
-
     return digitalRead(DOWN_BUTTON);
 }
 
 boolean select()
 {
-
     return digitalRead(SELECT_BUTTON);
 }
 
 void soundBuzzerScroll()
 {
-
     tone(BUZZER, 200, 1000);
 
     delay(40);
@@ -131,7 +127,6 @@ void soundBuzzerScroll()
 
 void soundBuzzerSelect()
 {
-
     tone(BUZZER, 1000, 300);
 
     delay(40);
@@ -139,6 +134,7 @@ void soundBuzzerSelect()
     noTone(BUZZER);
 }
 
+/*
 void selectDataRate()
 {
     int i;
@@ -147,7 +143,7 @@ void selectDataRate()
 
     }
 
-    ads.setDataRate(dataRateValues[i])
+    ads.setDataRate(dataRateValues[i]);
 
     if(++i == sizeof(dataRateValues))
     {
@@ -158,3 +154,4 @@ void selectDataRate()
     
 
 }
+*/
