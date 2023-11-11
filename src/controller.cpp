@@ -19,17 +19,18 @@ enum button
 #define BUZZER 14 // GPIO D5
 // #define LED_1  //GPIO D4
 
+bool isExecuted = false;
+
 Adafruit_ADS1115 ads;
 
 File file;
 
 int dataRateValues[] = {1, 2, 4, 8, 16, 32, 64, 128, 250, 475, 860};
+int channel = 0;
 
 boolean initializeOutputDevices()
 {
-
     pinMode(BUZZER, OUTPUT);
-
     return true;
 }
 
@@ -53,7 +54,7 @@ boolean ADCinitialize()
 
 boolean initializeSDcard()
 {
-    if (!SD.begin(10))
+    if (!SD.begin(15)) // is CS pin in NodemCU
     {
         return false;
     }
@@ -69,12 +70,10 @@ boolean initializeSDcard()
 
 boolean initializeDevices()
 {
-
-    return initializeOutputDevices() && 
-    initializeInputDevices() && 
-    initializeScreen() && 
-    ADCinitialize() && 
-    initializeSDcard();
+    // Initialize only essential devices to correct work of logger
+    return initializeOutputDevices() &&
+           initializeInputDevices() &&
+           initializeScreen() && ADCinitialize();
 }
 
 /*boolean handleButtonPress(button buttonPressed) {
@@ -134,24 +133,67 @@ void soundBuzzerSelect()
     noTone(BUZZER);
 }
 
-/*
-void selectDataRate()
+// Executive Actions
+void Logger_act()
 {
-    int i;
-
-    while(select()){
-
-    }
-
-    ads.setDataRate(dataRateValues[i]);
-
-    if(++i == sizeof(dataRateValues))
-    {
-        i = 0;
-    }
-
-    }
-    
-
+    // vuoto
 }
-*/
+
+void Output_mode_act()
+{
+    // vuoto
+}
+
+void Input_mode_act()
+{
+    // vuoto
+}
+
+void Info_device_act()
+{
+    // vuoto
+}
+
+void Sample_set_act()
+{
+    int Srate = int(ads.getDataRate());
+    //Serial.print(Srate);
+    Sample_set_grf(Srate);
+
+    if (goDown())
+    {
+        int i = 0;
+        soundBuzzerScroll();
+        for (int j = 0; j < 11; j++)
+        {
+            if (dataRateValues[j] == Srate)
+                i = j;
+        }
+        if (i > 0)
+        {
+            i--;
+            ads.setDataRate(dataRateValues[i]);
+        }
+        Sample_set_selector_grf(0);
+        delay(120);
+    }
+    if (goUp())
+    {
+        int i = 0;
+        soundBuzzerScroll();
+        for (int j = 0; j < 11; j++)
+        {
+            if (dataRateValues[j] == Srate)
+                i = j;
+        }
+        Serial.println(goUp());
+        if (i < 10)
+        {
+            i++;
+            ads.setDataRate(dataRateValues[i]);
+        }
+        Sample_set_selector_grf(1);
+        delay(120);
+    }
+    delay(10);
+}

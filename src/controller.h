@@ -18,5 +18,9 @@ boolean goDown();
 boolean select();
 void soundBuzzerSelect();
 void soundBuzzerScroll();
-
+void Logger_act();
+void Output_mode_act();
+void Input_mode_act();
+void Info_device_act();
+void Sample_set_act();
 #endif // CONTROLLER_H

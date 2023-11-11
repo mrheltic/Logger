@@ -4,16 +4,16 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-//#include <RTClib.h>
+// #include <RTClib.h>
 
 #include "view.h"
 #include "controller.h"
 
-//STATE VARIABLES
+// STATE VARIABLES
 int menu = 1;
 boolean stateMenu = 1;
 
-//Start submenu loops with controller actions
+// Start submenu loops with controller actions
 void executeAction()
 {
   switch (menu)
@@ -24,41 +24,40 @@ void executeAction()
       Logger_act();
     }
     stateMenu = 1;
-    delay(250); 
     break;
   case 2:
-  while (!select() && stateMenu == 0)
+    while (!select() && stateMenu == 0)
     {
       Output_mode_act();
     }
     stateMenu = 1;
-    delay(250);
     break;
   case 3:
-  while (!select() && stateMenu == 0)
+    while (!select() && stateMenu == 0)
     {
       Input_mode_act();
     }
     stateMenu = 1;
-    delay(250); 
     break;
   case 4:
-  while (!select() && stateMenu == 0)
+    while (!select() && stateMenu == 0)
     {
       Info_device_act();
     }
     stateMenu = 1;
-    delay(250);
     break;
   case 5:
-  while (!select() && stateMenu == 0)
+    while (!select() && stateMenu == 0)
     {
       Sample_set_act();
+      //Serial.println("oi");
     }
     stateMenu = 1;
-    delay(250);   
     break;
   }
+  soundBuzzerSelect();
+  updateMenu(menu);
+  delay(250);
 }
 
 void setup()
@@ -72,7 +71,8 @@ void setup()
 
   Serial.println("Initializing...");
 
-  while(!initializeDevices()){
+  while (!initializeDevices())
+  {
     Serial.println("Initialization failed");
     delay(1000);
   }
@@ -83,26 +83,31 @@ void setup()
 
 void loop()
 {
-  if(stateMenu){
+  if (stateMenu)
+  {
     if (goDown())
-  {
-    soundBuzzerScroll();
-    menu++;
-    updateMenu(menu);
+    {
+      soundBuzzerScroll();
+      delay(100);
+      menu++;
+      menu = updateMenu(menu);
+    }
+    if (goUp())
+    {
+      soundBuzzerScroll();
+      delay(100);
+      menu--;
+      menu = updateMenu(menu);
+    }
+    if (select())
+    {
+      stateMenu = 0;
+      soundBuzzerSelect();
+      delay(250);
+      executeAction();
+    }
   }
-  if (goUp())
-  {
-    soundBuzzerScroll();
-    menu--;
-    updateMenu(menu);
-  }
-  if (select())
-  {
-    soundBuzzerSelect();
-    executeAction();
-  }
-  }
-  
-  //delay(40);
-  //Serial.print(menu);
+
+  // delay(40);
+  // Serial.print(menu);
 }
