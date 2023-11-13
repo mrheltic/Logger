@@ -591,13 +591,22 @@ boolean initializeScreen()
   return true;
 }
 
-void updateContextCursor(int X_value, int Y_value, const uint8_t *MENU_TYPE)
+void updateContextCursor(int position)
 {
-  display.clearDisplay();
-  display.drawBitmap(0, 0, MENU_TYPE, 128, 64, 1);
-  display.drawBitmap(X_value, Y_value, bitmap_cursor, 122, 20, 1);
-  display.display();
-  delay(200);
+  switch (position)
+  {
+  case 0:
+    display.drawBitmap(2, 22, bitmap_cursor, 122, 20, 1);
+
+    break;
+  case 1:
+    display.drawBitmap(2, 44, bitmap_cursor, 122, 20, 1);
+    break;
+  case 2:
+    display.drawBitmap(2, 1, bitmap_cursor, 122, 20, 1);
+
+    break;
+  }
 }
 
 int updateMenu(int menu)
@@ -638,24 +647,30 @@ int updateMenu(int menu)
   return menu;
 }
 
-// Submenu graphics
-void Logger_grf()
+//Submenu graphics
+void loggerGraphic()
 {
   // vuoto
 }
-void Output_mode_grf()
+void outputModeGraphic(int mode)
+{
+  display.clearDisplay();
+  display.drawBitmap(0, 0, bitmap_Output_mode, 128, 64, WHITE);
+  updateContextCursor(mode);
+  display.display();
+}
+void inputModeGraphic(int mode)
+{
+  display.clearDisplay();
+  display.drawBitmap(0, 0, bitmap_Input_mode, 128, 64, WHITE);
+  updateContextCursor(mode);
+  display.display();
+}
+void infoGraphic()
 {
   // vuoto
 }
-void Input_mode_grf()
-{
-  // vuoto
-}
-void Info_device_grf()
-{
-  // vuoto
-}
-void Sample_set_grf(int sample)
+void sampleSetGraphic(int sample)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_sample_rate_set, 128, 64, WHITE);
@@ -665,8 +680,7 @@ void Sample_set_grf(int sample)
   display.print(sample);
   display.display();
 }
-
-void Sample_set_selector_grf(boolean arrowup)
+void sampleSetSelectorGraphic(boolean arrowup)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_sample_rate_set, 128, 64, WHITE);

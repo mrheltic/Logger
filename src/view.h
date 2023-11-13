@@ -7,11 +7,11 @@
 extern int menu;
 int updateMenu(int menu);
 boolean initializeScreen();
-void Logger_grf();
-void Output_mode_grf();
-void Input_mode_grf();
-void Info_device_grf();
-void Sample_set_grf(int sample);
-void Sample_set_selector_grf(boolean arrowup);
-
+void updateContextCursor(int position);
+void loggerGraphic();
+void outputModeGraphic(int mode);
+void inputModeGraphic(int mode);
+void infoGraphic();
+void sampleSetGraphic(int sample);
+void sampleSetSelectorGraphic(boolean arrowup);
 #endif // VIEW_H

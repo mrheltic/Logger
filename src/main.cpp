@@ -21,35 +21,35 @@ void executeAction()
   case 1:
     while (!select() && stateMenu == 0)
     {
-      Logger_act();
+      loggerAct();
     }
     stateMenu = 1;
     break;
   case 2:
     while (!select() && stateMenu == 0)
     {
-      Output_mode_act();
+      outputModeAct();
     }
     stateMenu = 1;
     break;
   case 3:
     while (!select() && stateMenu == 0)
     {
-      Input_mode_act();
+      inputModeAct();
     }
     stateMenu = 1;
     break;
   case 4:
     while (!select() && stateMenu == 0)
     {
-      Info_device_act();
+      infoAct();
     }
     stateMenu = 1;
     break;
   case 5:
     while (!select() && stateMenu == 0)
     {
-      Sample_set_act();
+      sampleSetAct();
       //Serial.println("oi");
     }
     stateMenu = 1;
@@ -57,7 +57,6 @@ void executeAction()
   }
   soundBuzzerSelect();
   updateMenu(menu);
-  delay(250);
 }
 
 void setup()
@@ -88,14 +87,12 @@ void loop()
     if (goDown())
     {
       soundBuzzerScroll();
-      delay(100);
       menu++;
       menu = updateMenu(menu);
     }
     if (goUp())
     {
       soundBuzzerScroll();
-      delay(100);
       menu--;
       menu = updateMenu(menu);
     }
@@ -103,7 +100,6 @@ void loop()
     {
       stateMenu = 0;
       soundBuzzerSelect();
-      delay(250);
       executeAction();
     }
   }

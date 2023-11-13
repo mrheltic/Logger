@@ -28,6 +28,10 @@ File file;
 int dataRateValues[] = {1, 2, 4, 8, 16, 32, 64, 128, 250, 475, 860};
 int channel = 0;
 
+/*la variabile "mode" è provvisoria. Definisce la modalità con cui i dati acquisti vengono stoccati.
+mode = 0 for only display, mode = 1 for wifi or mode = 2 for SD card*/
+int mode = 0;
+
 boolean initializeOutputDevices()
 {
     pinMode(BUZZER, OUTPUT);
@@ -122,6 +126,8 @@ void soundBuzzerScroll()
     delay(40);
 
     noTone(BUZZER);
+
+    delay(100);
 }
 
 void soundBuzzerSelect()
@@ -131,34 +137,71 @@ void soundBuzzerSelect()
     delay(40);
 
     noTone(BUZZER);
+
+    delay(250);
 }
 
 // Executive Actions
-void Logger_act()
+void loggerAct()
 {
     // vuoto
 }
 
-void Output_mode_act()
+void outputModeAct()
+{
+    /*Attention, before selecting the data storage method, it is necessary to verify and Initialization of devices*/
+    outputModeGraphic(mode);
+    if (goDown())
+    {
+        soundBuzzerScroll();
+        if (mode == 0)
+            mode = 1;
+        else if (mode == 2)
+            mode = 0;
+    }
+    if (goUp())
+    {
+        soundBuzzerScroll();
+        if (mode == 0)
+            mode = 2;
+        else if (mode == 1)
+            mode = 0;
+    }
+    delay(10);
+}
+
+void inputModeAct()
+{
+    inputModeGraphic(channel);
+    if (goDown())
+    {
+        soundBuzzerScroll();
+        if (channel == 0)
+            channel = 1;
+        else if (channel == 2)
+            channel = 0;
+    }
+    if (goUp())
+    {
+        soundBuzzerScroll();
+        if (channel == 0)
+            channel = 2;
+        else if (channel == 1)
+            channel = 0;
+    }
+    delay(10);
+}
+
+void infoAct()
 {
     // vuoto
 }
 
-void Input_mode_act()
-{
-    // vuoto
-}
-
-void Info_device_act()
-{
-    // vuoto
-}
-
-void Sample_set_act()
+void sampleSetAct()
 {
     int Srate = int(ads.getDataRate());
-    //Serial.print(Srate);
-    Sample_set_grf(Srate);
+    // Serial.print(Srate);
+    sampleSetGraphic(Srate);
 
     if (goDown())
     {
@@ -174,8 +217,7 @@ void Sample_set_act()
             i--;
             ads.setDataRate(dataRateValues[i]);
         }
-        Sample_set_selector_grf(0);
-        delay(120);
+        sampleSetSelectorGraphic(0);
     }
     if (goUp())
     {
@@ -192,8 +234,7 @@ void Sample_set_act()
             i++;
             ads.setDataRate(dataRateValues[i]);
         }
-        Sample_set_selector_grf(1);
-        delay(120);
+        sampleSetSelectorGraphic(1);
     }
     delay(10);
 }
