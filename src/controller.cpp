@@ -2,6 +2,7 @@
 #include "view.h"
 #include <Adafruit_ADS1X15.h>
 #include <SD.h>
+#include <RTClib.h>
 
 enum button
 {
