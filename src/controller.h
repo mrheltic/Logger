@@ -12,6 +12,7 @@ boolean initializeOutputDevices();
 boolean initializeInputDevices();
 boolean ADCinitialize();
 boolean initializeSDcard();
+boolean inizializeRTC();
 boolean initializeDevices();
 boolean goUp();
 boolean goDown();

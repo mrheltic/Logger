@@ -25,6 +25,7 @@ bool isExecuted = false;
 Adafruit_ADS1115 ads;
 
 File file;
+DS1307 rtc;
 
 int dataRateValues[] = {1, 2, 4, 8, 16, 32, 64, 128, 250, 475, 860};
 int channel = 0;
@@ -73,12 +74,35 @@ boolean initializeSDcard()
     }
 }
 
+boolean inizializeRTC(){
+    Serial.print("boh");
+    if (!rtc.begin())
+    {
+        Serial.println("Errore! Verifica le connesioni!");
+        return false;
+    }
+    else
+    {
+        if (!rtc.isrunning())
+        {
+            Serial.println("RTC is NOT running!");
+            rtc.adjust(DateTime(__DATE__, __TIME__));
+        }
+
+        delay(2000);
+        DateTime now = rtc.now();
+
+        Serial.println(String(now.minute()));
+        return true;
+    }
+}
+
 boolean initializeDevices()
 {
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && ADCinitialize();
+           initializeScreen() && ADCinitialize() && inizializeRTC();
 }
 
 /*boolean handleButtonPress(button buttonPressed) {
