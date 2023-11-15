@@ -1,51 +1,49 @@
 #include <Adafruit_ADS1X15.h>
 #include <Arduino.h>
 #include <Wire.h>
-#include <SPI.h>
+#include <Adafruit_BusIO_Register.h>
 
 
-// This script is adapted from the continuous example given by Adafruit's ADS1X15 library.
+// Adafruit_ADS1115 ads;  /* Use this for the 16-bit version */
+Adafruit_ADS1015 ads;     /* Use this for the 12-bit version */
 
-Adafruit_ADS1115 myADS;
-unsigned long t0;
-int16_t v;
-String str;
+void setup(void)
+{
+  Serial.begin(9600);
+  Serial.println("Hello!");
 
-// The ADC module sends a interrupt signal to the Arduino when a conversion is completed.
-// This way, we will read the ADC only if it is ready.
-// We need to connect ALERT/RDY pin on the ADC1115 to pin 3 on the Arduino.
-const int intPin = 3;
-volatile bool new_data = false;
-void newDataReady() {
-    new_data = true;
+  Serial.println("Single-ended readings from AIN0 with >3.0V comparator");
+  Serial.println("ADC Range: +/- 6.144V (1 bit = 3mV/ADS1015, 0.1875mV/ADS1115)");
+  Serial.println("Comparator Threshold: 1000 (3.000V)");
+
+  // The ADC input range (or gain) can be changed via the following
+  // functions, but be careful never to exceed VDD +0.3V max, or to
+  // exceed the upper and lower limits if you adjust the input range!
+  // Setting these values incorrectly may destroy your ADC!
+  //                                                                ADS1015  ADS1115
+  //                                                                -------  -------
+  // ads.setGain(GAIN_TWOTHIRDS);  // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+  // ads.setGain(GAIN_ONE);        // 1x gain   +/- 4.096V  1 bit = 2mV      0.125mV
+  // ads.setGain(GAIN_TWO);        // 2x gain   +/- 2.048V  1 bit = 1mV      0.0625mV
+  // ads.setGain(GAIN_FOUR);       // 4x gain   +/- 1.024V  1 bit = 0.5mV    0.03125mV
+  // ads.setGain(GAIN_EIGHT);      // 8x gain   +/- 0.512V  1 bit = 0.25mV   0.015625mV
+  // ads.setGain(GAIN_SIXTEEN);    // 16x gain  +/- 0.256V  1 bit = 0.125mV  0.0078125mV
+
+  if (!ads.begin()) {
+    Serial.println("Failed to initialize ADS.");
+    while (1);
+  }
+  // Setup 3V comparator on channel 0
+  ads.startComparator_SingleEnded(0, 1000);
 }
 
-void setup() {
-  pinMode(13, OUTPUT);
-  digitalWrite(13, 0);
-  Serial.begin(115200);
+void loop(void)
+{
+  int16_t adc0;
 
-  // The convertion is ready on the falling edge of a pulse at the ALERT/RDY pin.
-  attachInterrupt(digitalPinToInterrupt(intPin), newDataReady, FALLING);
+  // Comparator will only de-assert after a read
+  adc0 = ads.getLastConversionResults();
+  Serial.print("AIN0: "); Serial.println(adc0);
 
-  myADS.begin();
-  myADS.setGain(GAIN_FOUR);
-  myADS.setDataRate(RATE_ADS1115_860SPS);
-  myADS.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
-  // We should set "continuous" to true to reach optimal speed.
-  
-  t0 = micros();
-}
-
-void loop() {
-  if(!new_data) return;
-  // Don't call the ADC until we receive a convertion complete signal.
-
-  v = myADS.getLastConversionResults();
-  str = micros() - t0;
-  str += " ";
-  str += v;
-  Serial.println(str);
-
-  new_data = false;
+  delay(100);
 }
