@@ -12,12 +12,12 @@ enum button
 };
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 12   // GPIO D6
-#define SELECT_BUTTON 13 // GPIO D7
-#define UP_BUTTON 15     // GPIO D8
+#define DOWN_BUTTON 12  // GPIO D3
+#define SELECT_BUTTON 13 // GPIO D1
+#define UP_BUTTON 15     // GPIO D2
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 14 // GPIO D5
+#define BUZZER 14 // GPIO SDD2
 // #define LED_1  //GPIO D4
 
 bool isExecuted = false;
@@ -75,10 +75,9 @@ boolean initializeSDcard()
 }
 
 boolean inizializeRTC(){
-    Serial.print("boh");
     if (!rtc.begin())
     {
-        Serial.println("Errore! Verifica le connesioni!");
+        Serial.println("Error");
         return false;
     }
     else
@@ -88,11 +87,6 @@ boolean inizializeRTC(){
             Serial.println("RTC is NOT running!");
             rtc.adjust(DateTime(__DATE__, __TIME__));
         }
-
-        delay(2000);
-        DateTime now = rtc.now();
-
-        Serial.println(String(now.minute()));
         return true;
     }
 }
@@ -169,7 +163,7 @@ void soundBuzzerSelect()
 // Executive Actions
 void loggerAct()
 {
-    // vuoto
+    loggerGraphic(mode, channel);
 }
 
 void outputModeAct()
