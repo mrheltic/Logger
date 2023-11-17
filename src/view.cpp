@@ -768,9 +768,36 @@ int updateMenu(int menu)
 }
 
 // Submenu graphics
-void loggerGraphic()
+void loggerGraphic(int mode, int channel)
 {
-  // vuoto
+  display.clearDisplay();
+  display.drawBitmap(0, 0, bitmap_logger, 128, 64, WHITE);
+  switch (mode)
+  {
+  case 0:
+    display.drawBitmap(0, 16, bitmap_display, 16, 16, WHITE);
+    break;
+  case 1:
+    display.drawBitmap(0, 16, bitmap_wifi, 16, 16, WHITE);
+    break;
+  case 2:
+    display.drawBitmap(0, 16, bitmap_sd_card, 16, 16, WHITE);
+    break;
+  }
+  switch (channel)
+  {
+  case 0:
+    display.drawBitmap(0, 32, bitmap_volt, 16, 16, WHITE);
+    break;
+  case 1:
+    display.drawBitmap(0, 32, bitmap_ampere, 16, 16, WHITE);
+    break;
+  case 2:
+    display.drawBitmap(0, 32, bitmap_ohm, 16, 16, WHITE);
+    break;
+  }
+
+  display.display();
 }
 void outputModeGraphic(int mode)
 {

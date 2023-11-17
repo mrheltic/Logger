@@ -8,7 +8,7 @@ extern int menu;
 int updateMenu(int menu);
 boolean initializeScreen();
 void updateContextCursor(int position);
-void loggerGraphic();
+void loggerGraphic(int mode, int channel);
 void outputModeGraphic(int mode);
 void inputModeGraphic(int mode);
 void infoGraphic();
