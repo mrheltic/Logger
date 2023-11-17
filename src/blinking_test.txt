@@ -4,14 +4,14 @@ Run this code if you need to test the board, comment the main code and uncomment
 
 */
 
-/*#include <Arduino.h>
+#include <Arduino.h>
 
 #define PIN_LED1 12
 #define PIN_LED2 13
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Hello ESP32C3!!");
+  Serial.println("Hello ESP32!!");
   pinMode(PIN_LED1, OUTPUT);
   pinMode(PIN_LED2, OUTPUT);
 }
@@ -24,4 +24,3 @@ void loop() {
   digitalWrite(PIN_LED1, LOW);
   delay(200);
 }
-*/
