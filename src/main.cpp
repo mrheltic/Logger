@@ -9,7 +9,7 @@
 Adafruit_ADS1115 ads;     /* Use this for the 12-bit version */
 
 // Pin connected to the ALERT/RDY signal for new sample notification.
-constexpr int READY_PIN = 14;
+constexpr int READY_PIN = 35;
 
 // This is required on ESP32 to put the ISR in IRAM. Define as
 // empty for other platforms. Be careful - other platforms may have
@@ -41,7 +41,7 @@ void printValue(int value,int i){
 
 void setup(void)
 {
-  Serial.begin(115200);
+  Serial.begin(250000);
   Serial.println("Hello!");
 
   Serial.println("Getting differential reading from AIN0 (P) and AIN1 (N)");
@@ -103,7 +103,7 @@ void loop(void)
   //valsum=0;
   for (int count=0; count<860;count++){
   sumValue=sumValue+arrayRead[count];
-  Serial.print(arrayRead[count]);
+  Serial.println(arrayRead[count]);
   }
   Serial.print("media: ");
   Serial.println(sumValue/860);
