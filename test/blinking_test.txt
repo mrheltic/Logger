@@ -1,10 +1,9 @@
-/*
 
-Run this code if you need to test the board, comment the main code and uncomment this one
 
-*/
+//Run this code if you need to test the board, copy in the src, changing: main.cpp -> main.txt and this.txt -> this.cpp
 
-/*#include <Arduino.h>
+
+#include <Arduino.h>
 
 #define PIN_LED1 12
 #define PIN_LED2 13
@@ -23,5 +22,5 @@ void loop() {
   digitalWrite(PIN_LED2, HIGH);
   digitalWrite(PIN_LED1, LOW);
   delay(200);
+  Serial.println("Hello ESP32C3!!");
 }
-*/

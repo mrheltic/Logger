@@ -1,0 +1,2 @@
+[env:espwroom32]
+platform = espressif32
