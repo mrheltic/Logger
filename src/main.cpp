@@ -1,10 +1,11 @@
 #include <Arduino.h>
-#include "view.h"
-#include "controller.h"
+#include "../include/view.h"
+#include "../include/controller.h"
 
 // STATE VARIABLES
 int menu = 1;
 boolean stateMenu = 1;
+
 
 // Start submenu loops with controller actions
 void executeAction()
@@ -54,21 +55,11 @@ void executeAction()
 
 void setup()
 {
-  // INITIALIZING SERIAL MONITOR
-  Serial.begin(115200);
-  while (!Serial)
-  {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-
-  Serial.println("Initializing...");
 
   while (!initializeDevices())
   {
-    Serial.println("Initialization failed");
     delay(1000);
   }
-  Serial.println("Devices initialized");
 
   updateMenu(menu);
 }

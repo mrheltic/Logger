@@ -8,6 +8,7 @@
 #include <SD.h>
 
 // Dichiarazione delle funzioni
+void initializeSerial();
 boolean initializeOutputDevices();
 boolean initializeInputDevices();
 boolean ADCinitialize();
@@ -24,4 +25,5 @@ void outputModeAct();
 void inputModeAct();
 void infoAct();
 void sampleSetAct();
+uint16_t adsToStringRate();
 #endif // CONTROLLER_H

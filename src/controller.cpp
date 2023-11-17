@@ -1,24 +1,21 @@
 #include <Arduino.h>
-#include "view.h"
+#include "../include/controller.h"
 #include <Adafruit_ADS1X15.h>
 #include <SD.h>
 #include <RTClib.h>
 
-enum button
-{
-    LEFT,
-    RIGHT,
-    CENTER
-};
-
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 12  // GPIO D3
-#define SELECT_BUTTON 13 // GPIO D1
-#define UP_BUTTON 15     // GPIO D2
+#define DOWN_BUTTON 36  // GPIO D3
+#define SELECT_BUTTON 34 // GPIO D1
+#define UP_BUTTON 39     // GPIO D2
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
 #define BUZZER 14 // GPIO SDD2
 // #define LED_1  //GPIO D4
+
+// DECLARING VARIABLES FOR ADS
+#define ALERT_PIN 35
+
 
 bool isExecuted = false;
 
@@ -27,39 +24,69 @@ Adafruit_ADS1115 ads;
 File file;
 DS1307 rtc;
 
-int dataRateValues[] = {1, 2, 4, 8, 16, 32, 64, 128, 250, 475, 860};
+int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 int channel = 0;
 
 /*la variabile "mode" è provvisoria. Definisce la modalità con cui i dati acquisti vengono stoccati.
 mode = 0 for only display, mode = 1 for wifi or mode = 2 for SD card*/
 int mode = 0;
 
+void initializeSerial(){
+    // INITIALIZING SERIAL MONITOR
+    Serial.begin(115200);
+
+    while (!Serial)
+    {
+        ; // wait for serial port to connect. Needed for native USB port only
+    }
+    
+    Serial.println("Initializing...");
+
+
+}
+
 boolean initializeOutputDevices()
 {
+    Serial.println("Initializing output devices...");
+
     pinMode(BUZZER, OUTPUT);
+
+    Serial.println("Output devices initialized");
+
     return true;
 }
 
 boolean initializeInputDevices()
 {
 
+    Serial.println("Initializing input devices...");
+
     pinMode(UP_BUTTON, INPUT);
     pinMode(SELECT_BUTTON, INPUT);
     pinMode(DOWN_BUTTON, INPUT);
+
+    Serial.println("Input devices initialized");
 
     return true;
 }
 
 boolean ADCinitialize()
 {
+    Serial.println("Initializing ADC...");
+
     ads.begin();
     ads.setDataRate(250);
     ads.setGain(GAIN_TWOTHIRDS);
+
+    Serial.println("ADC initialized");
+
     return true;
 }
 
 boolean initializeSDcard()
 {
+    Serial.println("Initializing SD card...");
+
     if (!SD.begin(15)) // is CS pin in NodemCU
     {
         return false;
@@ -75,6 +102,9 @@ boolean initializeSDcard()
 }
 
 boolean inizializeRTC(){
+
+    Serial.println("Initializing RTC...");
+
     if (!rtc.begin())
     {
         Serial.println("Error");
@@ -93,10 +123,16 @@ boolean inizializeRTC(){
 
 boolean initializeDevices()
 {
+    Serial.println("Initializing devices...");
+
+    initializeSerial();
+
+    Serial.println("Initialized devices!");
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && ADCinitialize() && inizializeRTC();
+           initializeScreen() && ADCinitialize();
+
 }
 
 /*boolean handleButtonPress(button buttonPressed) {
@@ -216,17 +252,23 @@ void infoAct()
     // vuoto
 }
 
+uint16_t adsToStringRate(int value){
+
+    return ("RATE_ADS1115_%dSPS",value);
+
+}
+
 void sampleSetAct()
 {
     int Srate = int(ads.getDataRate());
-    // Serial.print(Srate);
     sampleSetGraphic(Srate);
+    Serial.println(Srate);
 
     if (goDown())
     {
         int i = 0;
         soundBuzzerScroll();
-        for (int j = 0; j < 11; j++)
+        for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == Srate)
                 i = j;
@@ -234,7 +276,7 @@ void sampleSetAct()
         if (i > 0)
         {
             i--;
-            ads.setDataRate(dataRateValues[i]);
+            ads.setDataRate(adsToStringRate(dataRateValues[i]));
         }
         sampleSetSelectorGraphic(0);
     }
@@ -242,16 +284,16 @@ void sampleSetAct()
     {
         int i = 0;
         soundBuzzerScroll();
-        for (int j = 0; j < 11; j++)
+        for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == Srate)
                 i = j;
         }
         Serial.println(goUp());
-        if (i < 10)
+        if (i <  7)
         {
             i++;
-            ads.setDataRate(dataRateValues[i]);
+            ads.setDataRate(adsToStringRate(dataRateValues[i]));
         }
         sampleSetSelectorGraphic(1);
     }
