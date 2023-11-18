@@ -3,6 +3,8 @@
 #include <Adafruit_ADS1X15.h>
 #include <SD.h>
 #include <RTClib.h>
+#include <WiFi.h>
+#include <WebServer.h>
 
 // DECLARING VARIABLES FOR BUTTONS
 #define DOWN_BUTTON 36  // GPIO D3
@@ -16,6 +18,9 @@
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 35
 
+// DECLARING VARIABLES FOR WIFI
+const char* ssid     = "Logger-Access-Point";
+const char* password = "logger1234";
 
 bool isExecuted = false;
 
@@ -119,6 +124,33 @@ boolean inizializeRTC(){
         }
         return true;
     }
+}
+
+
+boolean initializeWifi(){
+
+    Serial.println("Initializing Wifi...");
+
+    // IP Address details
+    IPAddress local_ip(192, 168, 1, 1);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+
+    WebServer server(80);
+
+    WiFi.softAP(ssid, password);
+     WiFi.softAPConfig(local_ip, gateway, subnet);
+
+
+    Serial.print("Connect to My access point: ");
+    Serial.println(ssid);
+
+    //server.on("/", server.send(200, "text/html", HTML));
+
+    server.begin();
+    Serial.println("HTTP server started");
+
+
 }
 
 boolean initializeDevices()

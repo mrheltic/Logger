@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>Logger</title>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .measurement-block {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .measurement-value {
+      font-size: 36px;
+      font-weight: bold;
+      color: #333;
+      padding: 10px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .measurement-value:hover {
+      transform: scale(1.05);
+    }
+
+    .controls-block {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px 0;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 10px; /* Aggiunto per spaziare leggermente i pulsanti */
+    }
+
+    .control-buttons button {
+      width: 40px; /* Impostato per fare pulsanti quadrati */
+      height: 40px; /* Impostato per fare pulsanti quadrati */
+    }
+
+    .options-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .checkbox-group {
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .controls-block {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Aggiunto per gestire il tema notte */
+    .dark-theme {
+      background-color: #333; /* Imposta il colore di sfondo del tema notte */
+      color: #fff; /* Imposta il colore del testo del tema notte */
+    }
+
+    .theme-switch {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .theme-switch button {
+      padding: 8px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .theme-switch button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="measurement-block">
+      <h2>Measurement</h2>
+      <div class="measurement-value" id="measurement-value">
+        <span>0.00</span>
+      </div>
+    </div>
+    
+    <div class="controls-block">
+      <div class="control-buttons">
+        <button onclick="startMeasurement()"><i class="material-icons">play_arrow</i></button>
+        <button onclick="pauseMeasurement()"><i class="material-icons">pause</i></button>
+        <button onclick="stopMeasurement()"><i class="material-icons">stop</i></button>
+      </div>
+      
+      <div class="options-block">
+        <div class="checkbox-group">
+          <input type="checkbox" id="sample" name="sample">
+          <label for="sample">Sample</label>
+          <input type="checkbox" id="timestamp" name="timestamp">
+          <label for="timestamp">Timestamp</label>
+          <label for="selector">Selector:</label>
+          <select id="selector">
+            <option value="value1">Value 1</option>
+            <option value="value2">Value 2</option>
+            <option value="value3">Value 3</option>
+          </select>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="mean" name="mean">
+          <label for="mean">Mean</label>
+          <input type="checkbox" id="std" name="std">
+          <label for="std">Standard Deviation</label>
+          <input type="checkbox" id="time-acquisition" name="time-acquisition">
+          <label for="time-acquisition">Time Acquisition</label>
+        </div>
+        
+        <button onclick="downloadData()">Download</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
