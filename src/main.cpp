@@ -5,6 +5,7 @@
 // STATE VARIABLES
 int menu = 1;
 boolean stateMenu = 1;
+boolean subSetup = 1;
 
 
 // Start submenu loops with controller actions
@@ -36,9 +37,9 @@ void executeAction()
   case 4:
     while (!select() && stateMenu == 0)
     {
-      infoAct();
+      infoAct(subSetup);
     }
-    stateMenu = 1;
+    stateMenu = subSetup = 1;
     break;
   case 5:
     while (!select() && stateMenu == 0)
