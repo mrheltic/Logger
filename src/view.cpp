@@ -793,7 +793,7 @@ void loggerGraphic(int mode, int channel)
     display.drawBitmap(0, 32, bitmap_ampere, 16, 16, WHITE);
     break;
   case 2:
-    display.drawBitmap(0, 32, bitmap_ohm, 16, 16, WHITE);
+    display.drawBitmap(0, 32, bitmap_sd_card, 16, 16, WHITE);
     break;
   }
 
@@ -813,9 +813,35 @@ void inputModeGraphic(int mode)
   updateContextCursor(mode);
   display.display();
 }
-void infoGraphic()
+void infoGraphic(bool WifiState, bool sdState, bool RTCState)
 {
-  // vuoto
+  String wifiStateString = "connected";
+  String SDCardStateString = "detected";
+  String RTCStateString = "initializide";
+  String versionFirmware = "-v2.4.3";
+
+  if (!WifiState)
+    wifiStateString = "NOT " + wifiStateString;
+  if (!sdState)
+    SDCardStateString = "NOT " + SDCardStateString;
+  if (!RTCState)
+    RTCStateString = "NOT " + RTCStateString;
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(1, 2);
+  display.print(F("WiFi "));
+  display.println(wifiStateString);
+  display.setCursor(1, 18);
+  display.print(F("SD "));
+  display.println(SDCardStateString);
+  display.setCursor(1, 34);
+  display.print(F("RTC "));
+  display.println(RTCStateString);
+  display.setCursor(1, 50);
+  display.println(versionFirmware);
+  display.display();
 }
 void sampleSetGraphic(int sample)
 {

@@ -13,7 +13,7 @@ boolean initializeOutputDevices();
 boolean initializeInputDevices();
 boolean ADCinitialize();
 boolean initializeSDcard();
-boolean inizializeRTC();
+boolean initializeRTC();
 boolean initializeDevices();
 boolean goUp();
 boolean goDown();
@@ -23,7 +23,7 @@ void soundBuzzerScroll();
 void loggerAct();
 void outputModeAct();
 void inputModeAct();
-void infoAct();
+void infoAct(boolean subSetup);
 void sampleSetAct();
 uint16_t adsToStringRate();
 #endif // CONTROLLER_H

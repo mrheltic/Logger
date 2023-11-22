@@ -7,12 +7,12 @@
 #include <WebServer.h>
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 36  // GPIO D3
+#define DOWN_BUTTON 39  // GPIO D3
 #define SELECT_BUTTON 34 // GPIO D1
-#define UP_BUTTON 39     // GPIO D2
+#define UP_BUTTON 35     // GPIO D2
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 14 // GPIO SDD2
+#define BUZZER 33 // GPIO SDD2
 // #define LED_1  //GPIO D4
 
 // DECLARING VARIABLES FOR ADS
@@ -106,7 +106,7 @@ boolean initializeSDcard()
     }
 }
 
-boolean inizializeRTC(){
+boolean initializeRTC(){
 
     Serial.println("Initializing RTC...");
 
@@ -279,9 +279,13 @@ void inputModeAct()
     delay(10);
 }
 
-void infoAct()
+void infoAct(boolean subSetup)
 {
-    // vuoto
+    if(subSetup || goUp() || goDown()){
+        infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC());
+        //submenu setup
+        subSetup = 0;
+    }
 }
 
 uint16_t adsToStringRate(int value){
