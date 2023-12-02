@@ -36,6 +36,13 @@ int channel = 0;
 mode = 0 for only display, mode = 1 for wifi or mode = 2 for SD card*/
 int mode = 0;
 
+/**
+ * @brief Initializes the serial monitor.
+ * 
+ * This function initializes the serial monitor with a baud rate of 115200.
+ * It waits for the serial port to connect before proceeding.
+ * It also prints an "Initializing..." message to the serial monitor.
+ */
 void initializeSerial(){
     // INITIALIZING SERIAL MONITOR
     Serial.begin(115200);
@@ -50,6 +57,13 @@ void initializeSerial(){
 
 }
 
+/**
+ * @brief Initializes the output devices.
+ * 
+ * This function initializes the output devices by setting the pinMode of the BUZZER pin to OUTPUT.
+ * 
+ * @return true if the output devices are successfully initialized, false otherwise.
+ */
 boolean initializeOutputDevices()
 {
     Serial.println("Initializing output devices...");
@@ -61,6 +75,13 @@ boolean initializeOutputDevices()
     return true;
 }
 
+/**
+ * @brief Initializes the input devices.
+ * 
+ * This function sets the pin modes for the UP_BUTTON, SELECT_BUTTON, and DOWN_BUTTON pins to INPUT.
+ * 
+ * @return true if the input devices are successfully initialized, false otherwise.
+ */
 boolean initializeInputDevices()
 {
 
@@ -75,6 +96,13 @@ boolean initializeInputDevices()
     return true;
 }
 
+/**
+ * @brief Initializes the ADC.
+ * 
+ * This function initializes the ADC by setting the data rate and gain.
+ * 
+ * @return true if the ADC is successfully initialized, false otherwise.
+ */
 boolean ADCinitialize()
 {
     Serial.println("Initializing ADC...");
@@ -150,9 +178,15 @@ boolean initializeWifi(){
     server.begin();
     Serial.println("HTTP server started");
 
-
+    Serial.println("Wifi initialized");
+    return true;
 }
 
+/**
+ * @brief Initializes the devices required for the correct operation of the logger.
+ * 
+ * @return true if all essential devices are successfully initialized, false otherwise.
+ */
 boolean initializeDevices()
 {
     Serial.println("Initializing devices...");
@@ -191,21 +225,43 @@ boolean initializeDevices()
   }
 } */
 
+/**
+ * @brief Function to check if the UP button is pressed.
+ * 
+ * @return true if the UP button is pressed, false otherwise.
+ */
 boolean goUp()
 {
     return digitalRead(UP_BUTTON);
 }
 
+/**
+ * @brief Checks if the down button is pressed.
+ * 
+ * @return true if the down button is pressed, false otherwise.
+ */
 boolean goDown()
 {
     return digitalRead(DOWN_BUTTON);
 }
 
+/**
+ * @brief Function to check if the select button is pressed.
+ * 
+ * @return true if the select button is pressed, false otherwise.
+ */
 boolean select()
 {
     return digitalRead(SELECT_BUTTON);
 }
 
+/**
+ * @brief Function to sound the buzzer in a scrolling pattern.
+ * 
+ * This function plays a tone on the buzzer for a duration of 1000 milliseconds (1 second),
+ * followed by a delay of 40 milliseconds. Then, the buzzer is turned off using the noTone() function,
+ * followed by a delay of 100 milliseconds.
+ */
 void soundBuzzerScroll()
 {
     tone(BUZZER, 200, 1000);
@@ -217,6 +273,9 @@ void soundBuzzerScroll()
     delay(100);
 }
 
+/**
+ * Function to sound the buzzer with a specific frequency and duration.
+ */
 void soundBuzzerSelect()
 {
     tone(BUZZER, 1000, 300);
@@ -279,6 +338,15 @@ void inputModeAct()
     delay(10);
 }
 
+/**
+ * @brief Performs the information action.
+ * 
+ * This function checks if the subSetup flag is set or if the goUp or goDown functions return true.
+ * If any of these conditions are true, it calls the infoGraphic function with the results of the initializeWifi, initializeSDcard, and initializeRTC functions as arguments.
+ * It also resets the subSetup flag to 0.
+ * 
+ * @param subSetup A boolean flag indicating if the submenu setup is required.
+ */
 void infoAct(boolean subSetup)
 {
     if(subSetup || goUp() || goDown()){
@@ -288,12 +356,23 @@ void infoAct(boolean subSetup)
     }
 }
 
+/**
+ * @brief Converts an integer value to a string representation of the ADS1115 conversion rate.
+ * 
+ * @param value The ADS1115 conversion rate value.
+ * @return The string representation of the ADS1115 conversion rate.
+ */
 uint16_t adsToStringRate(int value){
 
     return ("RATE_ADS1115_%dSPS",value);
 
 }
 
+/**
+ * @brief Sets the sample act.
+ * 
+ * This function is responsible for setting the sample act.
+ */
 void sampleSetAct()
 {
     int Srate = int(ads.getDataRate());

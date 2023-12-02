@@ -699,6 +699,11 @@ const unsigned char bitmap_wifi[] PROGMEM = {
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET); // declaring display object
 
+/**
+ * @brief Initializes the screen.
+ * 
+ * @return true if the screen is successfully initialized, false otherwise.
+ */
 boolean initializeScreen()
 {
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
@@ -711,6 +716,11 @@ boolean initializeScreen()
   return true;
 }
 
+/**
+ * @brief Updates the context cursor position on the display.
+ * 
+ * @param position The position of the cursor. Valid values are 0, 1, and 2.
+ */
 void updateContextCursor(int position)
 {
   switch (position)
@@ -729,6 +739,12 @@ void updateContextCursor(int position)
   }
 }
 
+/**
+ * @brief Updates the menu with the specified value.
+ *
+ * @param menu The value to update the menu with.
+ * @return The updated menu value.
+ */
 int updateMenu(int menu)
 {
   // display.display();
@@ -768,6 +784,12 @@ int updateMenu(int menu)
 }
 
 // Submenu graphics
+/**
+ * @brief Displays the logger graphic based on the specified mode and channel.
+ * 
+ * @param mode The mode of the logger.
+ * @param channel The channel of the logger.
+ */
 void loggerGraphic(int mode, int channel)
 {
   display.clearDisplay();
@@ -799,6 +821,11 @@ void loggerGraphic(int mode, int channel)
 
   display.display();
 }
+/**
+ * @brief Outputs the graphic mode based on the given mode.
+ * 
+ * @param mode The mode to be displayed.
+ */
 void outputModeGraphic(int mode)
 {
   display.clearDisplay();
@@ -806,6 +833,11 @@ void outputModeGraphic(int mode)
   updateContextCursor(mode);
   display.display();
 }
+/**
+ * Sets the input mode for the graphic display.
+ *
+ * @param mode The input mode to be set.
+ */
 void inputModeGraphic(int mode)
 {
   display.clearDisplay();
@@ -813,6 +845,13 @@ void inputModeGraphic(int mode)
   updateContextCursor(mode);
   display.display();
 }
+/**
+ * @brief Displays an information graphic based on the state of various components.
+ * 
+ * @param WifiState The state of the WiFi component.
+ * @param sdState The state of the SD card component.
+ * @param RTCState The state of the RTC (Real-Time Clock) component.
+ */
 void infoGraphic(bool WifiState, bool sdState, bool RTCState)
 {
   String wifiStateString = "connected";
@@ -843,6 +882,13 @@ void infoGraphic(bool WifiState, bool sdState, bool RTCState)
   display.println(versionFirmware);
   display.display();
 }
+/**
+ * @brief Sets the graphic for the given sample.
+ *
+ * This function sets the graphic representation for the specified sample.
+ *
+ * @param sample The sample number.
+ */
 void sampleSetGraphic(int sample)
 {
   display.clearDisplay();
@@ -853,6 +899,11 @@ void sampleSetGraphic(int sample)
   display.print(sample);
   display.display();
 }
+/**
+ * @brief Controls the graphic representation of the sample set selector.
+ * 
+ * @param arrowup Indicates whether the arrow should point up or down.
+ */
 void sampleSetSelectorGraphic(boolean arrowup)
 {
   display.clearDisplay();

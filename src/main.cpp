@@ -7,8 +7,12 @@ int menu = 1;
 boolean stateMenu = 1;
 boolean subSetup = 1;
 
-
 // Start submenu loops with controller actions
+/**
+ * Executes the selected action based on the value of the 'menu' variable.
+ * The action is determined by the value of 'menu' and includes options like loggerAct, outputModeAct, inputModeAct, infoAct, and sampleSetAct.
+ * After executing the action, it updates the menu and sounds the buzzer.
+ */
 void executeAction()
 {
   switch (menu)
@@ -45,7 +49,7 @@ void executeAction()
     while (!select() && stateMenu == 0)
     {
       sampleSetAct();
-      //Serial.println("oi");
+      // Serial.println("oi");
     }
     stateMenu = 1;
     break;
@@ -54,6 +58,9 @@ void executeAction()
   updateMenu(menu);
 }
 
+/**
+ * @brief Initializes the devices and updates the menu.
+ */
 void setup()
 {
 
