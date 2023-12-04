@@ -8,3 +8,4 @@
 .pio/libdeps
 .pio/build
 .vscode/*
+.vscode/settings.json
