@@ -62,6 +62,8 @@ void setup(void)
 
   ads.setDataRate(RATE_ADS1115_860SPS);
 
+  Serial.println("Starting...");
+
   if (!ads.begin()) {
     Serial.println("Failed to initialize ADS.");
     while (1);
@@ -73,6 +75,8 @@ void setup(void)
 
   // Start continuous conversions.
   ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
+
+  Serial.println("Started continuous conversion mode.");
 }
 
 void loop(void)
@@ -101,10 +105,7 @@ void loop(void)
   //Serial.print("media: ");
   //Serial.println(valsum/ads.getDataRate());
   //valsum=0;
-  for (int count=0; count<860;count++){
-  sumValue=sumValue+arrayRead[count];
-  Serial.println(arrayRead[count]);
-  }
+  Serial.write((const uint8_t*)arrayRead, sizeof(arrayRead));  
   Serial.print("media: ");
   Serial.println(sumValue/860);
   Serial.println(stringValue);
