@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <Arduino.h>
+#include <math.h>
 
 class Measurement {
 private:
@@ -19,12 +19,12 @@ public:
   void insertMeasurement(int value);
   void calculateMean();
   void calculateStd();
-  void clearMeasurements();
-  void setTimestamp(unsigned long ts);
+  void reset();
+  void setTimestamp(unsigned long timestamp);
   float getMean();
   float getStd();
-  unsigned long getTimestamp();
   int* getMeasurements();
+  boolean isArrayFull();
 };
 
 #endif

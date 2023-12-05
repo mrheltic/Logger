@@ -1,3 +1,5 @@
+#include <math.h>
+
 class Measurement
 {
 private:
@@ -67,23 +69,17 @@ public:
             measurements[count] = value;
             count++;
         }
-        if (isArrayFull)
-        {
-            calculateMean();
-            calculateStd();
-        }
     }
 
-    void clearMeasurements()
+    void reset()
     {
+        delete[] measurements;
+        measurements = nullptr;
+        length = 0;
         count = 0;
         mean = 0.0;
         std = 0.0;
-    }
-
-    void setTimestamp(unsigned long ts)
-    {
-        timestamp = ts;
+        timestamp = 0;
     }
 
     float getMean()
