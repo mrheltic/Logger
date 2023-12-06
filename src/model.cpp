@@ -76,20 +76,14 @@ bool Measurement::isArrayFull()
     return count == length;
 }
 
-    void insertMeasurement(int value)
+void Measurement::insertMeasurement(int value)
+{
+    if (count < length)
     {
-        if (count < length)
-        {
-            measurements[count] = value;
-            count++;
-        }
-
-        if (count == length)
-        {
-            calculateMean();
-            calculateStd();
-        }
+        measurements[count] = value;
+        count++;
     }
+}
 
 void Measurement::reset()
 {

@@ -1,11 +1,6 @@
 #include <Arduino.h>
 #include "../include/controller.h"
 #include "../include/model.h"
-<<<<<<< HEAD
-#ifndef "../include/model.h"
-=======
-
->>>>>>> 1a310a1a96a2e4ad51c34c3a49fa8a9ca00cc12a
 #include <SD.h>
 #include <RTClib.h>
 #include <WiFi.h>
@@ -376,7 +371,7 @@ void adcStartConversion()
     ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true); //TODO changing mode according to channel
 }
 
-void adcReadData(boolean subSetup)
+void adcReadData()
 {
     Measurement measurement(ads.getDataRate());
     int i = 0;
@@ -400,6 +395,11 @@ void adcReadData(boolean subSetup)
             measurement.calculateStd();
             // measurement.setTimestamp(); //TODO Implement this after RTC fixes
             measurement.reset();
+
+            Serial.print("Mean: ");
+            Serial.println(measurement.getMean());
+            Serial.print("Std: ");
+            Serial.println(measurement.getStd());
 
             i = 0;
         }
@@ -433,7 +433,7 @@ void infoAct(boolean subSetup)
 {
     if (subSetup || goUp() || goDown())
     {
-        infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC());
+        //infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC()); //TODO fix methods
         // submenu setup
         subSetup = 0;
     }
