@@ -20,7 +20,7 @@ boolean goDown();
 boolean select();
 void soundBuzzerSelect();
 void soundBuzzerScroll();
-void loggerAct();
+void loggerAct(boolean subSetup);
 void outputModeAct();
 void inputModeAct();
 void infoAct(boolean subSetup);

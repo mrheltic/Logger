@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "../include/controller.h"
 #include "../include/model.h"
+#ifndef "../include/model.h"
 #include <SD.h>
 #include <RTClib.h>
 #include <WiFi.h>
@@ -42,7 +43,7 @@ bool isExecuted = false;
 File file;
 DS1307 rtc;
 
-int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
+int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860}; 
 int channel = 0;
 
 Adafruit_ADS1115 ads;
@@ -220,14 +221,15 @@ boolean initializeDevices()
 
 /**
  * @brief Function to check if the device should go up.
- * 
+ *
  * This function checks if the UP_BUTTON is pressed or if the character 'u' is received from Serial.
- * 
+ *
  * @return true if the device should go up, false otherwise.
  */
 boolean goUp()
 {
-    if (Serial.available() > 0) {
+    if (Serial.available() > 0)
+    {
         char ch = Serial.read();
         return (digitalRead(UP_BUTTON) || ch == 'u');
     }
@@ -236,15 +238,16 @@ boolean goUp()
 
 /**
  * @brief Function to check if the device should go down.
- * 
- * This function checks if there is data available on the Serial port. If there is, it reads the data and checks if it is equal to 'd'. 
+ *
+ * This function checks if there is data available on the Serial port. If there is, it reads the data and checks if it is equal to 'd'.
  * If the DOWN_BUTTON is pressed or the data is equal to 'd', it returns true. Otherwise, it returns false.
- * 
+ *
  * @return true if the device should go down, false otherwise.
  */
 boolean goDown()
 {
-    if (Serial.available() > 0) {
+    if (Serial.available() > 0)
+    {
         char ch = Serial.read();
         return (digitalRead(DOWN_BUTTON) || ch == 'd');
     }
@@ -253,12 +256,13 @@ boolean goDown()
 
 /**
  * @brief Checks if the select button is pressed or if there is data available on the Serial port.
- * 
+ *
  * @return true if the select button is pressed or if there is data available on the Serial port, false otherwise.
  */
 boolean select()
 {
-    if (Serial.available() > 0) {
+    if (Serial.available() > 0)
+    {
         char ch = Serial.read();
         return (digitalRead(SELECT_BUTTON) || ch == 's');
     }
@@ -357,11 +361,10 @@ void adcStartConversion()
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
 
     // Start continuous conversions.
-    ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
-
+    ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true); //TODO changing mode according to channel
 }
 
-void adcReadData()
+void adcReadData(boolean subSetup)
 {
     Measurement measurement(ads.getDataRate());
     int i = 0;
@@ -378,7 +381,6 @@ void adcReadData()
 
         new_data = false;
 
-
         if (measurement.isArrayFull())
         {
             // Serial.write((const uint8_t*)m.getMeasurements(), dataRate); //TODO verify this
@@ -387,7 +389,7 @@ void adcReadData()
             // measurement.setTimestamp(); //TODO Implement this after RTC fixes
             measurement.reset();
 
-            i=0;
+            i = 0;
         }
 
         i++;
@@ -395,89 +397,91 @@ void adcReadData()
 }
 
 // Executive Actions
-void loggerAct()
+void loggerAct(boolean subSetup)
 {
-    loggerGraphic(mode, channel);
+    if(subSetup){
+       adcStartConversion();
+       subSetup = false;
+    }
 
-    adcStartConversion();
-
+    loggerGraphic(mode, channel); //TODO add parameters function (clock and measurement)
     adcReadData();
 }
 
-    /**
-     * @brief Performs the information action.
-     *
-     * This function checks if the subSetup flag is set or if the goUp or goDown functions return true.
-     * If any of these conditions are true, it calls the infoGraphic function with the results of the initializeWifi, initializeSDcard, and initializeRTC functions as arguments.
-     * It also resets the subSetup flag to 0.
-     *
-     * @param subSetup A boolean flag indicating if the submenu setup is required.
-     */
-    void infoAct(boolean subSetup)
+/**
+ * @brief Performs the information action.
+ *
+ * This function checks if the subSetup flag is set or if the goUp or goDown functions return true.
+ * If any of these conditions are true, it calls the infoGraphic function with the results of the initializeWifi, initializeSDcard, and initializeRTC functions as arguments.
+ * It also resets the subSetup flag to 0.
+ *
+ * @param subSetup A boolean flag indicating if the submenu setup is required.
+ */
+void infoAct(boolean subSetup)
+{
+    if (subSetup || goUp() || goDown())
     {
-        if (subSetup || goUp() || goDown())
-        {
-            infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC());
-            // submenu setup
-            subSetup = 0;
-        }
+        infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC());
+        // submenu setup
+        subSetup = 0;
     }
+}
 
-    /**
-     * @brief Converts an integer value to a string representation of the ADS1115 conversion rate.
-     *
-     * @param value The ADS1115 conversion rate value.
-     * @return The string representation of the ADS1115 conversion rate.
-     */
-    uint16_t adsToStringRate(int value)
+/**
+ * @brief Converts an integer value to a string representation of the ADS1115 conversion rate.
+ *
+ * @param value The ADS1115 conversion rate value.
+ * @return The string representation of the ADS1115 conversion rate.
+ */
+uint16_t adsToStringRate(int value)
+{
+
+    return ("RATE_ADS1115_%dSPS", value);
+}
+
+/**
+ * @brief Sets the sample act.
+ *
+ * This function is responsible for setting the sample act.
+ */
+void sampleSetAct()
+{
+    int Srate = int(ads.getDataRate()); // TODO fix after changing model
+    sampleSetGraphic(Srate);
+    Serial.println(Srate);
+
+    if (goDown())
     {
-
-        return ("RATE_ADS1115_%dSPS", value);
+        int i = 0;
+        soundBuzzerScroll();
+        for (int j = 0; j < 8; j++)
+        {
+            if (dataRateValues[j] == Srate)
+                i = j;
+        }
+        if (i > 0)
+        {
+            i--;
+            ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
+        }
+        sampleSetSelectorGraphic(0);
     }
-
-    /**
-     * @brief Sets the sample act.
-     *
-     * This function is responsible for setting the sample act.
-     */
-    void sampleSetAct()
+    if (goUp())
     {
-        int Srate = int(ads.getDataRate()); // TODO fix after changing model
-        sampleSetGraphic(Srate);
-        Serial.println(Srate);
-
-        if (goDown())
+        int i = 0;
+        soundBuzzerScroll();
+        for (int j = 0; j < 8; j++)
         {
-            int i = 0;
-            soundBuzzerScroll();
-            for (int j = 0; j < 8; j++)
-            {
-                if (dataRateValues[j] == Srate)
-                    i = j;
-            }
-            if (i > 0)
-            {
-                i--;
-                ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
-            }
-            sampleSetSelectorGraphic(0);
+            if (dataRateValues[j] == Srate)
+                i = j;
         }
-        if (goUp())
+        Serial.println(goUp());
+        if (i < 7)
         {
-            int i = 0;
-            soundBuzzerScroll();
-            for (int j = 0; j < 8; j++)
-            {
-                if (dataRateValues[j] == Srate)
-                    i = j;
-            }
-            Serial.println(goUp());
-            if (i < 7)
-            {
-                i++;
-                ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
-            }
-            sampleSetSelectorGraphic(1);
+            i++;
+            ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
         }
-        delay(10);
+        sampleSetSelectorGraphic(1);
     }
+    delay(10);
+}

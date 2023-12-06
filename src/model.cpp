@@ -69,6 +69,12 @@ public:
             measurements[count] = value;
             count++;
         }
+
+        if (count == length)
+        {
+            calculateMean();
+            calculateStd();
+        }
     }
 
     void reset()
