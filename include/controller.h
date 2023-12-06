@@ -6,6 +6,7 @@
 #include "view.h"
 #include <Adafruit_ADS1X15.h>
 #include <SD.h>
+#include "model.h"
 
 // Dichiarazione delle funzioni
 void initializeSerial();
