@@ -11,94 +11,107 @@ private:
     unsigned long timestamp; // Timestamp della prima misurazione
 
 public:
-    Measurement(int len)
-    {
-        length = len;
-        measurements = new int[length];
-        count = 0;
-        mean = 0.0;
-        std = 0.0;
-        timestamp = 0;
-    }
-
-    ~Measurement()
-    {
-        delete[] measurements;
-    }
-
-    void setLength(int len)
-    {
-        delete[] measurements;
-        length = len;
-        measurements = new int[length];
-        count = 0;
-        mean = 0.0;
-        std = 0.0;
-        timestamp = 0;
-    }
-
-    void calculateMean()
-    {
-        int sum = 0;
-        for (int i = 0; i < length; i++)
-        {
-            sum += measurements[i];
-        }
-        mean = static_cast<float>(sum) / length;
-    }
-
-    void calculateStd()
-    {
-        float sum = 0.0;
-        for (int i = 0; i < length; i++)
-        {
-            sum += pow(measurements[i] - mean, 2);
-        }
-        std = sqrt(sum / length);
-    }
-
-    bool isArrayFull()
-    {
-        return count == length;
-    }
-
-    void insertMeasurement(int value)
-    {
-        if (count < length)
-        {
-            measurements[count] = value;
-            count++;
-        }
-    }
-
-    void reset()
-    {
-        delete[] measurements;
-        measurements = nullptr;
-        length = 0;
-        count = 0;
-        mean = 0.0;
-        std = 0.0;
-        timestamp = 0;
-    }
-
-    float getMean()
-    {
-        return mean;
-    }
-
-    float getStd()
-    {
-        return std;
-    }
-
-    int *getMeasurements()
-    {
-        return measurements;
-    }
-
-    void setTimestamp(unsigned long timestamp)
-    {
-        this->timestamp = timestamp;
-    }
+    Measurement(int len);
+    ~Measurement();
+    void setLength(int len);
+    void insertMeasurement(int value);
+    void calculateMean();
+    void calculateStd();
+    void reset();
+    void setTimestamp(unsigned long timestamp);
+    float getMean();
+    float getStd();
+    int *getMeasurements();
+    bool isArrayFull();
 };
+
+Measurement::Measurement(int len)
+{
+    length = len;
+    measurements = new int[length];
+    count = 0;
+    mean = 0.0;
+    std = 0.0;
+    timestamp = 0;
+}
+
+Measurement::~Measurement()
+{
+    delete[] measurements;
+}
+
+void Measurement::setLength(int len)
+{
+    delete[] measurements;
+    length = len;
+    measurements = new int[length];
+    count = 0;
+    mean = 0.0;
+    std = 0.0;
+    timestamp = 0;
+}
+
+void Measurement::calculateMean()
+{
+    int sum = 0;
+    for (int i = 0; i < length; i++)
+    {
+        sum += measurements[i];
+    }
+    mean = static_cast<float>(sum) / length;
+}
+
+void Measurement::calculateStd()
+{
+    float sum = 0.0;
+    for (int i = 0; i < length; i++)
+    {
+        sum += pow(measurements[i] - mean, 2);
+    }
+    std = sqrt(sum / length);
+}
+
+bool Measurement::isArrayFull()
+{
+    return count == length;
+}
+
+void Measurement::insertMeasurement(int value)
+{
+    if (count < length)
+    {
+        measurements[count] = value;
+        count++;
+    }
+}
+
+void Measurement::reset()
+{
+    delete[] measurements;
+    measurements = nullptr;
+    length = 0;
+    count = 0;
+    mean = 0.0;
+    std = 0.0;
+    timestamp = 0;
+}
+
+float Measurement::getMean()
+{
+    return mean;
+}
+
+float Measurement::getStd()
+{
+    return std;
+}
+
+int *Measurement::getMeasurements()
+{
+    return this->measurements;
+}
+
+void Measurement::setTimestamp(unsigned long timestamp)
+{
+    this->timestamp = timestamp;
+}

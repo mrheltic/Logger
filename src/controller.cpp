@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "../include/controller.h"
 #include "../include/model.h"
+
 #include <SD.h>
 #include <RTClib.h>
 #include <WiFi.h>
@@ -176,6 +177,14 @@ boolean initializeWifi()
     return true;
 }
 
+boolean initializeADC() //TODO finish function
+{
+    Serial.println("Initializing ADC...");
+
+    Serial.println("ADC initialized");
+    return true;
+}
+
 /**
  * @brief Initializes the devices required for the correct operation of the logger.
  *
@@ -191,7 +200,7 @@ boolean initializeDevices()
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && ADCinitialize();
+           initializeScreen() && initializeADC();
 }
 
 /*boolean handleButtonPress(button buttonPressed) {
