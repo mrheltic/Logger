@@ -294,6 +294,9 @@ void soundBuzzerSelect()
     delay(250);
 }
 
+/**
+ * @brief This function handles the output mode activation.
+ */
 void outputModeAct()
 {
     /*Attention, before selecting the data storage method, it is necessary to verify and Initialization of devices*/
@@ -314,6 +317,7 @@ void outputModeAct()
             currentMode = WIFI_ONLY;
             Serial.println("WIFI_ONLY");
         }
+        break;
     case DISPLAY_ONLY:
 
         if (goDown())
@@ -355,6 +359,14 @@ void outputModeAct()
     delay(10);
 }
 
+/**
+ * @brief Performs the action for the input mode.
+ * 
+ * This function is responsible for handling the input mode action.
+ * It performs the necessary operations based on the current input mode.
+ * 
+ * @return void
+ */
 void inputModeAct()
 {
     inputModeGraphic(currentChannel);
@@ -416,19 +428,31 @@ void inputModeAct()
     delay(10);
 }
 
-void setChannel(CHANNEL channel)
+/**
+ * Sets the channel for ADC readings.
+ * 
+ * The function starts ADC reading based on the current channel value.
+ * If the current channel is VOLTAGE, it starts ADC reading for single-ended channel 0.
+ * If the current channel is CURRENT, it starts ADC reading for differential channel 2-3.
+ * If the current channel is RESISTANCE, it starts ADC reading for single-ended channel 1.
+ * If the current channel is none of the above, it prints an error message.
+ * 
+ * @return void
+ */
+void setChannel()
 {
 
-    if (channel == VOLTAGE)
+    if (currentChannel == VOLTAGE)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
 
-    if (channel == CURRENT)
-        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_2, true); // TODO change to differential
+    if (currentChannel == CURRENT)
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
 
-    if (channel == RESISTANCE)
-        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
+    if (currentChannel == RESISTANCE)
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_1, true);
 
     else
+
     {
         Serial.println("Error selecting channel");
     }
@@ -465,10 +489,9 @@ uint16_t adsToStringRate(int value)
     return ("RATE_ADS1115_%dSPS", value);
 }
 
+
 /**
  * @brief Sets the sample act.
- *
- * This function is responsible for setting the sample act and saving in a global variable the current sample rate.
  */
 void sampleSetAct()
 {
@@ -512,13 +535,12 @@ void sampleSetAct()
     delay(10);
 }
 
+
 /**
- * @brief Starts the ADC conversion and attaches an interrupt to handle new data ready event.
- *
- * This function starts the ADC conversion by configuring the ADC multiplexer and initiating the conversion.
- * It also attaches an interrupt to the specified pin to handle the new data ready event.
- *
- * @note The interrupt handler function NewDataReadyISR() must be defined separately.
+ * @brief Sets up the ADC (Analog-to-Digital Converter).
+ * 
+ * This function initializes the ADC module and configures its settings.
+ * It prepares the ADC for reading analog values from sensors or other sources.
  */
 void adcSetup()
 // TODO pass the conversion value to labview<
@@ -527,7 +549,7 @@ void adcSetup()
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
     ads.setDataRate(currentSampleRate);
     measurement.setLength(currentSampleRate);
-    setChannel(currentChannel);
+    setChannel();
 
     // Start continuous conversions.
 }
