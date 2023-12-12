@@ -8,6 +8,26 @@
 #include <SD.h>
 #include "model.h"
 
+// Dichiazione enum
+enum MODE
+{
+    DISPLAY_ONLY=1,
+    SD_ONLY=0,
+    WIFI_ONLY=2
+};
+
+enum CHANNEL
+{
+    VOLTAGE=0,
+    CURRENT=1,
+    RESISTANCE=2
+};
+
+// Dichiarazione delle variabili globali
+extern MODE currentMode;
+extern CHANNEL currentChannel;
+extern uint16_t currentSampleRate;
+
 // Dichiarazione delle funzioni
 void initializeSerial();
 boolean initializeOutputDevices();
@@ -27,4 +47,6 @@ void inputModeAct();
 void infoAct(boolean subSetup);
 void sampleSetAct();
 uint16_t adsToStringRate();
+void adcSetup();
+void setChannel(CHANNEL channel);
 #endif // CONTROLLER_H

@@ -5,6 +5,7 @@
 #include <RTClib.h>
 #include <WiFi.h>
 #include <WebServer.h>
+#include <Adafruit_ADS1X15.h>
 
 // DECLARING VARIABLES FOR BUTTONS
 #define DOWN_BUTTON 39   // GPIO D3
@@ -17,6 +18,22 @@
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 35
+
+int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
+
+// DECLARING VARIABLES FOR MODE AND CHANNEL
+MODE mode = DISPLAY_ONLY;
+CHANNEL channel = VOLTAGE;
+
+MODE currentMode = DISPLAY_ONLY;
+CHANNEL currentChannel = VOLTAGE;
+uint16_t currentSampleRate = 8;
+
+unsigned long time_now = 0;
+unsigned long time_old = 0;
+int count = 0;
+
+Measurement measurement(128);
 
 /**
  * @brief Indicates whether new data is available.
@@ -42,14 +59,7 @@ bool isExecuted = false;
 File file;
 DS1307 rtc;
 
-int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860}; 
-int channel = 0;
-
 Adafruit_ADS1115 ads;
-
-/*la variabile "mode" è provvisoria. Definisce la modalità con cui i dati acquisti vengono stoccati.
-mode = 0 for only display, mode = 1 for wifi or mode = 2 for SD card*/
-int mode = 0;
 
 /**
  * @brief Initializes the serial monitor.
@@ -176,7 +186,7 @@ boolean initializeWifi()
     return true;
 }
 
-boolean initializeADC() //TODO finish function
+boolean initializeADC() // TODO finish function
 {
     Serial.println("Initializing ADC...");
 
@@ -201,30 +211,6 @@ boolean initializeDevices()
            initializeInputDevices() &&
            initializeScreen() && initializeADC();
 }
-
-/*boolean handleButtonPress(button buttonPressed) {
-
-  switch (buttonPressed) {
-
-    case RIGHT:
-
-        return digitalRead(RIGHT_BUTTON);
-
-    case CENTER:
-
-        return digitalRead(RIGHT_BUTTON);
-
-    case LEFT:
-
-        return digitalRead(LEFT_BUTTON);
-
-    default:
-
-        Serial.println("Unknown button pressed");
-        return false;
-        break;
-  }
-} */
 
 /**
  * @brief Function to check if the device should go up.
@@ -311,113 +297,141 @@ void soundBuzzerSelect()
 void outputModeAct()
 {
     /*Attention, before selecting the data storage method, it is necessary to verify and Initialization of devices*/
-    outputModeGraphic(mode);
-    if (goDown())
+    outputModeGraphic(currentMode);
+    switch (currentMode)
     {
-        soundBuzzerScroll();
-        if (mode == 0)
-            mode = 1;
-        else if (mode == 2)
-            mode = 0;
+    case SD_ONLY:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentMode = DISPLAY_ONLY;
+            Serial.println("DISPLAY_ONLY");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentMode = WIFI_ONLY;
+            Serial.println("WIFI_ONLY");
+        }
+    case DISPLAY_ONLY:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentMode = WIFI_ONLY;
+            Serial.println("WIFI_ONLY");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentMode = SD_ONLY;
+            Serial.println("SD_ONLY");
+        }
+        break;
+
+    case WIFI_ONLY:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentMode = SD_ONLY;
+            Serial.println("SD_ONLY");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentMode = DISPLAY_ONLY;
+            Serial.println("DISPLAY_ONLY");
+        }
+        break;
+
+    default:
+
+        Serial.println("Error selecting channel");
+        break;
     }
-    if (goUp())
-    {
-        soundBuzzerScroll();
-        if (mode == 0)
-            mode = 2;
-        else if (mode == 1)
-            mode = 0;
-    }
+
     delay(10);
 }
 
 void inputModeAct()
 {
-    inputModeGraphic(channel);
-    if (goDown())
+    inputModeGraphic(currentChannel);
+    switch (currentChannel)
     {
-        soundBuzzerScroll();
-        if (channel == 0)
-            channel = 1;
-        else if (channel == 2)
-            channel = 0;
-    }
-    if (goUp())
-    {
-        soundBuzzerScroll();
-        if (channel == 0)
-            channel = 2;
-        else if (channel == 1)
-            channel = 0;
+    case VOLTAGE:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentChannel = CURRENT;
+            Serial.println("Current");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentChannel = RESISTANCE;
+            Serial.println("Resistance");
+        }
+        break;
+
+    case CURRENT:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentChannel = RESISTANCE;
+            Serial.println("Resistance");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentChannel = VOLTAGE;
+            Serial.println("Voltage");
+        }
+        break;
+
+    case RESISTANCE:
+
+        if (goDown())
+        {
+            soundBuzzerScroll();
+            currentChannel = VOLTAGE;
+            Serial.println("Voltage");
+        }
+        if (goUp())
+        {
+            soundBuzzerScroll();
+            currentChannel = CURRENT;
+            Serial.println("Current");
+        }
+        break;
+
+    default:
+
+        Serial.println("Error selecting channel");
+        break;
     }
     delay(10);
 }
 
-/**
- * @brief Starts the ADC conversion and attaches an interrupt to handle new data ready event.
- *
- * This function starts the ADC conversion by configuring the ADC multiplexer and initiating the conversion.
- * It also attaches an interrupt to the specified pin to handle the new data ready event.
- *
- * @note The interrupt handler function NewDataReadyISR() must be defined separately.
- */
-void adcStartConversion()
+void setChannel(CHANNEL channel)
 {
 
-    // We get a falling edge every time a new sample is ready.
-    attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
+    if (channel == VOLTAGE)
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
 
-    // Start continuous conversions.
-    ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true); //TODO changing mode according to channel
-}
+    if (channel == CURRENT)
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_2, true); // TODO change to differential
 
-void adcReadData()
-{
-    Measurement measurement(ads.getDataRate());
-    int i = 0;
+    if (channel == RESISTANCE)
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
 
-    while (true)
+    else
     {
-
-        if (!new_data)
-        {
-            return;
-        }
-
-        measurement.insertMeasurement(ads.getLastConversionResults());
-
-        new_data = false;
-
-        if (measurement.isArrayFull())
-        {
-            // Serial.write((const uint8_t*)m.getMeasurements(), dataRate); //TODO verify this
-            measurement.calculateMean();
-            measurement.calculateStd();
-            // measurement.setTimestamp(); //TODO Implement this after RTC fixes
-            measurement.reset();
-
-            Serial.print("Mean: ");
-            Serial.println(measurement.getMean());
-            Serial.print("Std: ");
-            Serial.println(measurement.getStd());
-
-            i = 0;
-        }
-
-        i++;
+        Serial.println("Error selecting channel");
     }
-}
-
-// Executive Actions
-void loggerAct(boolean subSetup)
-{
-    if(subSetup){
-       adcStartConversion();
-       subSetup = false;
-    }
-
-    loggerGraphic(mode, channel); //TODO add parameters function (clock and measurement)
-    adcReadData();
 }
 
 /**
@@ -433,8 +447,8 @@ void infoAct(boolean subSetup)
 {
     if (subSetup || goUp() || goDown())
     {
-        //infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC()); //TODO fix methods
-        // submenu setup
+        // infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC()); //TODO fix methods
+        //  submenu setup
         subSetup = 0;
     }
 }
@@ -454,7 +468,7 @@ uint16_t adsToStringRate(int value)
 /**
  * @brief Sets the sample act.
  *
- * This function is responsible for setting the sample act.
+ * This function is responsible for setting the sample act and saving in a global variable the current sample rate.
  */
 void sampleSetAct()
 {
@@ -474,7 +488,7 @@ void sampleSetAct()
         if (i > 0)
         {
             i--;
-            ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
+            currentSampleRate = adsToStringRate(dataRateValues[i]);
         }
         sampleSetSelectorGraphic(0);
     }
@@ -491,9 +505,68 @@ void sampleSetAct()
         if (i < 7)
         {
             i++;
-            ads.setDataRate(adsToStringRate(dataRateValues[i])); // TODO fix after changing model
+            currentSampleRate = adsToStringRate(dataRateValues[i]);
         }
         sampleSetSelectorGraphic(1);
     }
     delay(10);
+}
+
+/**
+ * @brief Starts the ADC conversion and attaches an interrupt to handle new data ready event.
+ *
+ * This function starts the ADC conversion by configuring the ADC multiplexer and initiating the conversion.
+ * It also attaches an interrupt to the specified pin to handle the new data ready event.
+ *
+ * @note The interrupt handler function NewDataReadyISR() must be defined separately.
+ */
+void adcSetup()
+// TODO pass the conversion value to labview<
+{
+    // We get a falling edge every time a new sample is ready.
+    attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
+    ads.setDataRate(currentSampleRate);
+    measurement.setLength(currentSampleRate);
+    setChannel(currentChannel);
+
+    // Start continuous conversions.
+}
+
+// Executive Actions
+void loggerAct(boolean subSetup)
+{
+    // loggerGraphic(mode, channel); // TODO add parameters function (clock and measurement)
+    if (!new_data)
+    {
+        return;
+    }
+
+    measurement.insertMeasurement(ads.getLastConversionResults());
+
+    new_data = false;
+
+    count++;
+
+    if (measurement.isArrayFull())
+    {
+        measurement.calculateMean();
+        measurement.calculateStd();
+        measurement.reset();
+    }
+
+    // Serial.println("Ciao_______________________________");
+    time_now = millis();
+    Serial.print("ci ho messo: ");
+    Serial.println(time_now - time_old);
+    time_old = time_now;
+
+    Serial.println();
+
+    // Serial.print("media: ");
+    // Serial.println(valsum/ads.getDataRate());
+    // valsum=0;
+    for (int count = 0; count < 860; count++)
+    {
+        Serial.println(measurement.getMeasurements()[count]);
+    }
 }

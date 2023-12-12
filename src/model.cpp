@@ -115,3 +115,4 @@ void Measurement::setTimestamp(unsigned long timestamp)
 {
     this->timestamp = timestamp;
 }
+

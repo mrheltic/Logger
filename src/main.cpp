@@ -20,9 +20,10 @@ void executeAction()
   case 1:
     while (!select() && stateMenu == 0)
     {
+      adcSetup();
       loggerAct(subSetup);
     }
-    stateMenu = subSetup = 1;
+    stateMenu =  1;
     break;
   case 2:
     while (!select() && stateMenu == 0)
