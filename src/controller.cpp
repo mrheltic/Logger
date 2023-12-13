@@ -547,48 +547,26 @@ void adcSetup()
 {
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
+
+    // Initialize the ADC module.
     ads.setDataRate(currentSampleRate);
+    
     measurement.setLength(currentSampleRate);
+    measurement.reset();
+
     setChannel();
+
+
+
+    Serial.println("ADC initialized");
+
 
     // Start continuous conversions.
 }
 
 // Executive Actions
-void loggerAct(boolean subSetup)
+void loggerAct()
 {
-    // loggerGraphic(mode, channel); // TODO add parameters function (clock and measurement)
-    if (!new_data)
-    {
-        return;
-    }
 
-    measurement.insertMeasurement(ads.getLastConversionResults());
-
-    new_data = false;
-
-    count++;
-
-    if (measurement.isArrayFull())
-    {
-        measurement.calculateMean();
-        measurement.calculateStd();
-        measurement.reset();
-    }
-
-    // Serial.println("Ciao_______________________________");
-    time_now = millis();
-    Serial.print("ci ho messo: ");
-    Serial.println(time_now - time_old);
-    time_old = time_now;
-
-    Serial.println();
-
-    // Serial.print("media: ");
-    // Serial.println(valsum/ads.getDataRate());
-    // valsum=0;
-    for (int count = 0; count < 860; count++)
-    {
-        Serial.println(measurement.getMeasurements()[count]);
-    }
+    Serial.println("Logger act");
 }

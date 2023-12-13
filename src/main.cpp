@@ -21,7 +21,7 @@ void executeAction()
     while (!select() && stateMenu == 0)
     {
       adcSetup();
-      loggerAct(subSetup);
+      loggerAct();
     }
     stateMenu =  1;
     break;
