@@ -41,7 +41,7 @@ boolean goDown();
 boolean select();
 void soundBuzzerSelect();
 void soundBuzzerScroll();
-void loggerAct(boolean subSetup);
+void loggerAct();
 void outputModeAct();
 void inputModeAct();
 void infoAct(boolean subSetup);
