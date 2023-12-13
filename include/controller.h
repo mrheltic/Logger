@@ -11,9 +11,9 @@
 // Dichiazione enum
 enum MODE
 {
-    DISPLAY_ONLY=1,
-    SD_ONLY=0,
-    WIFI_ONLY=2
+    DISPLAY_ONLY=0,
+    SD_ONLY=2,
+    WIFI_ONLY=1
 };
 
 enum CHANNEL

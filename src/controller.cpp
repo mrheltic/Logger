@@ -314,6 +314,7 @@ void outputModeAct()
         if (goUp())
         {
             soundBuzzerScroll();
+
             currentMode = WIFI_ONLY;
             Serial.println("WIFI_ONLY");
         }
@@ -495,9 +496,8 @@ uint16_t adsToStringRate(int value)
  */
 void sampleSetAct()
 {
-    int Srate = int(ads.getDataRate()); // TODO fix after changing model
-    sampleSetGraphic(Srate);
-    Serial.println(Srate);
+    sampleSetGraphic(currentSampleRate);
+    Serial.println(currentSampleRate);
 
     if (goDown())
     {
@@ -505,7 +505,7 @@ void sampleSetAct()
         soundBuzzerScroll();
         for (int j = 0; j < 8; j++)
         {
-            if (dataRateValues[j] == Srate)
+            if (dataRateValues[j] == currentSampleRate)
                 i = j;
         }
         if (i > 0)
@@ -521,7 +521,7 @@ void sampleSetAct()
         soundBuzzerScroll();
         for (int j = 0; j < 8; j++)
         {
-            if (dataRateValues[j] == Srate)
+            if (dataRateValues[j] == currentSampleRate)
                 i = j;
         }
         Serial.println(goUp());
