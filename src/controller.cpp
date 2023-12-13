@@ -17,7 +17,7 @@
 // #define LED_1  //GPIO D4
 
 // DECLARING VARIABLES FOR ADS
-#define ALERT_PIN 35
+#define ALERT_PIN 32
 
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
@@ -191,6 +191,9 @@ boolean initializeADC() // TODO finish function
     Serial.println("Initializing ADC...");
 
     Serial.println("ADC initialized");
+
+    ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+
     return true;
 }
 
@@ -362,10 +365,10 @@ void outputModeAct()
 
 /**
  * @brief Performs the action for the input mode.
- * 
+ *
  * This function is responsible for handling the input mode action.
  * It performs the necessary operations based on the current input mode.
- * 
+ *
  * @return void
  */
 void inputModeAct()
@@ -431,29 +434,39 @@ void inputModeAct()
 
 /**
  * Sets the channel for ADC readings.
- * 
+ *
  * The function starts ADC reading based on the current channel value.
  * If the current channel is VOLTAGE, it starts ADC reading for single-ended channel 0.
  * If the current channel is CURRENT, it starts ADC reading for differential channel 2-3.
  * If the current channel is RESISTANCE, it starts ADC reading for single-ended channel 1.
  * If the current channel is none of the above, it prints an error message.
- * 
+ *
  * @return void
  */
 void setChannel()
 {
+    Serial.println("Entrato nel set channel");
 
     if (currentChannel == VOLTAGE)
+    {
+        Serial.println("Voltage prima");
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
+        Serial.println("Voltage dopo");
+    }
 
-    if (currentChannel == CURRENT)
+    else if (currentChannel == CURRENT)
+    {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
+        Serial.println("Current");
+    }
 
-    if (currentChannel == RESISTANCE)
-        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_1, true);
+    else if (currentChannel == RESISTANCE)
+    {
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
+        Serial.println("Resistance");
+    }
 
     else
-
     {
         Serial.println("Error selecting channel");
     }
@@ -489,7 +502,6 @@ uint16_t adsToStringRate(int value)
 
     return ("RATE_ADS1115_%dSPS", value);
 }
-
 
 /**
  * @brief Sets the sample act.
@@ -535,31 +547,39 @@ void sampleSetAct()
     delay(10);
 }
 
-
 /**
  * @brief Sets up the ADC (Analog-to-Digital Converter).
- * 
+ *
  * This function initializes the ADC module and configures its settings.
  * It prepares the ADC for reading analog values from sensors or other sources.
  */
 void adcSetup()
 // TODO pass the conversion value to labview<
 {
+    Serial.println("Entra???");
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
+    Serial.println("Interrupt attached");
 
     // Initialize the ADC module.
     ads.setDataRate(currentSampleRate);
-    
+    Serial.println("Data rate set");
+
     measurement.setLength(currentSampleRate);
+    Serial.println("Length set");
+
     measurement.reset();
+    Serial.println("Measurement reset");
+
+    if (!ads.begin())
+    {
+        Serial.println("Failed to initialize ADS.");
+        while (1)
+            ;
+    }
 
     setChannel();
-
-
-
-    Serial.println("ADC initialized");
-
+    Serial.println("Channel set");
 
     // Start continuous conversions.
 }
@@ -567,6 +587,25 @@ void adcSetup()
 // Executive Actions
 void loggerAct()
 {
+ 
+    if (!new_data)
+    {
+        return;
+    }
 
-    Serial.println("Logger act");
+    Serial.println(measurement.isArrayFull());
+
+    if(measurement.isArrayFull()) {
+        Serial.println("Raggiunto limite");
+        Serial.println(measurement.getMean());
+        Serial.println(measurement.getStd());
+        measurement.reset();
+    }
+    else{
+        measurement.insertMeasurement(ads.getLastConversionResults());
+        Serial.println("Misura inserita");
+    }
+
+    new_data = false;
+
 }

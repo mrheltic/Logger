@@ -18,9 +18,9 @@ void executeAction()
   switch (menu)
   {
   case 1:
+    adcSetup();
     while (!select() && stateMenu == 0)
     {
-      adcSetup();
       loggerAct();
     }
     stateMenu =  1;

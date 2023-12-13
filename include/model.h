@@ -16,14 +16,14 @@ public:
   Measurement(int len);
   ~Measurement();
   void setLength(int len);
-  void insertMeasurement(int value);
+  void insertMeasurement(uint16_t value);
   void calculateMean();
   void calculateStd();
   void reset();
   void setTimestamp(unsigned long timestamp);
   float getMean();
   float getStd();
-  int* getMeasurements();
+  uint16_t* getMeasurements();
   boolean isArrayFull();
 };
 
