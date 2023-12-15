@@ -2,10 +2,11 @@
 #include "../include/controller.h"
 #include "../include/model.h"
 #include <SD.h>
-#include <RTClib.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Adafruit_ADS1X15.h>
+#include "../include/libraries/Rtc-2.4.2/src/RtcDS1302.h"
+
 
 // DECLARING VARIABLES FOR BUTTONS
 #define DOWN_BUTTON 39   // GPIO D3
@@ -57,9 +58,9 @@ const char *password = "logger1234";
 bool isExecuted = false;
 
 File file;
-DS1307 rtc;
 
 Adafruit_ADS1115 ads;
+
 
 /**
  * @brief Initializes the serial monitor.
@@ -140,23 +141,7 @@ boolean initializeSDcard()
 
 boolean initializeRTC()
 {
-
-    Serial.println("Initializing RTC...");
-
-    if (!rtc.begin())
-    {
-        Serial.println("Error");
-        return false;
-    }
-    else
-    {
-        if (!rtc.isrunning())
-        {
-            Serial.println("RTC is NOT running!");
-            rtc.adjust(DateTime(__DATE__, __TIME__));
-        }
-        return true;
-    }
+return true;
 }
 
 boolean initializeWifi()
@@ -592,6 +577,8 @@ void loggerAct()
     {
         return;
     }
+
+    Serial.println(ads.getLastConversionResults());
 
     Serial.println(measurement.isArrayFull());
 
