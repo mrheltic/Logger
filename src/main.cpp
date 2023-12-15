@@ -11,7 +11,6 @@ private:
   float mean;              // Media
   float std;               // Deviazione standard
   unsigned long timestamp; // Timestamp della prima misurazione
-  float totalsum = 0;          // Somma totale delle misurazioni
 
 public:
   Measurement(int len)
@@ -42,7 +41,12 @@ public:
 
   void calculateMean()
   {
-    mean = static_cast<float>(totalsum) / length;
+    int sum = 0;
+    for (int i = 0; i < length; i++)
+    {
+      sum += measurements[i];
+    }
+    mean = static_cast<float>(sum) / length;
   }
 
   void calculateStd()
@@ -66,13 +70,11 @@ public:
     {
       measurements[count] = value;
       count++;
-      totalsum += value;
     }
     if (isArrayFull())
     {
       calculateMean();
       calculateStd();
-      totalsum = 0;
     }
   }
 
@@ -119,11 +121,12 @@ void loop()
 
   m.insertMeasurement(random(0, 1024));
   i++;
+  delay(1);
 
   if (m.isArrayFull())
   {
-    //Serial.println("Mean: " + String(m.getMean()));
-    //Serial.println("Std: " + String(m.getStd()));
+    Serial.println("Mean: " + String(m.getMean()));
+    Serial.println("Std: " + String(m.getStd()));
     Serial.write((const uint8_t*)m.getMeasurements(), 860);
 
     i = 0;
