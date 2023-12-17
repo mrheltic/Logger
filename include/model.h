@@ -12,20 +12,24 @@ private:
   float mean; // Media
   float std; // Deviazione standard
   unsigned long timestamp; // Timestamp dell'ultima misurazione
+  boolean arrayFull;
   
 public:
   Measurement(int len);
   ~Measurement();
   void setLength(int len);
-  void insertMeasurement(uint16_t value);
+  void insertMeasurement(int value);
   void calculateMean();
   void calculateStd();
   void reset();
   void setTimestamp(unsigned long timestamp);
   float getMean();
   float getStd();
-  uint16_t* getMeasurements();
+  int* getMeasurements();
   boolean isArrayFull();
+  int getLength();
+  void setArrayFull(boolean arrayFull);
+  int getArrayLenght();
 };
 
 #endif

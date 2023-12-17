@@ -49,8 +49,6 @@ int count = 0;
 
 Measurement measurement(8);
 
-uint16_t *test;
-
 /**
  * @brief Indicates whether new data is available.
  */
@@ -88,7 +86,7 @@ Adafruit_ADS1115 ads;
 void initializeSerial()
 {
     // INITIALIZING SERIAL MONITOR
-    Serial.begin(115200);
+    Serial.begin(250000);
 
     while (!Serial)
     {
@@ -611,12 +609,14 @@ void adcSetup()
             ;
     }
 
-    measurement.reset();
-
-    Serial.println("Sample rate: " + String(currentSampleRate) + "SPS\n"));
+    Serial.println("Sample rate: " + String(currentSampleRate) + "SPS\n");
 
     setChannel();
     Serial.println("Channel setting done!\n");
+
+    measurement.setLength(currentSampleRate);
+
+    Serial.println("Array length: " + String(measurement.getLength()) + "\n");
 
     Serial.println("\n\n\n\n-----------------------------");
 
@@ -628,39 +628,31 @@ void adcSetup()
 // Executive Actions
 void loggerAct()
 {
-    /*
+    
     if (!new_data)
     {
         return;
     }
 
 
-    Serial.println(ads.getLastConversionResults());
-
-    if (measurement.isArrayFull())
+    if(!measurement.isArrayFull())
     {
-        Serial.println("Raggiunto limite");
-        Serial.println(measurement.measurements[0]);
-        Serial.println(measurement.measurements[1]);
-        Serial.println(measurement.measurements[2]);
-        Serial.println(measurement.measurements[3]);
-        Serial.println(measurement.measurements[4]);
-        Serial.println(measurement.measurements[5]);
-        Serial.println(measurement.measurements[6]);
-        Serial.println(measurement.measurements[7]);
-        Serial.println(measurement.getMean());
-        //Serial.println(measurement.getMean());
-        //Serial.println(measurement.getStd());
-        measurement.reset();
+        Serial.println(ads.getLastConversionResults());
+        measurement.insertMeasurement(ads.getLastConversionResults());
+        Serial.println("Inserted measurement");
     }
     else
     {
-        measurement.insertMeasurement(ads.getLastConversionResults());
-        Serial.println("Misura inserita");
+        Serial.println("Mean: " + String(measurement.getMean()));
+        Serial.println("Std: " + String(measurement.getStd()));
+        Serial.println("Array full, resetted");
+        Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+        measurement.setArrayFull(false);
+        loggerGraphic(currentMode, currentChannel, getTimeStamp());
     }
 
     new_data = false;
-    */
+    
 
     /*
      static uint8_t last_second = 0;
@@ -695,7 +687,4 @@ void loggerAct()
          Serial.println();
      }
      */
-
-    loggerGraphic(currentMode, currentChannel, getTimeStamp());
-    delay(100);
 }

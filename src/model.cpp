@@ -4,32 +4,36 @@
 class Measurement
 {
 private:
-    uint16_t *measurements;       // Array delle misurazioni
+    int *measurements;       // Array delle misurazioni
     int length;              // Lunghezza dell'array
     int count;               // Numero di elementi attualmente presenti nell'array
     float mean;              // Media
     float std;               // Deviazione standard
     unsigned long timestamp; // Timestamp della prima misurazione
+    bool arrayFull;
 
 public:
     Measurement(int len);
     ~Measurement();
     void setLength(int len);
-    void insertMeasurement(uint16_t value);
+    void insertMeasurement(int value);
     void calculateMean();
     void calculateStd();
     void reset();
     void setTimestamp(unsigned long timestamp);
     float getMean();
     float getStd();
-    uint16_t *getMeasurements();
+    int *getMeasurements();
     bool isArrayFull();
+    int getLength();
+    void setArrayFull(bool arrayFull);
+    int getArrayLenght();
 };
 
 Measurement::Measurement(int len)
 {
     length = len;
-    measurements = new uint16_t[length];
+    measurements = new int[length];
     count = 0;
     mean = 0.0;
     std = 0.0;
@@ -45,7 +49,7 @@ void Measurement::setLength(int len)
 {
     delete[] measurements;
     length = len;
-    measurements = new uint16_t[length];
+    measurements = new int[length];
     count = 0;
     mean = 0.0;
     std = 0.0;
@@ -74,17 +78,18 @@ void Measurement::calculateStd()
 
 bool Measurement::isArrayFull()
 {
-    return count == length;
+    return arrayFull;
 }
 
-void Measurement::insertMeasurement(uint16_t value)
+void Measurement::insertMeasurement(int value)
 {
     measurements[count] = value;
     count++;
 
-    if(isArrayFull())
+    if(count == length)
     {
         count = 0;
+        arrayFull = true;
         calculateMean();
         calculateStd();
     }
@@ -92,13 +97,12 @@ void Measurement::insertMeasurement(uint16_t value)
 
 void Measurement::reset()
 {
-    delete[] measurements;
-    measurements = nullptr;
     length = 0;
     count = 0;
     mean = 0.0;
     std = 0.0;
     timestamp = 0;
+    arrayFull = false;
 }
 
 float Measurement::getMean()
@@ -111,7 +115,7 @@ float Measurement::getStd()
     return std;
 }
 
-uint16_t *Measurement::getMeasurements()
+int *Measurement::getMeasurements()
 {
     return this->measurements;
 }
@@ -121,3 +125,16 @@ void Measurement::setTimestamp(unsigned long timestamp)
     this->timestamp = timestamp;
 }
 
+int Measurement::getLength()
+{
+    return length;
+}
+
+void Measurement::setArrayFull(bool arrayFull)
+{
+    this->arrayFull = arrayFull;
+}
+
+int Measurement::getArrayLenght(){
+    return sizeof(measurements)/sizeof(measurements[0]);
+}
