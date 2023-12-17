@@ -595,7 +595,7 @@ void adcSetup()
 // TODO pass the conversion value to labview<
 {
     Serial.println("\n\n\n\n-----------------------------");
-    Serial.println("ENTERED IN ADC SETUP");
+    Serial.println("ENTERED IN ADC SETUP\n\n\n\n");
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
     Serial.println("Interrupt attached (falling edge for new data ready)))");
@@ -613,11 +613,12 @@ void adcSetup()
 
     measurement.reset();
 
-    Serial.println("Sample rate");
-    Serial.println(currentSampleRate);
+    Serial.println("Sample rate: " + String(currentSampleRate) + "SPS\n"));
 
     setChannel();
     Serial.println("Channel setting done!\n");
+
+    Serial.println("\n\n\n\n-----------------------------");
 
     // Start continuous conversions.
 
