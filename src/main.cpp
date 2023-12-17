@@ -1,3 +1,13 @@
+/***************************************************
+ *  Logger
+ *
+ * Contributors:
+ * - Vincenzo Pio Florio
+ * - Francesco Stasi
+ * - Davide Tonti
+ *
+ ***************************************************/
+
 #include <Arduino.h>
 #include "../include/view.h"
 #include "../include/controller.h"

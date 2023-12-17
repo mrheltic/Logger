@@ -94,8 +94,16 @@ void initializeSerial()
     {
         ; // wait for serial port to connect. Needed for native USB port only
     }
-
-    Serial.println("Initializing...");
+      // Print contributors
+    Serial.println("-------------------------------");
+    Serial.print("Logger\n");
+    Serial.println("-------------------------------");
+    Serial.println("Contributors:");
+    Serial.println("- Vincenzo Pio Florio");
+    Serial.println("- Francesco Stasi");
+    Serial.println("- Davide Tonti");
+    Serial.println("-------------------------------\n");
+    Serial.println("Initializing...\n");
 }
 
 /**
@@ -113,7 +121,7 @@ boolean initializeOutputDevices()
 
     pinMode(BUZZER, OUTPUT);
 
-    Serial.println("Output devices initialized");
+    Serial.println("Output devices initialized\n");
 
     return true;
 }
@@ -134,14 +142,14 @@ boolean initializeInputDevices()
     pinMode(SELECT_BUTTON, INPUT);
     pinMode(DOWN_BUTTON, INPUT);
 
-    Serial.println("Input devices initialized");
+    Serial.println("Input devices initialized\n");
 
     return true;
 }
 
 boolean initializeSDcard()
 {
-    Serial.println("Initializing SD card...");
+    Serial.println("Initializing SD card...\n");
 
     if (!SD.begin(5)) // is CS pin in ESP32!!!
     {
@@ -190,7 +198,7 @@ boolean initializeWifi()
     server.begin();
     Serial.println("HTTP server started");
 
-    Serial.println("Wifi initialized");
+    Serial.println("Wifi initialized\n");
     return true;
 }
 
@@ -216,7 +224,7 @@ boolean initializeDevices()
 
     initializeSerial();
 
-    Serial.println("Initialized devices!");
+    Serial.println("Initialized devices!\n");
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
@@ -340,14 +348,14 @@ void outputModeAct()
         {
             soundBuzzerScroll();
             currentMode = DISPLAY_ONLY;
-            Serial.println("DISPLAY_ONLY");
+            Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
         if (goUp())
         {
             soundBuzzerScroll();
 
             currentMode = WIFI_ONLY;
-            Serial.println("WIFI_ONLY");
+            Serial.println("Mode selected: WIFI_ONLY\n");
         }
         break;
     case DISPLAY_ONLY:
@@ -356,13 +364,13 @@ void outputModeAct()
         {
             soundBuzzerScroll();
             currentMode = WIFI_ONLY;
-            Serial.println("WIFI_ONLY");
+            Serial.println("Mode selected: WIFI_ONLY\n");
         }
         if (goUp()) //Check on sd card
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
-            Serial.println("SD_ONLY");
+            Serial.println("Mode selected: SD_ONLY\n");
         }
         break;
 
@@ -372,19 +380,20 @@ void outputModeAct()
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
-            Serial.println("SD_ONLY");
+            Serial.println("Mode selected: SD_ONLY\n");
         }
         if (goUp())
         {
             soundBuzzerScroll();
             currentMode = DISPLAY_ONLY;
-            Serial.println("DISPLAY_ONLY");
+            Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
         break;
 
     default:
-
-        Serial.println("Error selecting channel");
+        Serial.println("\n\n\n\n-----------------------------");
+        Serial.println("Error selecting channel\n");
+        Serial.println("\n\n\n\n-----------------------------");
         break;
     }
 
@@ -410,13 +419,13 @@ void inputModeAct()
         {
             soundBuzzerScroll();
             currentChannel = CURRENT;
-            Serial.println("Current");
+            Serial.println("Input selected: CURRENT\n");
         }
         if (goUp())
         {
             soundBuzzerScroll();
             currentChannel = RESISTANCE;
-            Serial.println("Resistance");
+            Serial.println("Input selected: RESISTANCE\n");
         }
         break;
 
@@ -426,13 +435,13 @@ void inputModeAct()
         {
             soundBuzzerScroll();
             currentChannel = RESISTANCE;
-            Serial.println("Resistance");
+            Serial.println("Input selected: RESISTANCE\n");
         }
         if (goUp())
         {
             soundBuzzerScroll();
             currentChannel = VOLTAGE;
-            Serial.println("Voltage");
+            Serial.println("Input selected: VOLTAGE\n");
         }
         break;
 
@@ -442,19 +451,20 @@ void inputModeAct()
         {
             soundBuzzerScroll();
             currentChannel = VOLTAGE;
-            Serial.println("Voltage");
+            Serial.println("Input selected: VOLTAGE\n");
         }
         if (goUp())
         {
             soundBuzzerScroll();
             currentChannel = CURRENT;
-            Serial.println("Current");
+            Serial.println("Input selected: CURRENT\n");
         }
         break;
 
     default:
-
+        Serial.println("\n\n\n\n-----------------------------");
         Serial.println("Error selecting channel");
+        Serial.println("\n\n\n\n-----------------------------");
         break;
     }
     delay(10);
@@ -473,30 +483,29 @@ void inputModeAct()
  */
 void setChannel()
 {
-    Serial.println("Entrato nel set channel");
-
     if (currentChannel == VOLTAGE)
     {
-        Serial.println("Voltage prima");
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
-        Serial.println("Voltage dopo");
+        Serial.println("Reading channel A0\n")
     }
 
     else if (currentChannel == CURRENT)
     {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
-        Serial.println("Current");
+        Serial.println("Reading channel A2-A3\n")
     }
 
     else if (currentChannel == RESISTANCE)
     {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
-        Serial.println("Resistance");
+        Serial.println("Reading channel A1\n")
     }
 
     else
     {
+        Serial.println("\n\n\n\n-----------------------------");
         Serial.println("Error selecting channel");
+        Serial.println("\n\n\n\n-----------------------------");
     }
 }
 
@@ -537,7 +546,6 @@ uint16_t adsToStringRate(int value)
 void sampleSetAct()
 {
     sampleSetGraphic(currentSampleRate);
-    Serial.println(currentSampleRate);
 
     if (goDown())
     {
@@ -554,6 +562,7 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(0);
+        Serial.println("Selected sample rate: " + currentSampleRate + "\n");
     }
     if (goUp())
     {
@@ -571,6 +580,7 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(1);
+        Serial.println("Selected sample rate: " + currentSampleRate + "\n");
     }
     delay(10);
 }
@@ -584,16 +594,15 @@ void sampleSetAct()
 void adcSetup()
 // TODO pass the conversion value to labview<
 {
-    Serial.println("Entra???");
+    Serial.println("\n\n\n\n-----------------------------");
+    Serial.println("ENTERED IN ADC SETUP");
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
-    Serial.println("Interrupt attached");
+    Serial.println("Interrupt attached (falling edge for new data ready)))");
 
     // Initialize the ADC module.
     ads.setDataRate(adsToStringRate(currentSampleRate));
-    Serial.println("Data rate set");
-
-    Serial.println("Length set");
+    Serial.println("Sample rate setting done!\n");
 
     if (!ads.begin())
     {
@@ -608,7 +617,7 @@ void adcSetup()
     Serial.println(currentSampleRate);
 
     setChannel();
-    Serial.println("Channel set");
+    Serial.println("Channel setting done!\n");
 
     // Start continuous conversions.
 
