@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Adafruit_ADS1X15.h>
+#include <Adafruit_BusIO_Register.h>
 #include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
@@ -29,6 +30,7 @@ const static char *WeekDays[] =
         "Saturday",
         "Sunday"};
 
+
 // DECLARING VARIABLES FOR OUTPUT DEVICES
 #define BUZZER 23 
 
@@ -48,6 +50,10 @@ unsigned long time_old = 0;
 int count = 0;
 
 Measurement measurement(8);
+
+#ifndef IRAM_ATTR
+#define IRAM_ATTR
+#endif
 
 /**
  * @brief Indicates whether new data is available.
@@ -618,6 +624,7 @@ void adcSetup()
 
     Serial.println("Array length: " + String(measurement.getLength()) + "\n");
 
+
     Serial.println("\n\n\n\n-----------------------------");
 
     // Start continuous conversions.
@@ -637,7 +644,7 @@ void loggerAct()
 
     if(!measurement.isArrayFull())
     {
-        Serial.println(ads.getLastConversionResults());
+        //Serial.println(ads.getLastConversionResults());
         measurement.insertMeasurement(ads.getLastConversionResults());
         Serial.println("Inserted measurement");
     }
@@ -652,6 +659,7 @@ void loggerAct()
     }
 
     new_data = false;
+    delay(1);
     
 
     /*
