@@ -3,14 +3,15 @@
 #define VIEW_H
 
 #include <Adafruit_SSD1306.h>
+#include "controller.h"
 
 extern int menu;
 int updateMenu(int menu);
 boolean initializeScreen();
 void updateContextCursor(int position);
-void loggerGraphic(int mode, int channel);
+void loggerGraphic(int mode, int channel, String currentTime);
 void outputModeGraphic(int mode);
-void inputModeGraphic(int mode);
+void inputModeGraphic(int channel);
 void infoGraphic(bool WifiState, bool sdState, bool RTCState);
 void sampleSetGraphic(int sample);
 void sampleSetSelectorGraphic(boolean arrowup);
