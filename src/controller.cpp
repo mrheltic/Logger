@@ -5,13 +5,28 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Adafruit_ADS1X15.h>
-#include "../include/libraries/Rtc-2.4.2/src/RtcDS1302.h"
-
+#include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
 #define DOWN_BUTTON 39   // GPIO D3
 #define SELECT_BUTTON 34 // GPIO D1
 #define UP_BUTTON 35     // GPIO D2
+
+// DECLARING VARIABLES FOR RTC
+#define PIN_ENA 14
+#define PIN_CLK 26
+#define PIN_DAT 27
+Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
+
+const static char *WeekDays[] =
+    {
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"};
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
 #define BUZZER 33 // GPIO SDD2
@@ -60,7 +75,6 @@ bool isExecuted = false;
 File file;
 
 Adafruit_ADS1115 ads;
-
 
 /**
  * @brief Initializes the serial monitor.
@@ -125,15 +139,19 @@ boolean initializeSDcard()
 {
     Serial.println("Initializing SD card...");
 
-    if (!SD.begin(15)) // is CS pin in NodemCU
+    if (!SD.begin(5)) // is CS pin in ESP32!!!
     {
         return false;
     }
     else
     {
-        if (SD.exists("LOG_ads.txt"))
+        /*Serial.println("Creating example.txt...");
+        myFile = SD.open("example.txt", FILE_WRITE);
+        myFile.close();*/
+
+        if (SD.exists("example.txt"))
         {
-            SD.remove("LOG_ads.txt");
+            SD.remove("example.txt");
         }
         return true;
     }
@@ -141,7 +159,8 @@ boolean initializeSDcard()
 
 boolean initializeRTC()
 {
-return true;
+    rtc.init();
+    return true;
 }
 
 boolean initializeWifi()
@@ -197,7 +216,7 @@ boolean initializeDevices()
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && initializeADC();
+           initializeScreen() && initializeADC() && initializeRTC();
 }
 
 /**
@@ -282,6 +301,26 @@ void soundBuzzerSelect()
     delay(250);
 }
 
+String getTimeStamp()
+{
+
+    Ds1302::DateTime now;
+    rtc.getDateTime(&now);
+
+    String currentTime = "";
+    if (now.hour < 10)
+        currentTime = currentTime + "0";
+    currentTime = currentTime + now.hour + ":"; // 00-23
+    if (now.minute < 10)
+        currentTime = currentTime + "0";
+    currentTime = currentTime + now.minute + ":"; // 00-59
+    if (now.second < 10)
+        currentTime = currentTime + "0";
+    currentTime = currentTime + now.second; // 00-59
+
+    return currentTime;
+}
+
 /**
  * @brief This function handles the output mode activation.
  */
@@ -315,7 +354,7 @@ void outputModeAct()
             currentMode = WIFI_ONLY;
             Serial.println("WIFI_ONLY");
         }
-        if (goUp())
+        if (goUp() && initializeSDcard()) //Check on sd card
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
@@ -325,7 +364,7 @@ void outputModeAct()
 
     case WIFI_ONLY:
 
-        if (goDown())
+        if (goDown() && initializeSDcard())
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
@@ -567,12 +606,14 @@ void adcSetup()
     Serial.println("Channel set");
 
     // Start continuous conversions.
+
+    loggerGraphic(mode, channel, getTimeStamp());
 }
 
 // Executive Actions
 void loggerAct()
 {
- 
+    /*
     if (!new_data)
     {
         return;
@@ -582,17 +623,56 @@ void loggerAct()
 
     Serial.println(measurement.isArrayFull());
 
-    if(measurement.isArrayFull()) {
+    if (measurement.isArrayFull())
+    {
         Serial.println("Raggiunto limite");
         Serial.println(measurement.getMean());
         Serial.println(measurement.getStd());
         measurement.reset();
     }
-    else{
+    else
+    {
         measurement.insertMeasurement(ads.getLastConversionResults());
         Serial.println("Misura inserita");
     }
 
     new_data = false;
+    */
 
+    /*
+     static uint8_t last_second = 0;
+     if (last_second != now.second)
+     {
+         last_second = now.second;
+
+         Serial.print("20");
+         Serial.print(now.year); // 00-99
+         Serial.print('-');
+         if (now.month < 10)
+             Serial.print('0');
+         Serial.print(now.month); // 01-12
+         Serial.print('-');
+         if (now.day < 10)
+             Serial.print('0');
+         Serial.print(now.day); // 01-31
+         Serial.print(' ');
+         Serial.print(WeekDays[now.dow - 1]); // 1-7
+         Serial.print(' ');
+         if (now.hour < 10)
+             Serial.print('0');
+         Serial.print(now.hour); // 00-23
+         Serial.print(':');
+         if (now.minute < 10)
+             Serial.print('0');
+         Serial.print(now.minute); // 00-59
+         Serial.print(':');
+         if (now.second < 10)
+             Serial.print('0');
+         Serial.print(now.second); // 00-59
+         Serial.println();
+     }
+     */
+
+    loggerGraphic(mode, channel, getTimeStamp());
+    delay(100);
 }

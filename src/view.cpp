@@ -790,7 +790,7 @@ int updateMenu(int menu)
  * @param mode The mode of the logger.
  * @param channel The channel of the logger.
  */
-void loggerGraphic(int mode, int channel)
+void loggerGraphic(int mode, int channel, String currentTime)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_logger, 128, 64, WHITE);
@@ -819,6 +819,11 @@ void loggerGraphic(int mode, int channel)
     break;
   }
 
+  display.setCursor(0,0);
+  display.setTextSize(1); 
+  display.setTextColor(WHITE); 
+  display.setCursor(24,54); 
+  display.println(currentTime);
   display.display();
 }
 /**
