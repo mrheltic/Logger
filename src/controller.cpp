@@ -1,22 +1,23 @@
 #include <Arduino.h>
 #include "../include/controller.h"
 #include "../include/model.h"
+#include "../include/view.h"
 #include <SD.h>
+#include <FS.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Adafruit_ADS1X15.h>
 #include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 39   // GPIO D3
-#define SELECT_BUTTON 34 // GPIO D1
-#define UP_BUTTON 35     // GPIO D2
+#define DOWN_BUTTON 39   
+#define SELECT_BUTTON 34 
+#define UP_BUTTON 35     
 
 // DECLARING VARIABLES FOR RTC
 #define PIN_ENA 14
 #define PIN_CLK 26
 #define PIN_DAT 27
-Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
 const static char *WeekDays[] =
     {
@@ -29,8 +30,7 @@ const static char *WeekDays[] =
         "Sunday"};
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 33 // GPIO SDD2
-// #define LED_1  //GPIO D4
+#define BUZZER 23 
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 32
@@ -38,11 +38,9 @@ const static char *WeekDays[] =
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL
-MODE mode = DISPLAY_ONLY;
-CHANNEL channel = VOLTAGE;
-
 MODE currentMode = DISPLAY_ONLY;
 CHANNEL currentChannel = VOLTAGE;
+
 uint16_t currentSampleRate = 8;
 
 unsigned long time_now = 0;
@@ -74,6 +72,8 @@ bool isExecuted = false;
 
 File file;
 
+Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT); 
+
 Adafruit_ADS1115 ads;
 
 /**
@@ -103,6 +103,8 @@ void initializeSerial()
  *
  * @return true if the output devices are successfully initialized, false otherwise.
  */
+
+
 boolean initializeOutputDevices()
 {
     Serial.println("Initializing output devices...");
@@ -354,7 +356,7 @@ void outputModeAct()
             currentMode = WIFI_ONLY;
             Serial.println("WIFI_ONLY");
         }
-        if (goUp() && initializeSDcard()) //Check on sd card
+        if (goUp()) //Check on sd card
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
@@ -364,7 +366,7 @@ void outputModeAct()
 
     case WIFI_ONLY:
 
-        if (goDown() && initializeSDcard())
+        if (goDown())
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
@@ -607,7 +609,7 @@ void adcSetup()
 
     // Start continuous conversions.
 
-    loggerGraphic(mode, channel, getTimeStamp());
+    loggerGraphic(currentMode, currentChannel, getTimeStamp());
 }
 
 // Executive Actions
@@ -673,6 +675,6 @@ void loggerAct()
      }
      */
 
-    loggerGraphic(mode, channel, getTimeStamp());
+    loggerGraphic(currentMode, currentChannel, getTimeStamp());
     delay(100);
 }

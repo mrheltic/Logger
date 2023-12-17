@@ -2,8 +2,8 @@
 #include <Adafruit_GFX.h>
 #include <Wire.h>
 
-#include "view.h"
-#include "controller.h"
+#include "../include/controller.h"
+#include "../include/view.h"
 
 #define OLED_RESET -1 // probably, shares the RST with ESP32
 
@@ -815,7 +815,7 @@ void loggerGraphic(int mode, int channel, String currentTime)
     display.drawBitmap(0, 32, bitmap_ampere, 16, 16, WHITE);
     break;
   case 2:
-    display.drawBitmap(0, 32, bitmap_sd_card, 16, 16, WHITE);
+    display.drawBitmap(0, 32, bitmap_ohm, 16, 16, WHITE);
     break;
   }
 
@@ -831,11 +831,11 @@ void loggerGraphic(int mode, int channel, String currentTime)
  * 
  * @param mode The mode to be displayed.
  */
-void outputModeGraphic(int mode)
+void outputModeGraphic(int channel)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_Output_mode, 128, 64, WHITE);
-  updateContextCursor(mode);
+  updateContextCursor(channel);
   display.display();
 }
 /**
