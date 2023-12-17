@@ -486,19 +486,19 @@ void setChannel()
     if (currentChannel == VOLTAGE)
     {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
-        Serial.println("Reading channel A0\n")
+        Serial.println("Reading channel A0\n");
     }
 
     else if (currentChannel == CURRENT)
     {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
-        Serial.println("Reading channel A2-A3\n")
+        Serial.println("Reading channel A2-A3\n");
     }
 
     else if (currentChannel == RESISTANCE)
     {
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
-        Serial.println("Reading channel A1\n")
+        Serial.println("Reading channel A1\n");
     }
 
     else
@@ -562,7 +562,7 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(0);
-        Serial.println("Selected sample rate: " + currentSampleRate + "\n");
+        Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
     }
     if (goUp())
     {
@@ -580,7 +580,7 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(1);
-        Serial.println("Selected sample rate: " + currentSampleRate + "\n");
+        Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
     }
     delay(10);
 }
