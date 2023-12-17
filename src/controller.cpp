@@ -638,6 +638,7 @@ void loggerAct()
     
     if (!new_data)
     {
+        Serial.println("No new data ready!");
         return;
     }
 
