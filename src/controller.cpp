@@ -641,6 +641,8 @@ void loggerAct()
         return;
     }
 
+    Serial.println("New data ready!");
+
 
     if(!measurement.isArrayFull())
     {
