@@ -34,7 +34,9 @@ unsigned long time_now = 0;
 unsigned long time_old = 0;
 int count = 0;
 
-Measurement measurement(128);
+Measurement measurement(8);
+
+uint16_t *test;
 
 /**
  * @brief Indicates whether new data is available.
@@ -508,7 +510,7 @@ void sampleSetAct()
         if (i > 0)
         {
             i--;
-            currentSampleRate = adsToStringRate(dataRateValues[i]);
+            currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(0);
     }
@@ -525,7 +527,7 @@ void sampleSetAct()
         if (i < 7)
         {
             i++;
-            currentSampleRate = adsToStringRate(dataRateValues[i]);
+            currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(1);
     }
@@ -547,14 +549,10 @@ void adcSetup()
     Serial.println("Interrupt attached");
 
     // Initialize the ADC module.
-    ads.setDataRate(currentSampleRate);
+    ads.setDataRate(adsToStringRate(currentSampleRate));
     Serial.println("Data rate set");
 
-    measurement.setLength(currentSampleRate);
     Serial.println("Length set");
-
-    measurement.reset();
-    Serial.println("Measurement reset");
 
     if (!ads.begin())
     {
@@ -562,6 +560,11 @@ void adcSetup()
         while (1)
             ;
     }
+
+    measurement.reset();
+
+    Serial.println("Sample rate");
+    Serial.println(currentSampleRate);
 
     setChannel();
     Serial.println("Channel set");
@@ -572,20 +575,28 @@ void adcSetup()
 // Executive Actions
 void loggerAct()
 {
- 
+
     if (!new_data)
     {
         return;
     }
 
-    Serial.println(ads.getLastConversionResults());
 
-    Serial.println(measurement.isArrayFull());
+    Serial.println(ads.getLastConversionResults());
 
     if(measurement.isArrayFull()) {
         Serial.println("Raggiunto limite");
+        Serial.println(measurement.measurements[0]);
+        Serial.println(measurement.measurements[1]);
+        Serial.println(measurement.measurements[2]);
+        Serial.println(measurement.measurements[3]);
+        Serial.println(measurement.measurements[4]);
+        Serial.println(measurement.measurements[5]);
+        Serial.println(measurement.measurements[6]);
+        Serial.println(measurement.measurements[7]);
         Serial.println(measurement.getMean());
-        Serial.println(measurement.getStd());
+        //Serial.println(measurement.getMean());
+        //Serial.println(measurement.getStd());
         measurement.reset();
     }
     else{

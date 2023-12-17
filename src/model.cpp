@@ -1,4 +1,5 @@
 #include <math.h>
+#include <Arduino.h>
 
 class Measurement
 {
@@ -78,15 +79,14 @@ bool Measurement::isArrayFull()
 
 void Measurement::insertMeasurement(uint16_t value)
 {
-    if (count < length)
+    measurements[count] = value;
+    count++;
+
+    if(isArrayFull())
     {
-        measurements[count] = value;
-        count++;
-    }
-    else{
+        count = 0;
         calculateMean();
         calculateStd();
-        count = 0;
     }
 }
 

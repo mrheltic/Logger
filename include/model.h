@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include <math.h>
+#include <Arduino.h>
 
 class Measurement {
 private:
