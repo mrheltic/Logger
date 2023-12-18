@@ -11,9 +11,9 @@
 #include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 39   
-#define SELECT_BUTTON 34 
-#define UP_BUTTON 35     
+#define DOWN_BUTTON 39
+#define SELECT_BUTTON 34
+#define UP_BUTTON 35
 
 // DECLARING VARIABLES FOR RTC
 #define PIN_ENA 14
@@ -30,9 +30,8 @@ const static char *WeekDays[] =
         "Saturday",
         "Sunday"};
 
-
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 23 
+#define BUZZER 23
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 32
@@ -43,7 +42,7 @@ int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 MODE currentMode = DISPLAY_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 
-uint16_t currentSampleRate = 8;
+uint16_t currentSampleRate = 860;
 
 unsigned long time_now = 0;
 unsigned long time_old = 0;
@@ -78,7 +77,7 @@ bool isExecuted = false;
 
 File file;
 
-Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT); 
+Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
 Adafruit_ADS1115 ads;
 
@@ -98,7 +97,7 @@ void initializeSerial()
     {
         ; // wait for serial port to connect. Needed for native USB port only
     }
-      // Print contributors
+    // Print contributors
     Serial.println("-------------------------------");
     Serial.print("Logger\n");
     Serial.println("-------------------------------");
@@ -117,7 +116,6 @@ void initializeSerial()
  *
  * @return true if the output devices are successfully initialized, false otherwise.
  */
-
 
 boolean initializeOutputDevices()
 {
@@ -370,7 +368,7 @@ void outputModeAct()
             currentMode = WIFI_ONLY;
             Serial.println("Mode selected: WIFI_ONLY\n");
         }
-        if (goUp()) //Check on sd card
+        if (goUp()) // Check on sd card
         {
             soundBuzzerScroll();
             currentMode = SD_ONLY;
@@ -605,7 +603,7 @@ void adcSetup()
     Serial.println("Interrupt attached (falling edge for new data ready)))");
 
     // Initialize the ADC module.
-    ads.setDataRate(adsToStringRate(currentSampleRate));
+    ads.setDataRate(RATE_ADS1115_860SPS);
     Serial.println("Sample rate setting done!\n");
 
     if (!ads.begin())
@@ -624,10 +622,10 @@ void adcSetup()
 
     Serial.println("Array length: " + String(measurement.getLength()) + "\n");
 
-
     Serial.println("\n\n\n\n-----------------------------");
 
     // Start continuous conversions.
+    Serial.print(ads.getDataRate());
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp());
 }
@@ -635,26 +633,26 @@ void adcSetup()
 // Executive Actions
 void loggerAct()
 {
-    
+
     if (!new_data)
     {
-        Serial.println("No new data ready!");
+        //Serial.println("No new data ready!");
         return;
     }
 
-    Serial.println("New data ready!");
+    //Serial.println("New data ready!");
 
-
-    if(!measurement.isArrayFull())
+    if (!measurement.isArrayFull())
     {
-        //Serial.println(ads.getLastConversionResults());
+        // Serial.println(ads.getLastConversionResults());
         measurement.insertMeasurement(ads.getLastConversionResults());
-        Serial.println("Inserted measurement");
     }
     else
     {
+        //Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
         Serial.println("Mean: " + String(measurement.getMean()));
-        Serial.println("Std: " + String(measurement.getStd()));
+        Serial.println("------------------------------------------------------------------------------");
+        //Serial.println("Std: " + String(measurement.getStd()));
         Serial.println("Array full, resetted");
         Serial.println("Array length: " + String(measurement.getLength()) + "\n");
         measurement.setArrayFull(false);
@@ -662,8 +660,7 @@ void loggerAct()
     }
 
     new_data = false;
-    delay(1);
-    
+    //delay(1);
 
     /*
      static uint8_t last_second = 0;
