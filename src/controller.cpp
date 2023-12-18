@@ -530,16 +530,40 @@ void infoAct(boolean subSetup)
     }
 }
 
-/**
- * @brief Converts an integer value to a string representation of the ADS1115 conversion rate.
- *
- * @param value The ADS1115 conversion rate value.
- * @return The string representation of the ADS1115 conversion rate.
- */
-uint16_t adsToStringRate(int value)
+
+void setRate(uint16_t value)
 {
 
-    return ("RATE_ADS1115_%dSPS", value);
+    switch (value)
+    {
+    case 860:
+        ads.setDataRate(RATE_ADS1115_860SPS);
+        break;
+    case 475:
+        ads.setDataRate(RATE_ADS1115_475SPS);
+        break;
+    case 250:
+        ads.setDataRate(RATE_ADS1115_250SPS);
+        break;
+    case 128:
+        ads.setDataRate(RATE_ADS1115_128SPS);
+        break;
+    case 64:
+        ads.setDataRate(RATE_ADS1115_64SPS);
+        break;
+    case 32:
+        ads.setDataRate(RATE_ADS1115_32SPS);
+        break;
+    case 16:
+        ads.setDataRate(RATE_ADS1115_16SPS);
+        break;
+    case 8:
+        ads.setDataRate(RATE_ADS1115_8SPS);
+        break;
+    default:
+        Serial.println("ErrorSetDataRate");
+        break;
+    }
 }
 
 /**
@@ -603,7 +627,7 @@ void adcSetup()
     Serial.println("Interrupt attached (falling edge for new data ready)))");
 
     // Initialize the ADC module.
-    ads.setDataRate(RATE_ADS1115_860SPS);
+    setRate(currentSampleRate);
     Serial.println("Sample rate setting done!\n");
 
     if (!ads.begin())
@@ -636,11 +660,11 @@ void loggerAct()
 
     if (!new_data)
     {
-        //Serial.println("No new data ready!");
+        // Serial.println("No new data ready!");
         return;
     }
 
-    //Serial.println("New data ready!");
+    // Serial.println("New data ready!");
 
     if (!measurement.isArrayFull())
     {
@@ -649,10 +673,10 @@ void loggerAct()
     }
     else
     {
-        //Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
+        // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
         Serial.println("Mean: " + String(measurement.getMean()));
         Serial.println("------------------------------------------------------------------------------");
-        //Serial.println("Std: " + String(measurement.getStd()));
+        // Serial.println("Std: " + String(measurement.getStd()));
         Serial.println("Array full, resetted");
         Serial.println("Array length: " + String(measurement.getLength()) + "\n");
         measurement.setArrayFull(false);
@@ -660,7 +684,7 @@ void loggerAct()
     }
 
     new_data = false;
-    //delay(1);
+    // delay(1);
 
     /*
      static uint8_t last_second = 0;

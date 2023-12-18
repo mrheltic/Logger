@@ -46,7 +46,7 @@ void outputModeAct();
 void inputModeAct();
 void infoAct(boolean subSetup);
 void sampleSetAct();
-uint16_t adsToStringRate();
+void setRate(uint16_t value);
 void adcSetup();
 void setChannel(CHANNEL channel);
 #endif // CONTROLLER_H
