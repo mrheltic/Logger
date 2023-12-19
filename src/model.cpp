@@ -8,8 +8,7 @@ private:
     int length;              // Lunghezza dell'array
     int count;               // Numero di elementi attualmente presenti nell'array
     float mean;              // Media
-    float std; 
-    float sum;              // Deviazione standard
+    float std;               // Deviazione standard
     unsigned long timestamp; // Timestamp della prima misurazione
     bool arrayFull;
 
@@ -38,7 +37,6 @@ Measurement::Measurement(int len)
     count = 0;
     mean = 0.0;
     std = 0.0;
-    sum = 0;
     timestamp = 0;
 }
 
@@ -55,13 +53,16 @@ void Measurement::setLength(int len)
     count = 0;
     mean = 0.0;
     std = 0.0;
-    sum = 0;
     timestamp = 0;
 }
 
-// We preferred to calculate the mean in this way because we don't need to re-iterate the array when calculate the mean (so other 860 iterations in the worst case)
 void Measurement::calculateMean()
 {
+    int sum = 0;
+    for (int i = 0; i < length; i++)
+    {
+        sum += measurements[i];
+    }
     mean = static_cast<float>(sum) / length;
 }
 
@@ -73,7 +74,6 @@ void Measurement::calculateStd()
         sum += pow(measurements[i] - mean, 2);
     }
     std = sqrt(sum / length);
-    sum = 0;
 }
 
 bool Measurement::isArrayFull()
@@ -92,10 +92,7 @@ void Measurement::insertMeasurement(int value)
         arrayFull = true;
         calculateMean();
         calculateStd();
-        sum = 0;
     }
-
-    sum += value;
 }
 
 void Measurement::reset()
@@ -141,5 +138,3 @@ void Measurement::setArrayFull(bool arrayFull)
 int Measurement::getArrayLenght(){
     return sizeof(measurements)/sizeof(measurements[0]);
 }
-
-// Print the mean of measurement returning 2 value: the 4 digits most significant and the power of 10
