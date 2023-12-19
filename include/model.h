@@ -13,6 +13,7 @@ private:
   float std; // Deviazione standard
   unsigned long timestamp; // Timestamp dell'ultima misurazione
   boolean arrayFull;
+  float sum;
   
 public:
   Measurement(int len);
