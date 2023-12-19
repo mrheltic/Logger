@@ -76,8 +76,6 @@ const char *password = "logger1234";
 
 bool isExecuted = false;
 
-File file;
-
 Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
 Adafruit_ADS1115 ads;
@@ -168,7 +166,6 @@ void logfileSDcard()
     File creditsFile;
     File dataStorage;
 
-    
     if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
     {
         SD.remove("/dataStorage.txt");
@@ -262,7 +259,7 @@ boolean initializeDevices()
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && initializeADC() && initializeRTC() && initializeSDcard();
+           initializeScreen() && initializeADC() && initializeRTC();
 }
 
 /**
@@ -562,12 +559,11 @@ void infoAct(boolean subSetup)
     }
 }
 
-
 /**
  * @brief Sets the rate value.
- * 
+ *
  * This function sets the rate value to the specified value.
- * 
+ *
  * @param value The rate value to be set.
  */
 void setRate(uint16_t value)
@@ -638,7 +634,6 @@ void sampleSetAct()
             if (dataRateValues[j] == currentSampleRate)
                 i = j;
         }
-        Serial.println(goUp());
         if (i < 7)
         {
             i++;
@@ -738,7 +733,7 @@ void loggerAct()
 
         break;
 
-    case default:
+    default:
         Serial.println("\n\n\n\n-----------------------------");
         Serial.println("Error selecting output\n");
         Serial.println("\n\n\n\n-----------------------------");
