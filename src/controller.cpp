@@ -2,6 +2,7 @@
 #include "../include/controller.h"
 #include "../include/model.h"
 #include "../include/view.h"
+#include <SPI.h>
 #include <SD.h>
 #include <FS.h>
 #include <WiFi.h>
@@ -154,20 +155,51 @@ boolean initializeSDcard()
     Serial.println("Initializing SD card...\n");
 
     if (!SD.begin(5)) // is CS pin in ESP32!!!
-    {
         return false;
+    else
+    {
+        logfileSDcard();
+        return true;
+    }
+}
+
+void logfileSDcard()
+{
+    File creditsFile;
+    File dataStorage;
+
+    
+    if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
+    {
+        SD.remove("/dataStorage.txt");
+    }
+
+    Serial.println("Creating dataStorage.txt..."); // create and open the file ready to be written
+    creditsFile = SD.open("/creditsFile.txt", FILE_WRITE);
+
+    if (creditsFile)
+    { // check if the file is actually opened
+
+        // write a string to the card, once the content is written, close the file.
+        creditsFile.println("-------------------------------");
+        creditsFile.print("Logger\n");
+        creditsFile.println("-------------------------------");
+        creditsFile.println("Contributors:");
+        creditsFile.println("- Vincenzo Pio Florio");
+        creditsFile.println("- Francesco Stasi");
+        creditsFile.println("- Davide Tonti");
+        creditsFile.println("-------------------------------\n");
+        creditsFile.println("Initializing...\n");
+        creditsFile.close();
+        dataStorage = SD.open("/dataStorage.txt", FILE_WRITE);
+        dataStorage.println("test");
+        dataStorage.close();
+
+        // TODO the function to write the array of measurements by 'file.write(array)' or 'file.write(array,length)'
     }
     else
     {
-        /*Serial.println("Creating example.txt...");
-        myFile = SD.open("example.txt", FILE_WRITE);
-        myFile.close();*/
-
-        if (SD.exists("example.txt"))
-        {
-            SD.remove("example.txt");
-        }
-        return true;
+        Serial.println("Error opening the file on SDcard");
     }
 }
 
@@ -230,7 +262,7 @@ boolean initializeDevices()
     // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
-           initializeScreen() && initializeADC() && initializeRTC();
+           initializeScreen() && initializeADC() && initializeRTC() && initializeSDcard();
 }
 
 /**
@@ -529,7 +561,6 @@ void infoAct(boolean subSetup)
         subSetup = 0;
     }
 }
-
 
 void setRate(uint16_t value)
 {

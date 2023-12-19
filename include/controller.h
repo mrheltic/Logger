@@ -34,6 +34,7 @@ boolean initializeOutputDevices();
 boolean initializeInputDevices();
 boolean ADCinitialize();
 boolean initializeSDcard();
+void logfileSDcard();
 boolean initializeRTC();
 boolean initializeDevices();
 boolean goUp();
