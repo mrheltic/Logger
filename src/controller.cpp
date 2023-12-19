@@ -21,7 +21,6 @@
 #define PIN_CLK 26
 #define PIN_DAT 27
 
-// DECLARING VARIABLES FOR RTC
 const static char *WeekDays[] =
     {
         "Monday",
@@ -52,7 +51,6 @@ int count = 0;
 
 Measurement measurement(8);
 
-// DECLARING VARIABLES FOR ADC
 #ifndef IRAM_ATTR
 #define IRAM_ATTR
 #endif
@@ -349,11 +347,6 @@ void soundBuzzerSelect()
     delay(250);
 }
 
-/**
- * @brief Returns the current time stamp as a String.
- * 
- * @return String The current time stamp in the format "HH:MM:SS".
- */
 String getTimeStamp()
 {
 
@@ -373,7 +366,6 @@ String getTimeStamp()
 
     return currentTime;
 }
-
 
 /**
  * @brief This function handles the output mode activation.
@@ -442,11 +434,13 @@ void outputModeAct()
     delay(10);
 }
 
-
 /**
  * @brief Performs the action for the input mode.
- * 
- * This function is responsible for handling the input mode and performing the necessary actions.
+ *
+ * This function is responsible for handling the input mode action.
+ * It performs the necessary operations based on the current input mode.
+ *
+ * @return void
  */
 void inputModeAct()
 {
@@ -510,9 +504,16 @@ void inputModeAct()
     delay(10);
 }
 
-
 /**
- * @brief Sets the channel for the controller.
+ * Sets the channel for ADC readings.
+ *
+ * The function starts ADC reading based on the current channel value.
+ * If the current channel is VOLTAGE, it starts ADC reading for single-ended channel 0.
+ * If the current channel is CURRENT, it starts ADC reading for differential channel 2-3.
+ * If the current channel is RESISTANCE, it starts ADC reading for single-ended channel 1.
+ * If the current channel is none of the above, it prints an error message.
+ *
+ * @return void
  */
 void setChannel()
 {
@@ -561,17 +562,6 @@ void infoAct(boolean subSetup)
     }
 }
 
-<<<<<<< HEAD
-=======
-
-/**
- * @brief Sets the rate value.
- * 
- * This function sets the rate value to the specified value.
- * 
- * @param value The rate value to be set.
- */
->>>>>>> f1acc541edbe7eed2da000cc13d8abed5c241fda
 void setRate(uint16_t value)
 {
 
@@ -606,7 +596,6 @@ void setRate(uint16_t value)
         break;
     }
 }
-
 
 /**
  * @brief Sets the sample act.
@@ -664,18 +653,14 @@ void adcSetup()
 {
     Serial.println("\n\n\n\n-----------------------------");
     Serial.println("ENTERED IN ADC SETUP\n\n\n\n");
-
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
-
-    // Debugging line to notify that the interrupt is attached.
     Serial.println("Interrupt attached (falling edge for new data ready)))");
 
-    // Set the sample rate.
+    // Initialize the ADC module.
     setRate(currentSampleRate);
     Serial.println("Sample rate setting done!\n");
 
-    // Initialize the ADS1115 module, if not loops forever.
     if (!ads.begin())
     {
         Serial.println("Failed to initialize ADS.");
@@ -683,24 +668,19 @@ void adcSetup()
             ;
     }
 
-    // Debugging line to print the sample rate.
     Serial.println("Sample rate: " + String(currentSampleRate) + "SPS\n");
 
-    // Set the channel.
     setChannel();
     Serial.println("Channel setting done!\n");
 
-    // Set the array length, equal to the sample rate.
     measurement.setLength(currentSampleRate);
 
-    // Debugging line to print the array length, equal to the sample rate.
     Serial.println("Array length: " + String(measurement.getLength()) + "\n");
-    
-    // Debugging line to print the data rate.
-    Serial.println("ADS setRate: " + String(ads.getDataRate()) + "\n");
 
-    Serial.println("EXITED FROM ADC SETUP");
     Serial.println("\n\n\n\n-----------------------------");
+
+    // Start continuous conversions.
+    Serial.print(ads.getDataRate());
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp());
 }
@@ -709,30 +689,65 @@ void adcSetup()
 void loggerAct()
 {
 
-    // Checking for every iteration if the data is ready
     if (!new_data)
-    {   
-        // Debugging line to check if the interrupt is working.
+    {
         // Serial.println("No new data ready!");
         return;
     }
 
-    // Debugging line to check if the interrupt is working.
     // Serial.println("New data ready!");
 
-    // Checking if the array is full and if it is, it prints datas and reset the array
     if (!measurement.isArrayFull())
     {
+        // Serial.println(ads.getLastConversionResults());
         measurement.insertMeasurement(ads.getLastConversionResults());
     }
     else
     {
         // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
         Serial.println("Mean: " + String(measurement.getMean()));
-        //Serial.println("Array full, resetted");
+        Serial.println("------------------------------------------------------------------------------");
+        // Serial.println("Std: " + String(measurement.getStd()));
+        Serial.println("Array full, resetted");
+        Serial.println("Array length: " + String(measurement.getLength()) + "\n");
         measurement.setArrayFull(false);
         loggerGraphic(currentMode, currentChannel, getTimeStamp());
     }
 
     new_data = false;
+    // delay(1);
+
+    /*
+     static uint8_t last_second = 0;
+     if (last_second != now.second)
+     {
+         last_second = now.second;
+
+         Serial.print("20");
+         Serial.print(now.year); // 00-99
+         Serial.print('-');
+         if (now.month < 10)
+             Serial.print('0');
+         Serial.print(now.month); // 01-12
+         Serial.print('-');
+         if (now.day < 10)
+             Serial.print('0');
+         Serial.print(now.day); // 01-31
+         Serial.print(' ');
+         Serial.print(WeekDays[now.dow - 1]); // 1-7
+         Serial.print(' ');
+         if (now.hour < 10)
+             Serial.print('0');
+         Serial.print(now.hour); // 00-23
+         Serial.print(':');
+         if (now.minute < 10)
+             Serial.print('0');
+         Serial.print(now.minute); // 00-59
+         Serial.print(':');
+         if (now.second < 10)
+             Serial.print('0');
+         Serial.print(now.second); // 00-59
+         Serial.println();
+     }
+     */
 }
