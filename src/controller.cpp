@@ -561,8 +561,6 @@ void infoAct(boolean subSetup)
     }
 }
 
-<<<<<<< HEAD
-=======
 
 /**
  * @brief Sets the rate value.
@@ -571,7 +569,6 @@ void infoAct(boolean subSetup)
  * 
  * @param value The rate value to be set.
  */
->>>>>>> f1acc541edbe7eed2da000cc13d8abed5c241fda
 void setRate(uint16_t value)
 {
 
@@ -709,30 +706,51 @@ void adcSetup()
 void loggerAct()
 {
 
-    // Checking for every iteration if the data is ready
-    if (!new_data)
-    {   
-        // Debugging line to check if the interrupt is working.
-        // Serial.println("No new data ready!");
-        return;
-    }
-
-    // Debugging line to check if the interrupt is working.
-    // Serial.println("New data ready!");
-
-    // Checking if the array is full and if it is, it prints datas and reset the array
-    if (!measurement.isArrayFull())
+    switch (currentMode)
     {
-        measurement.insertMeasurement(ads.getLastConversionResults());
-    }
-    else
-    {
-        // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
-        Serial.println("Mean: " + String(measurement.getMean()));
-        //Serial.println("Array full, resetted");
-        measurement.setArrayFull(false);
-        loggerGraphic(currentMode, currentChannel, getTimeStamp());
-    }
+    case SD_ONLY:
+        Serial.println("Not implemented yet");
+        break;
 
-    new_data = false;
+    case WIFI_ONLY:
+        Serial.println("Not implemented yet");
+        break;
+
+    case DISPLAY_ONLY:
+
+        if (!new_data)
+        {
+            // Serial.println("No new data ready!");
+            return;
+        }
+
+        // Serial.println("New data ready!");
+
+        if (!measurement.isArrayFull())
+        {
+            // Serial.println(ads.getLastConversionResults());
+            measurement.insertMeasurement(ads.getLastConversionResults());
+        }
+        else
+        {
+            // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
+            Serial.println("Mean: " + String(measurement.getMean()));
+            Serial.println("------------------------------------------------------------------------------");
+            // Serial.println("Std: " + String(measurement.getStd()));
+            Serial.println("Array full, resetted");
+            Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+            measurement.setArrayFull(false);
+            loggerGraphic(currentMode, currentChannel, getTimeStamp());
+        }
+
+        new_data = false;
+
+        break;
+
+    case default:
+        Serial.println("\n\n\n\n-----------------------------");
+        Serial.println("Error selecting output\n");
+        Serial.println("\n\n\n\n-----------------------------");
+        break;
+    }
 }
