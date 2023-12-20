@@ -51,6 +51,9 @@ int count = 0;
 
 Measurement measurement(8);
 
+File creditsFile;
+File dataStorage;
+
 #ifndef IRAM_ATTR
 #define IRAM_ATTR
 #endif
@@ -157,15 +160,12 @@ boolean initializeSDcard()
     else
     {
         logfileSDcard();
-        return true;
     }
+    return true;
 }
 
 void logfileSDcard()
 {
-    File creditsFile;
-    File dataStorage;
-
     if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
     {
         SD.remove("/dataStorage.txt");
@@ -643,6 +643,38 @@ void sampleSetAct()
         Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
     }
     delay(10);
+}
+
+bool preliminaryControl()
+{
+    bool controlResult;
+
+    switch (currentMode)
+    {
+    case SD_ONLY:
+        controlResult = initializeSDcard();
+        dataStorage = SD.open("/dataStorage.txt", FILE_WRITE);
+        while (dataStorage.available()) {
+        Serial.write(dataStorage.read());
+        Serial.println("test 2 ");
+        dataStorage.close();
+    }
+        dataStorage.close();
+        break;
+
+    case WIFI_ONLY:
+        controlResult = initializeWifi();
+        break;
+
+    default:
+        controlResult = true;
+        break;
+    }
+
+    if (!controlResult)
+        errorMessageGraphic(currentMode);
+    delay(2000);
+    return controlResult;
 }
 
 /**

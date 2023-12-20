@@ -9,6 +9,7 @@ extern int menu;
 int updateMenu(int menu);
 boolean initializeScreen();
 void updateContextCursor(int position);
+void errorMessageGraphic(int currentMode);
 void loggerGraphic(int mode, int channel, String currentTime);
 void outputModeGraphic(int mode);
 void inputModeGraphic(int channel);

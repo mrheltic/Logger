@@ -28,12 +28,17 @@ void executeAction()
   switch (menu)
   {
   case 1:
-    adcSetup();
-    while (!select() && stateMenu == 0)
+
+    if (preliminaryControl())
     {
-      loggerAct();
+      adcSetup();
+      while (!select() && stateMenu == 0)
+      {
+        loggerAct();
+      }
     }
-    stateMenu =  1;
+    else ESP.restart();
+    stateMenu = 1;
     break;
   case 2:
     while (!select() && stateMenu == 0)
