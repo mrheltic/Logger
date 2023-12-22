@@ -30,6 +30,7 @@ public:
     int getLength();
     void setArrayFull(bool arrayFull);
     int getArrayLenght();
+    int getLastMeasurement();
 };
 
 Measurement::Measurement(int len)
@@ -143,25 +144,31 @@ int Measurement::getArrayLenght(){
     return sizeof(measurements)/sizeof(measurements[0]);
 }
 
+int Measurement::getLastMeasurement()
+{
+    return measurements[count];
+}
+
 Measurement measurement(860);
 unsigned long time_now;
 unsigned long time_old;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(250000);
 }
 
 void loop()
 {
+  delayMicroseconds(1160);
   if (!measurement.isArrayFull())
         {
             // Serial.println(ads.getLastConversionResults());
             measurement.insertMeasurement(random(0, 1000));
+            Serial.write(measurement.getLastMeasurement());
         }
         else
         {
-            Serial.write(measurement.getMeasurements(), 860);
             Serial.println("Mean: " + String(measurement.getMean()));
             Serial.println("------------------------------------------------------------------------------");
             // Serial.println("Std: " + String(measurement.getStd()));
