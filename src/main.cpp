@@ -1,4 +1,3 @@
-[10:41] STASI FRANCESCO
 /*
  * Connect the SD card to the following pins:
  *
@@ -14,9 +13,9 @@
  *    D1       -
  */
 #include <Arduino.h>
-#include <FS.h>
-#include <SD.h>
-#include <SPI.h>
+#include "../lib/arduino-esp32-master/libraries/SD/src/SD.h"
+#include "../lib/arduino-esp32-master/libraries/FS/src/FS.h"
+#include "../lib/arduino-esp32-master/libraries/SPI/src/SPI.h"
  
 void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
 {
