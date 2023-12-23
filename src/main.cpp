@@ -28,7 +28,6 @@ void executeAction()
   switch (menu)
   {
   case 1:
-
     if (preliminaryControl())
     {
       adcSetup();

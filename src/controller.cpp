@@ -2,9 +2,9 @@
 #include "../include/controller.h"
 #include "../include/model.h"
 #include "../include/view.h"
-#include <SPI.h>
-#include <SD.h>
-#include <FS.h>
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include <Adafruit_ADS1X15.h>
@@ -20,6 +20,14 @@
 #define PIN_ENA 14
 #define PIN_CLK 26
 #define PIN_DAT 27
+
+// DECLARING VARIABLES FOR SPI
+#define SCK 18
+#define MISO 19
+#define MOSI 23
+#define CS 5
+
+SPIClass spi = SPIClass(VSPI);
 
 const static char *WeekDays[] =
     {
@@ -40,7 +48,7 @@ const static char *WeekDays[] =
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL
-MODE currentMode = DISPLAY_ONLY;
+MODE currentMode = SD_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 
 uint16_t currentSampleRate = 860;
@@ -87,6 +95,8 @@ Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
 Adafruit_ADS1115 ads;
 
+const char *creditString = "-------------------------------\nLogger\n-------------------------------\nContributors:\n- Vincenzo Pio Florio\n- Francesco Stasi\n- Davide Tonti\n-------------------------------\n";
+
 /**
  * @brief Initializes the serial monitor.
  *
@@ -104,15 +114,7 @@ void initializeSerial()
         ; // wait for serial port to connect. Needed for native USB port only
     }
     // Print contributors
-    Serial.println("-------------------------------");
-    Serial.print("Logger\n");
-    Serial.println("-------------------------------");
-    Serial.println("Contributors:");
-    Serial.println("- Vincenzo Pio Florio");
-    Serial.println("- Francesco Stasi");
-    Serial.println("- Davide Tonti");
-    Serial.println("-------------------------------\n");
-    Serial.println("Initializing...\n");
+    Serial.println(creditString);
 }
 
 /**
@@ -159,38 +161,58 @@ boolean initializeSDcard()
 {
     Serial.println("Initializing SD card...\n");
 
-    if (!SD.begin(5)) // is CS pin in ESP32!!!
+    spi.begin(SCK, MISO, MOSI, CS);
+
+    if (!SD.begin(CS, spi, 80000000))
+    {
+        Serial.println("Card Mount Failed");
         return false;
+    }
     else
     {
         logfileSDcard();
     }
+
+    /*
+    uint8_t cardType = SD.cardType();
+
+    if (cardType == CARD_NONE)
+    {
+        Serial.println("No SD card attached");
+        return false;
+    }
+    */
     return true;
 }
 
-void logfileSDcard()
+boolean logfileSDcard()
 {
+    /*
     if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
     {
         SD.remove("/dataStorage.txt");
     }
+    */
 
     Serial.println("Creating dataStorage.txt..."); // create and open the file ready to be written
-    creditsFile = SD.open("/creditsFile.txt", FILE_WRITE);
+    // creditsFile = SD.open("/creditsFile.txt", FILE_WRITE);
+    writeFile(SD, "/creditsFile.txt", creditString);
+    writeFile(SD, "/dataStorage.txt", "inizio");
+    appendFile(SD, "/dataStorage.txt", "\ninizio acora");
 
+    /*
     if (creditsFile)
     { // check if the file is actually opened
 
         // write a string to the card, once the content is written, close the file.
-        creditsFile.println("-------------------------------");
+        creditsFile.print("-------------------------------\n");
         creditsFile.print("Logger\n");
-        creditsFile.println("-------------------------------");
-        creditsFile.println("Contributors:");
-        creditsFile.println("- Vincenzo Pio Florio");
-        creditsFile.println("- Francesco Stasi");
-        creditsFile.println("- Davide Tonti");
-        creditsFile.println("-------------------------------\n");
-        creditsFile.println("Initializing...\n");
+        creditsFile.print("-------------------------------\n");
+        creditsFile.print("Contributors:\n");
+        creditsFile.print("- Vincenzo Pio Florio\n");
+        creditsFile.print("- Francesco Stasi\n");
+        creditsFile.print("- Davide Tonti\n");
+        creditsFile.print("-------------------------------\n");
         creditsFile.close();
         dataStorage = SD.open("/dataStorage.txt", FILE_WRITE);
         dataStorage.println("test");
@@ -202,6 +224,50 @@ void logfileSDcard()
     {
         Serial.println("Error opening the file on SDcard");
     }
+    */
+    return true;
+}
+
+void writeFile(fs::FS &fs, const char *path, const char *message)
+{
+    Serial.printf("Writing file: %s\n", path);
+
+    File file = fs.open(path, FILE_WRITE);
+    if (!file)
+    {
+        Serial.println("Failed to open file for writing");
+        return;
+    }
+    if (file.print(message))
+    {
+        Serial.println("File written");
+    }
+    else
+    {
+        Serial.println("Write failed");
+    }
+    file.close();
+}
+
+void appendFile(fs::FS &fs, const char *path, const char *message)
+{
+    Serial.printf("Appending to file: %s\n", path);
+
+    File file = fs.open(path, FILE_APPEND);
+    if (!file)
+    {
+        Serial.println("Failed to open file for appending");
+        return;
+    }
+    if (file.print(message))
+    {
+        Serial.println("Message appended");
+    }
+    else
+    {
+        Serial.println("Append failed");
+    }
+    file.close();
 }
 
 boolean initializeRTC()
@@ -659,19 +725,18 @@ void sampleSetAct()
  */
 bool preliminaryControl()
 {
-    bool controlResult;
+    boolean controlResult;
 
     switch (currentMode)
     {
     case SD_ONLY:
         controlResult = initializeSDcard();
-        dataStorage = SD.open("/dataStorage.txt", FILE_WRITE);
-        while (dataStorage.available()) {
-        Serial.write(dataStorage.read());
-        Serial.println("test 2 ");
+
+        /*
+        dataStorage = SD.open("/dataStorage.txt", FILE_APPEND);
+        dataStorage.println("test 2 ");
         dataStorage.close();
-    }
-        dataStorage.close();
+        */
         break;
 
     case WIFI_ONLY:
@@ -684,8 +749,11 @@ bool preliminaryControl()
     }
 
     if (!controlResult)
+    {
         errorMessageGraphic(currentMode);
-    delay(2000);
+        delay(2000);
+    }
+
     return controlResult;
 }
 
@@ -792,52 +860,65 @@ void adcSetup()
 // Executive Actions
 void loggerAct()
 {
+    /*
+        switch (currentMode)
+        {
+        case SD_ONLY:
+            Serial.println("Not implemented yet");
+            break;
 
-    switch (currentMode)
+        case WIFI_ONLY:
+            Serial.println("Not implemented yet");
+            break;
+
+        case DISPLAY_ONLY:
+
+            if (!new_data)
+            {
+                // Serial.println("No new data ready!");
+                return;
+            }
+
+            // Serial.println("New data ready!");
+
+            if (!measurement.isArrayFull())
+            {
+                // Serial.println(ads.getLastConversionResults());
+                measurement.insertMeasurement(ads.getLastConversionResults());
+                dataStorage = SD.open("/dataStorage.txt", FILE_APPEND);
+                dataStorage.println("test 3");
+                dataStorage.close();
+            }
+            else
+            {
+                // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
+                Serial.println("Mean: " + String(measurement.getMean()));
+                Serial.println("------------------------------------------------------------------------------");
+                // Serial.println("Std: " + String(measurement.getStd()));
+                Serial.println("Array full, resetted");
+                Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+                measurement.setArrayFull(false);
+                loggerGraphic(currentMode, currentChannel, getTimeStamp());
+            }
+
+            new_data = false;
+
+            break;
+
+        default:
+            Serial.println("\n\n\n\n-----------------------------");
+            Serial.println("Error selecting output\n");
+            Serial.println("\n\n\n\n-----------------------------");
+            break;
+        }
+        */
+    int i = 0;
+    while (i < 100)
     {
-    case SD_ONLY:
-        Serial.println("Not implemented yet");
-        break;
-
-    case WIFI_ONLY:
-        Serial.println("Not implemented yet");
-        break;
-
-    case DISPLAY_ONLY:
-
-        if (!new_data)
-        {
-            // Serial.println("No new data ready!");
-            return;
-        }
-
-        // Serial.println("New data ready!");
-
-        if (!measurement.isArrayFull())
-        {
-            // Serial.println(ads.getLastConversionResults());
-            measurement.insertMeasurement(ads.getLastConversionResults());
-        }
-        else
-        {
-            // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
-            Serial.println("Mean: " + String(measurement.getMean()));
-            Serial.println("------------------------------------------------------------------------------");
-            // Serial.println("Std: " + String(measurement.getStd()));
-            Serial.println("Array full, resetted");
-            Serial.println("Array length: " + String(measurement.getLength()) + "\n");
-            measurement.setArrayFull(false);
-            loggerGraphic(currentMode, currentChannel, getTimeStamp());
-        }
-
-        new_data = false;
-
-        break;
-
-    default:
-        Serial.println("\n\n\n\n-----------------------------");
-        Serial.println("Error selecting output\n");
-        Serial.println("\n\n\n\n-----------------------------");
-        break;
+        appendFile(SD, "/dataStorage.txt", "pizza\n");
+        i++;
+        delay(100);
     }
+
+    delay(1);
 }
