@@ -160,20 +160,24 @@ void setup()
 
 void loop()
 {
-  delayMicroseconds(1160);
+  delayMicroseconds(1160); // Simulate the time of the conversion (860us)
   if (!measurement.isArrayFull())
         {
             // Serial.println(ads.getLastConversionResults());
             measurement.insertMeasurement(random(0, 1000));
-            Serial.write(measurement.getLastMeasurement());
+            String.println(measurement.getLastMeasurement());
+            //Serial.write(0xCC); // Start byte
+            //Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+            //Serial.write(measurement.getLastMeasurement() & 0xFF); // Low byte
         }
         else
         {
-            Serial.println("Mean: " + String(measurement.getMean()));
-            Serial.println("------------------------------------------------------------------------------");
+            //Serial.println("Mean: " + String(measurement.getMean()));
+            //Serial.println("------------------------------------------------------------------------------");
             // Serial.println("Std: " + String(measurement.getStd()));
-            Serial.println("Array full, resetted");
-            Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+            //Serial.println("Array full, resetted");
+            //Serial.println("Array length: " + String(measurement.getLength()) + "\n");
             measurement.setArrayFull(false);
+        
         }
-}
+}  
