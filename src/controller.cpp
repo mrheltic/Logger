@@ -51,6 +51,10 @@ int count = 0;
 
 Measurement measurement(8);
 
+// DECLARING VALUES FOR GAIN AND OFFSET
+float K = 1;
+float O = 0;
+
 File creditsFile;
 File dataStorage;
 
@@ -645,6 +649,14 @@ void sampleSetAct()
     delay(10);
 }
 
+/**
+ * @brief Performs preliminary control checks.
+ * 
+ * This function is responsible for performing preliminary control checks before proceeding with further operations.
+ * It returns a boolean value indicating whether the preliminary control checks passed or not.
+ * 
+ * @return true if preliminary control checks passed, false otherwise.
+ */
 bool preliminaryControl()
 {
     bool controlResult;
@@ -675,6 +687,57 @@ bool preliminaryControl()
         errorMessageGraphic(currentMode);
     delay(2000);
     return controlResult;
+}
+
+/**
+ * Calculates the gain value.
+ * 
+ * @return The calculated gain value as a float. After, it is used to calculate the voltage, current, and resistance values.
+ */
+
+float calculateGain(){
+    float gain;
+    switch (currentChannel)
+    {
+    case VOLTAGE:
+        gain = 6.144;
+        break;
+    case CURRENT:
+        gain = 0.256;
+        break;
+    case RESISTANCE:
+        gain = 6.144;
+        break;
+    default:
+        gain = 0;
+        break;
+    }
+    return gain;
+}
+
+/**
+ * Calculates the offset.
+ * 
+ * @return The calculated offset as a float value. It is used to calculate the voltage, current, and resistance values.
+ */
+float calculateOffset(){
+    float offset;
+    switch (currentChannel)
+    {
+    case VOLTAGE:
+        offset = 0;
+        break;
+    case CURRENT:
+        offset = 0;
+        break;
+    case RESISTANCE:
+        offset = 0;
+        break;
+    default:
+        offset = 0;
+        break;
+    }
+    return offset;
 }
 
 /**
@@ -711,6 +774,12 @@ void adcSetup()
     measurement.setLength(currentSampleRate);
 
     Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+
+
+    K = calculateGain();
+    O = calculateOffset();
+
+    Serial.println("Gain: " + String(K) + "\n" + "Offset: " + String(O) + "\n");
 
     Serial.println("\n\n\n\n-----------------------------");
 
