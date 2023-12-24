@@ -930,7 +930,7 @@ void errorMessageGraphic(int currentMode)
  * @param mode The mode of the logger.
  * @param channel The channel of the logger.
  */
-void loggerGraphic(int mode, int channel, String currentTime)
+void loggerGraphic(int mode, int channel, String currentTime, float measure)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_logger, 128, 64, WHITE);
@@ -964,6 +964,11 @@ void loggerGraphic(int mode, int channel, String currentTime)
   display.setTextColor(WHITE);
   display.setCursor(24, 54);
   display.println(currentTime);
+  display.setCursor(0, 0);
+  display.setTextSize(3);
+  display.setTextColor(WHITE);
+  display.setCursor(30, 20);
+  display.println(measure);
   display.display();
 }
 /**

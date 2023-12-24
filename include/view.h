@@ -10,7 +10,7 @@ int updateMenu(int menu);
 boolean initializeScreen();
 void updateContextCursor(int position);
 void errorMessageGraphic(int currentMode);
-void loggerGraphic(int mode, int channel, String currentTime);
+void loggerGraphic(int mode, int channel, String currentTime, float measure);
 void outputModeGraphic(int mode);
 void inputModeGraphic(int channel);
 void infoGraphic(bool WifiState, bool sdState, bool RTCState);

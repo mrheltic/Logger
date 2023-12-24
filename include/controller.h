@@ -34,7 +34,7 @@ boolean initializeOutputDevices();
 boolean initializeInputDevices();
 boolean ADCinitialize();
 boolean initializeSDcard();
-boolean logfileSDcard();
+void logfileSDcard();
 void writeFile(fs::FS &fs, const char *path, const char *message);
 void appendFile(fs::FS &fs, const char *path, const char *message);
 boolean initializeRTC();

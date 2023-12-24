@@ -27,7 +27,12 @@
 #define MOSI 23
 #define CS 5
 
-SPIClass spi = SPIClass(VSPI);
+float K;
+float O;
+int16_t adcValue;
+float voltage;
+
+// SPIClass SPI = SPIClass(VSPI);
 
 const static char *WeekDays[] =
     {
@@ -59,12 +64,8 @@ int count = 0;
 
 Measurement measurement(8);
 
-// DECLARING VALUES FOR GAIN AND OFFSET
-float K = 1;
-float O = 0;
-
-File creditsFile;
-File dataStorage;
+// File creditsFile;
+// File dataStorage;
 
 #ifndef IRAM_ATTR
 #define IRAM_ATTR
@@ -161,9 +162,9 @@ boolean initializeSDcard()
 {
     Serial.println("Initializing SD card...\n");
 
-    spi.begin(SCK, MISO, MOSI, CS);
+    SPI.begin(SCK, MISO, MOSI, CS);
 
-    if (!SD.begin(CS, spi, 80000000))
+    if (!SD.begin(CS, SPI))
     {
         Serial.println("Card Mount Failed");
         return false;
@@ -172,65 +173,25 @@ boolean initializeSDcard()
     {
         logfileSDcard();
     }
-
-    /*
-    uint8_t cardType = SD.cardType();
-
-    if (cardType == CARD_NONE)
-    {
-        Serial.println("No SD card attached");
-        return false;
-    }
-    */
     return true;
 }
 
-boolean logfileSDcard()
+void logfileSDcard()
 {
-    /*
+
     if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
     {
         SD.remove("/dataStorage.txt");
     }
-    */
 
     Serial.println("Creating dataStorage.txt..."); // create and open the file ready to be written
-    // creditsFile = SD.open("/creditsFile.txt", FILE_WRITE);
+    writeFile(SD, "/dataStorage.txt", "");
     writeFile(SD, "/creditsFile.txt", creditString);
-    writeFile(SD, "/dataStorage.txt", "inizio");
-    appendFile(SD, "/dataStorage.txt", "\ninizio acora");
-
-    /*
-    if (creditsFile)
-    { // check if the file is actually opened
-
-        // write a string to the card, once the content is written, close the file.
-        creditsFile.print("-------------------------------\n");
-        creditsFile.print("Logger\n");
-        creditsFile.print("-------------------------------\n");
-        creditsFile.print("Contributors:\n");
-        creditsFile.print("- Vincenzo Pio Florio\n");
-        creditsFile.print("- Francesco Stasi\n");
-        creditsFile.print("- Davide Tonti\n");
-        creditsFile.print("-------------------------------\n");
-        creditsFile.close();
-        dataStorage = SD.open("/dataStorage.txt", FILE_WRITE);
-        dataStorage.println("test");
-        dataStorage.close();
-
-        // TODO the function to write the array of measurements by 'file.write(array)' or 'file.write(array,length)'
-    }
-    else
-    {
-        Serial.println("Error opening the file on SDcard");
-    }
-    */
-    return true;
 }
 
 void writeFile(fs::FS &fs, const char *path, const char *message)
 {
-    Serial.printf("Writing file: %s\n", path);
+    // Serial.printf("Writing file: %s\n", path);
 
     File file = fs.open(path, FILE_WRITE);
     if (!file)
@@ -240,11 +201,11 @@ void writeFile(fs::FS &fs, const char *path, const char *message)
     }
     if (file.print(message))
     {
-        Serial.println("File written");
+        // Serial.println("File written");
     }
     else
     {
-        Serial.println("Write failed");
+        // Serial.println("Write failed");
     }
     file.close();
 }
@@ -256,16 +217,16 @@ void appendFile(fs::FS &fs, const char *path, const char *message)
     File file = fs.open(path, FILE_APPEND);
     if (!file)
     {
-        Serial.println("Failed to open file for appending");
+        //Serial.println("Failed to open file for appending");
         return;
     }
     if (file.print(message))
     {
-        Serial.println("Message appended");
+        //Serial.println("Message appended");
     }
     else
     {
-        Serial.println("Append failed");
+        //Serial.println("Append failed");
     }
     file.close();
 }
@@ -391,11 +352,11 @@ boolean select()
  */
 void soundBuzzerScroll()
 {
-    tone(BUZZER, 200, 1000);
+    // tone(BUZZER, 200, 1000);
 
     delay(40);
 
-    noTone(BUZZER);
+    // noTone(BUZZER);
 
     delay(100);
 }
@@ -405,11 +366,11 @@ void soundBuzzerScroll()
  */
 void soundBuzzerSelect()
 {
-    tone(BUZZER, 1000, 300);
+    // tone(BUZZER, 1000, 300);
 
     delay(40);
 
-    noTone(BUZZER);
+    // noTone(BUZZER);
 
     delay(250);
 }
@@ -715,15 +676,7 @@ void sampleSetAct()
     delay(10);
 }
 
-/**
- * @brief Performs preliminary control checks.
- * 
- * This function is responsible for performing preliminary control checks before proceeding with further operations.
- * It returns a boolean value indicating whether the preliminary control checks passed or not.
- * 
- * @return true if preliminary control checks passed, false otherwise.
- */
-bool preliminaryControl()
+boolean preliminaryControl()
 {
     boolean controlResult;
 
@@ -731,12 +684,6 @@ bool preliminaryControl()
     {
     case SD_ONLY:
         controlResult = initializeSDcard();
-
-        /*
-        dataStorage = SD.open("/dataStorage.txt", FILE_APPEND);
-        dataStorage.println("test 2 ");
-        dataStorage.close();
-        */
         break;
 
     case WIFI_ONLY:
@@ -759,11 +706,12 @@ bool preliminaryControl()
 
 /**
  * Calculates the gain value.
- * 
+ *
  * @return The calculated gain value as a float. After, it is used to calculate the voltage, current, and resistance values.
  */
 
-float calculateGain(){
+float calculateCoefficient()
+{
     float gain;
     switch (currentChannel)
     {
@@ -785,10 +733,11 @@ float calculateGain(){
 
 /**
  * Calculates the offset.
- * 
+ *
  * @return The calculated offset as a float value. It is used to calculate the voltage, current, and resistance values.
  */
-float calculateOffset(){
+float calculateOffset()
+{
     float offset;
     switch (currentChannel)
     {
@@ -843,8 +792,8 @@ void adcSetup()
 
     Serial.println("Array length: " + String(measurement.getLength()) + "\n");
 
-
-    K = calculateGain();
+    K = calculateCoefficient();
+    //K = ;
     O = calculateOffset();
 
     Serial.println("Gain: " + String(K) + "\n" + "Offset: " + String(O) + "\n");
@@ -854,71 +803,99 @@ void adcSetup()
     // Start continuous conversions.
     Serial.print(ads.getDataRate());
 
-    loggerGraphic(currentMode, currentChannel, getTimeStamp());
+    loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
 
 // Executive Actions
 void loggerAct()
 {
     /*
-        switch (currentMode)
-        {
-        case SD_ONLY:
-            Serial.println("Not implemented yet");
-            break;
+   uint8_t arrayTesthigh(860);
+   uint8_t arrayTestlow(860);
+   int counter=0;
+   uint16_t sample;
 
-        case WIFI_ONLY:
-            Serial.println("Not implemented yet");
-            break;
+           switch (currentMode)
+           {
+           case SD_ONLY:
+               Serial.println("Not implemented yet");
+               break;
 
-        case DISPLAY_ONLY:
+           case WIFI_ONLY:
+               Serial.println("Not implemented yet");
+               break;
 
-            if (!new_data)
-            {
-                // Serial.println("No new data ready!");
-                return;
-            }
+           case DISPLAY_ONLY:
 
-            // Serial.println("New data ready!");
+               if (!new_data)
+               {
+                   // Serial.println("No new data ready!");
+                   return;
+               }
 
-            if (!measurement.isArrayFull())
-            {
-                // Serial.println(ads.getLastConversionResults());
-                measurement.insertMeasurement(ads.getLastConversionResults());
-                dataStorage = SD.open("/dataStorage.txt", FILE_APPEND);
-                dataStorage.println("test 3");
-                dataStorage.close();
-            }
-            else
-            {
-                // Serial.write(measurement.getMeasurements(), sizeof(measurement.getMeasurements()));
-                Serial.println("Mean: " + String(measurement.getMean()));
-                Serial.println("------------------------------------------------------------------------------");
-                // Serial.println("Std: " + String(measurement.getStd()));
-                Serial.println("Array full, resetted");
-                Serial.println("Array length: " + String(measurement.getLength()) + "\n");
-                measurement.setArrayFull(false);
-                loggerGraphic(currentMode, currentChannel, getTimeStamp());
-            }
+               // Serial.println("New data ready!");
 
-            new_data = false;
+               if (counter<860)
+               {
+                   // Serial.println(ads.getLastConversionResults());
+                   sample=ads.getLastConversionResults();
+                   Byte high= highByte(sample);
+                   Byte low= lowByte(sample);
+                   arrayTesthigh[counter]=high;
+                   arrayTestlow[counter]=low;
+                   counter++;
 
-            break;
+               }
+               else
+               {
 
-        default:
-            Serial.println("\n\n\n\n-----------------------------");
-            Serial.println("Error selecting output\n");
-            Serial.println("\n\n\n\n-----------------------------");
-            break;
-        }
-        */
-    int i = 0;
-    while (i < 100)
+                   Serial.write(arrayTest, sizeof(arrayTest));
+                   //Serial.println("Mean: " + String(measurement.getMean()));
+                   //Serial.println("------------------------------------------------------------------------------");
+                   // Serial.println("Std: " + String(measurement.getStd()));
+                  // Serial.println("Array full, resetted");
+                   //Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+                   measurement.setArrayFull(false);
+                   loggerGraphic(currentMode, currentChannel, getTimeStamp());
+               }
+
+               new_data = false;
+
+               break;
+
+           default:
+               Serial.println("\n\n\n\n-----------------------------");
+               Serial.println("Error selecting output\n");
+               Serial.println("\n\n\n\n-----------------------------");
+               break;
+           }
+
+       int i = 0;
+       while (i < 100)
+       {
+           appendFile(SD, "/dataStorage.txt", "Bastardooooooooooooo\n");
+           i++;
+           delay(100);
+       }
+
+       delay(1);*/
+
+    // If we don't have new data, skip this iteration.
+
+    if (!new_data)
     {
-        appendFile(SD, "/dataStorage.txt", "pizza\n");
-        i++;
-        delay(100);
+        return;
     }
 
-    delay(1);
+    adcValue = ads.getLastConversionResults();
+    voltage = 8.0625 / 10000 * (adcValue + O);
+    //Serial.println(adcValue);
+    //const char* p =  getTimeStamp.c_str();
+    //appendFile(SD, "/dataStorage", p);
+    Serial.println(voltage);
+    Serial.println();
+
+    new_data = false;
+
+    loggerGraphic(currentMode, currentChannel, getTimeStamp(), voltage);
 }
