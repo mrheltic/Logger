@@ -27,10 +27,23 @@
 #define MOSI 23
 #define CS 5
 
+int16_t adcValue;
+
+// Variables current measurement
+const float FACTOR = 30; //30A/1V from teh CT
+const float multiplier_I = 0.00003125; //for current measurement and gain four (1.024V / 2^16 * 2)
+float current;
+
+// Variables voltage measurement
+float R1 = 33280; //Resistor beetween Vin and A0 [ohm]
+float R2 = 9981; //Resistor beetween A0 and GND [ohm]
+const float multiplier_V = 0.0001875; //for current measurement and gain four (6.144V / 2^16 * 2)
+float voltage;
+
 float K;
 float O;
-int16_t adcValue;
-float voltage;
+
+
 
 // SPIClass SPI = SPIClass(VSPI);
 
@@ -268,9 +281,14 @@ boolean initializeADC() // TODO finish function
 {
     Serial.println("Initializing ADC...");
 
-    Serial.println("ADC initialized");
+    if (!ads.begin())
+    {
+        Serial.println("Failed to initialize ADS.");
+        while (1)
+            ;
+    }
 
-    ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+    Serial.println("ADC initialized");
 
     return true;
 }
@@ -547,19 +565,22 @@ void setChannel()
 {
     if (currentChannel == VOLTAGE)
     {
+        ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
         Serial.println("Reading channel A0\n");
     }
 
     else if (currentChannel == CURRENT)
     {
+        ads.setGain(GAIN_FOUR);
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
         Serial.println("Reading channel A2-A3\n");
     }
 
     else if (currentChannel == RESISTANCE)
     {
-        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_3, true);
+        ads.setGain(GAIN_TWOTHIRDS);
+        ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_1, true);
         Serial.println("Reading channel A1\n");
     }
 
@@ -712,23 +733,23 @@ boolean preliminaryControl()
 
 float calculateCoefficient()
 {
-    float gain;
+    float K;
     switch (currentChannel)
     {
     case VOLTAGE:
-        gain = 6.144;
+        K = multiplier_V * (R1 + R2) / R1;
         break;
     case CURRENT:
-        gain = 0.256;
+        K = multiplier_I * FACTOR;
         break;
     case RESISTANCE:
-        gain = 6.144;
+        K = 6.144;
         break;
     default:
-        gain = 0;
+        K = 1;
         break;
     }
-    return gain;
+    return K;
 }
 
 /**
@@ -771,40 +792,24 @@ void adcSetup()
     // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
     Serial.println("Interrupt attached (falling edge for new data ready)))");
-
-    // Initialize the ADC module.
     setRate(currentSampleRate);
-    Serial.println("Sample rate setting done!\n");
-
-    if (!ads.begin())
-    {
-        Serial.println("Failed to initialize ADS.");
-        while (1)
-            ;
-    }
-
-    Serial.println("Sample rate: " + String(currentSampleRate) + "SPS\n");
-
     setChannel();
-    Serial.println("Channel setting done!\n");
 
     measurement.setLength(currentSampleRate);
 
-    Serial.println("Array length: " + String(measurement.getLength()) + "\n");
-
     K = calculateCoefficient();
-    //K = ;
     O = calculateOffset();
 
     Serial.println("Gain: " + String(K) + "\n" + "Offset: " + String(O) + "\n");
-
+    Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
-    // Start continuous conversions.
-    Serial.print(ads.getDataRate());
-
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
+    
 }
+
+int j = 0;
+float sum = 0.0;
 
 // Executive Actions
 void loggerAct()
@@ -887,15 +892,24 @@ void loggerAct()
         return;
     }
 
+
     adcValue = ads.getLastConversionResults();
-    voltage = 8.0625 / 10000 * (adcValue + O);
+    current = K * (adcValue + O);
     //Serial.println(adcValue);
     //const char* p =  getTimeStamp.c_str();
     //appendFile(SD, "/dataStorage", p);
-    Serial.println(voltage);
-    Serial.println();
+    //Serial.println(adcValue);
+    sum = sum + sq(current);
 
     new_data = false;
 
-    loggerGraphic(currentMode, currentChannel, getTimeStamp(), voltage);
+    if (j == 860){
+    Serial.println(sqrt(sum/860));
+    Serial.println();
+    loggerGraphic(currentMode, currentChannel, getTimeStamp(), sqrt(sum/860));
+
+    sum = 0.0;
+    j = 0;
+    }
+    j++;
 }
