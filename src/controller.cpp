@@ -40,8 +40,8 @@ float R2 = 9981; //Resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; //for current measurement and gain four (6.144V / 2^16 * 2)
 float voltage;
 
-float K;
-float O;
+float K_value;
+float O_value;
 
 
 
@@ -733,23 +733,23 @@ boolean preliminaryControl()
 
 float calculateCoefficient()
 {
-    float K;
+    float K_value;
     switch (currentChannel)
     {
     case VOLTAGE:
-        K = multiplier_V * (R1 + R2) / R1;
+        K_value = multiplier_V * (R1 + R2) / R1;
         break;
     case CURRENT:
-        K = multiplier_I * FACTOR;
+        K_value = multiplier_I * FACTOR;
         break;
     case RESISTANCE:
-        K = 6.144;
+        K_value = 6.144;
         break;
     default:
-        K = 1;
+        K_value = 1;
         break;
     }
-    return K;
+    return K_value;
 }
 
 /**
@@ -797,10 +797,10 @@ void adcSetup()
 
     measurement.setLength(currentSampleRate);
 
-    K = calculateCoefficient();
-    O = calculateOffset();
+    K_value = calculateCoefficient();
+    O_value = calculateOffset();
 
-    Serial.println("Gain: " + String(K) + "\n" + "Offset: " + String(O) + "\n");
+    Serial.println("Gain: " + String(K_value) + "\n" + "Offset: " + String(O_value) + "\n");
     Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
@@ -894,7 +894,7 @@ void loggerAct()
 
 
     adcValue = ads.getLastConversionResults();
-    current = K * (adcValue + O);
+    current = K_value * (adcValue + O_value);
     //Serial.println(adcValue);
     //const char* p =  getTimeStamp.c_str();
     //appendFile(SD, "/dataStorage", p);
