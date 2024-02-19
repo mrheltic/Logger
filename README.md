@@ -1,14 +1,14 @@
 # Logger
 
 ## Table of Contents
-- [About] (#about)
-2. [Getting Started] (#getting_started)
-3. [Usage] (#usage)
-4. [Performance] (#evaluation)
-5. [Contributing] (#contributing)
-6. [Authors] (#authors)
-7. [License] (#license)
-8. [Acknowledgments] (#acknowledgments)
+- [About](#about)
+- [Getting Started](#getting_started)
+- [Usage](#usage)
+- [Performance](#evaluation)
+- [Contributing](#contributing)
+- [Authors](#authors)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## About <a name = "about"></a>
 A brief description of what this project does and who it's for.
