@@ -150,12 +150,27 @@ int Measurement::getLastMeasurement()
 }
 
 Measurement measurement(860);
-unsigned long time_now;
-unsigned long time_old;
-
+char serial;
 void setup()
 {
   Serial.begin(250000);
+
+while(true) {
+    if(Serial.available() > 0) {
+      serial = Serial.read();
+      Serial.println(serial, HEX);
+      if (serial=='s') {
+        // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
+        break;  // Esce dal ciclo while quando riceve 's'
+      }
+    }
+}
+
+  Serial.println("Greve");
+
+
+  int i=0;
+
 }
 
 void loop()
@@ -164,11 +179,11 @@ void loop()
   if (!measurement.isArrayFull())
         {
             // Serial.println(ads.getLastConversionResults());
-            measurement.insertMeasurement(random(0, 1000));
-            String.println(measurement.getLastMeasurement());
-            //Serial.write(0xCC); // Start byte
-            //Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
-            //Serial.write(measurement.getLastMeasurement() & 0xFF); // Low byte
+            measurement.insertMeasurement(i++);
+            //Serial.println(measurement.getLastMeasurement());
+            Serial.write(0xCC); // Start byte
+            Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+            Serial.write(measurement.getLastMeasurement() & 0xFF); // Low byte
         }
         else
         {
@@ -177,6 +192,7 @@ void loop()
             // Serial.println("Std: " + String(measurement.getStd()));
             //Serial.println("Array full, resetted");
             //Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+            i=0;
             measurement.setArrayFull(false);
         
         }
