@@ -13,7 +13,7 @@ enum MODE
 {
     DISPLAY_ONLY=0,
     SD_ONLY=2,
-    WIFI_ONLY=1
+    SERIAL_ONLY=1
 };
 
 enum CHANNEL
