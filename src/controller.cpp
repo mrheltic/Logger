@@ -64,7 +64,7 @@ const static char *WeekDays[] =
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL
-MODE currentMode = SD_ONLY;
+MODE currentMode = SERIAL_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 String currentChannelString;
 
@@ -818,8 +818,6 @@ void adcSetup()
                     break; // Esce dal ciclo while quando riceve 's'
                 }
             }
-
-            
         }
 
         delay(1000);
@@ -828,12 +826,9 @@ void adcSetup()
 
         Serial.println(currentChannelString);
         Serial.println(currentSampleRate);
-
     }
 
     Measurement measurement(currentSampleRate);
-
-
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
