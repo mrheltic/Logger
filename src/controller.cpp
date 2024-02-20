@@ -866,6 +866,7 @@ void loggerAct()
         {
             measurement.setArrayFull(false);
             loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
+            Serial.println("Mean: " + String(measurement.getMean()));
         }
 
         new_data = false;
