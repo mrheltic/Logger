@@ -804,6 +804,32 @@ void adcSetup()
     Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
+    char serial;
+    
+    while (true)
+    {
+        if (Serial.available() > 0)
+        {
+            serial = Serial.read();
+            Serial.println(serial, HEX);
+            if (serial == 's')
+            {
+                // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
+                break; // Esce dal ciclo while quando riceve 's'
+            }
+        }
+    }
+
+    Serial.println("START");
+
+    delay(1000);
+
+    Measurement measurement(currentSampleRate);
+
+    Serial.println("CURRENT");
+    Serial.println("860");
+
+
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
     
 }
@@ -887,29 +913,38 @@ void loggerAct()
 
     // If we don't have new data, skip this iteration.
 
-    if (!new_data)
+
+
+
+    if (!measurement.isArrayFull())
     {
-        return;
+        measurement.insertMeasurement(86);
+        Serial.write(0xCC);                                           // Start byte
+        Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+        Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte 
+    }
+    else
+    {
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), voltage);
+        measurement.setArrayFull(false);
     }
 
-
-    adcValue = ads.getLastConversionResults();
-    current = K_value * (adcValue + O_value);
+    //current = K_value * (adcValue + O_value);
     //Serial.println(adcValue);
     //const char* p =  getTimeStamp.c_str();
     //appendFile(SD, "/dataStorage", p);
     //Serial.println(adcValue);
-    sum = sum + sq(current);
+    //sum = sum + sq(current);
 
-    new_data = false;
 
-    if (j == 860){
-    Serial.println(sqrt(sum/860));
-    Serial.println();
-    loggerGraphic(currentMode, currentChannel, getTimeStamp(), sqrt(sum/860));
+    
+    //if (j == 860){ 
+    //Serial.println(sqrt(sum/860));
+    //Serial.println();
 
-    sum = 0.0;
-    j = 0;
-    }
-    j++;
+
+    //sum = 0.0;
+    //j = 0;
+    //}
+    //j++;
 }

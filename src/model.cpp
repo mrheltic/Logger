@@ -29,6 +29,7 @@ public:
     int getLength();
     void setArrayFull(bool arrayFull);
     int getArrayLenght();
+    int getLastMeasurement();
 };
 
 Measurement::Measurement(int len)
@@ -140,6 +141,11 @@ void Measurement::setArrayFull(bool arrayFull)
 
 int Measurement::getArrayLenght(){
     return sizeof(measurements)/sizeof(measurements[0]);
+}
+
+int Measurement::getLastMeasurement()
+{
+    return measurements[count];
 }
 
 // Print the mean of measurement returning 2 value: the 4 digits most significant and the power of 10

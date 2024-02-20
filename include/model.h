@@ -31,6 +31,7 @@ public:
   int getLength();
   void setArrayFull(boolean arrayFull);
   int getArrayLenght();
+  int getLastMeasurement();
 };
 
 #endif
