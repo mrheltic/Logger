@@ -26,7 +26,7 @@ enum CHANNEL
 // Dichiarazione delle variabili globali
 extern MODE currentMode;
 extern CHANNEL currentChannel;
-extern uint16_t currentSampleRate;
+extern int currentSampleRate;
 
 // Dichiarazione delle funzioni
 void initializeSerial();

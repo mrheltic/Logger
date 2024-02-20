@@ -620,7 +620,7 @@ void infoAct(boolean subSetup)
  *
  * @param value The rate value to be set.
  */
-void setRate(uint16_t value)
+void setRate(int value)
 {
 
     switch (value)
@@ -828,7 +828,7 @@ void adcSetup()
 
         Serial.println(currentChannelString);
         Serial.println(currentSampleRate);
-        
+
     }
 
     Measurement measurement(currentSampleRate);
