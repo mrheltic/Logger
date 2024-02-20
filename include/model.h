@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <math.h>
 #include <Arduino.h>
 
 class Measurement {
@@ -11,6 +12,8 @@ private:
   float mean; // Media
   float std; // Deviazione standard
   unsigned long timestamp; // Timestamp dell'ultima misurazione
+  boolean arrayFull;
+  float sum;
   
 public:
   Measurement(int len);
@@ -19,12 +22,16 @@ public:
   void insertMeasurement(int value);
   void calculateMean();
   void calculateStd();
-  void clearMeasurements();
-  void setTimestamp(unsigned long ts);
+  void reset();
+  void setTimestamp(unsigned long timestamp);
   float getMean();
   float getStd();
-  unsigned long getTimestamp();
   int* getMeasurements();
+  boolean isArrayFull();
+  int getLength();
+  void setArrayFull(boolean arrayFull);
+  int getArrayLenght();
+  int getLastMeasurement();
 };
 
 #endif

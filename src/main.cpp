@@ -1,3 +1,13 @@
+/***************************************************
+ *  Logger
+ *
+ * Contributors:
+ * - Vincenzo Pio Florio
+ * - Francesco Stasi
+ * - Davide Tonti
+ *
+ ***************************************************/
+
 #include <Arduino.h>
 #include "../include/view.h"
 #include "../include/controller.h"
@@ -18,10 +28,15 @@ void executeAction()
   switch (menu)
   {
   case 1:
-    while (!select() && stateMenu == 0)
+    if (preliminaryControl())
     {
-      loggerAct();
+      adcSetup();
+      while (!select() && stateMenu == 0)
+      {
+        loggerAct();
+      }
     }
+    else ESP.restart();
     stateMenu = 1;
     break;
   case 2:
