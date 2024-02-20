@@ -5,12 +5,12 @@ int i = 0;
 class Measurement
 {
 private:
-    int *measurements;       // Array delle misurazioni
-    int length;              // Lunghezza dell'array
-    int count;               // Numero di elementi attualmente presenti nell'array
-    float mean;              // Media
-    float std; 
-    float sum;              // Deviazione standard
+    int *measurements; // Array delle misurazioni
+    int length;        // Lunghezza dell'array
+    int count;         // Numero di elementi attualmente presenti nell'array
+    float mean;        // Media
+    float std;
+    float sum;               // Deviazione standard
     unsigned long timestamp; // Timestamp della prima misurazione
     bool arrayFull;
 
@@ -88,7 +88,7 @@ void Measurement::insertMeasurement(int value)
     measurements[count] = value;
     count++;
 
-    if(count == length)
+    if (count == length)
     {
         count = 0;
         arrayFull = true;
@@ -140,8 +140,9 @@ void Measurement::setArrayFull(bool arrayFull)
     this->arrayFull = arrayFull;
 }
 
-int Measurement::getArrayLenght(){
-    return sizeof(measurements)/sizeof(measurements[0]);
+int Measurement::getArrayLenght()
+{
+    return sizeof(measurements) / sizeof(measurements[0]);
 }
 
 int Measurement::getLastMeasurement()
@@ -154,48 +155,56 @@ char serial;
 
 void setup()
 {
-  Serial.begin(250000);
+    Serial.begin(250000);
 
-while(true) {
-    if(Serial.available() > 0) {
-      serial = Serial.read();
-      Serial.println(serial, HEX);
-      if (serial=='s') {
-        // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
-        break;  // Esce dal ciclo while quando riceve 's'
-      }
+    while (true)
+    {
+        if (Serial.available() > 0)
+        {
+            serial = Serial.read();
+            Serial.println(serial, HEX);
+            if (serial == 's')
+            {
+                // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
+                break; // Esce dal ciclo while quando riceve 's'
+            }
+        }
     }
-}
 
-  Serial.println("CURRENT");
-  Serial.println("860");
+    for(int i = 0; i < 1500; i++)
+    {
+        Serial.println("BOH ");
+    }
+    Serial.println("START");
 
+    delay(1000);
 
-  int i=0;
+    Serial.println("CURRENT");
+    Serial.println("860");
 
+    int i = 0;
 }
 
 void loop()
 {
-  delayMicroseconds(1160); // Simulate the time of the conversion (860us)
-  if (!measurement.isArrayFull())
-        {
-            // Serial.println(ads.getLastConversionResults());
-            measurement.insertMeasurement(i++ + random(0, 20));
-            //Serial.println(measurement.getLastMeasurement());
-            Serial.write(0xCC); // Start byte
-            Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
-            Serial.write(measurement.getLastMeasurement() & 0xFF); // Low byte
-        }
-        else
-        {
-            //Serial.println("Mean: " + String(measurement.getMean()));
-            //Serial.println("------------------------------------------------------------------------------");
-            // Serial.println("Std: " + String(measurement.getStd()));
-            //Serial.println("Array full, resetted");
-            //Serial.println("Array length: " + String(measurement.getLength()) + "\n");
-            i=0;
-            measurement.setArrayFull(false);
-        
-        }
-}  
+    delayMicroseconds(1160); // Simulate the time of the conversion (860us)
+    if (!measurement.isArrayFull())
+    {
+        // Serial.println(ads.getLastConversionResults());
+        measurement.insertMeasurement(i++ + random(0, 20));
+        // Serial.println(measurement.getLastMeasurement());
+        Serial.write(0xCC);                                           // Start byte
+        Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+        Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte
+    }
+    else
+    {
+        // Serial.println("Mean: " + String(measurement.getMean()));
+        // Serial.println("------------------------------------------------------------------------------");
+        //  Serial.println("Std: " + String(measurement.getStd()));
+        // Serial.println("Array full, resetted");
+        // Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+        i = 0;
+        measurement.setArrayFull(false);
+    }
+}
