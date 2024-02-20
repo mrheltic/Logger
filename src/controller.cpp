@@ -66,14 +66,15 @@ int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 // DECLARING VARIABLES FOR MODE AND CHANNEL
 MODE currentMode = SERIAL_ONLY;
 CHANNEL currentChannel = VOLTAGE;
-String currentChannelString;
+String currentChannelString; // Used to communicate the current channel to the user through the serial
 
 int currentSampleRate = 860;
 
+// DECLARING VARIABLES FOR EMPHIRICALLY EVALUATE PERFORMANCES
 unsigned long time_now = 0;
 unsigned long time_old = 0;
-int count = 0;
 
+// DECLARING THE OBJECT OF MEASUREMENTS
 Measurement measurement(8);
 
 // File creditsFile;
@@ -104,8 +105,10 @@ const char *password = "logger1234";
 
 bool isExecuted = false;
 
+// DECLARING RTC
 Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
+// DECLARING ADC
 Adafruit_ADS1115 ads;
 
 const char *creditString = "-------------------------------\nLogger\n-------------------------------\nContributors:\n- Vincenzo Pio Florio\n- Francesco Stasi\n- Davide Tonti\n-------------------------------\n";
@@ -392,6 +395,11 @@ void soundBuzzerSelect()
     delay(250);
 }
 
+/**
+ * @brief Get the current timestamp as a string.
+ * 
+ * @return String The current timestamp as a string.
+ */
 String getTimeStamp()
 {
 
@@ -479,12 +487,13 @@ void outputModeAct()
     delay(10);
 }
 
+
 /**
  * @brief Performs the action for the input mode.
- *
+ * 
  * This function is responsible for handling the input mode action.
  * It performs the necessary operations based on the current input mode.
- *
+ * 
  * @return void
  */
 void inputModeAct()
@@ -655,8 +664,10 @@ void setRate(int value)
     }
 }
 
+
 /**
- * @brief Sets the sample act.
+ * Function to perform the sample set action.
+ * This function updates the sample rate based on user input and displays the selected sample rate.
  */
 void sampleSetAct()
 {
@@ -699,6 +710,11 @@ void sampleSetAct()
     delay(10);
 }
 
+/**
+ * @brief Performs preliminary control checks.
+ * 
+ * @return true if the preliminary control checks pass, false otherwise.
+ */
 boolean preliminaryControl()
 {
     boolean controlResult;
@@ -723,12 +739,14 @@ boolean preliminaryControl()
     return controlResult;
 }
 
-/**
- * Calculates the gain value.
- *
- * @return The calculated gain value as a float. After, it is used to calculate the voltage, current, and resistance values.
- */
 
+/**
+ * @brief Calculates the coefficient.
+ * 
+ * This function calculates the coefficient based on certain criteria.
+ * 
+ * @return The calculated coefficient.
+ */
 float calculateCoefficient()
 {
     float K_value;
@@ -776,11 +794,15 @@ float calculateOffset()
     return offset;
 }
 
+
 /**
- * @brief Sets up the ADC (Analog-to-Digital Converter).
- *
- * This function initializes the ADC module and configures its settings.
- * It prepares the ADC for reading analog values from sensors or other sources.
+ * @brief Sets up the ADC configuration and initializes necessary variables.
+ * 
+ * This function attaches an interrupt to the ALERT_PIN, sets the sample rate and channel,
+ * calculates the gain and offset values, and initializes the Measurement object.
+ * If the current mode is SERIAL_ONLY, it waits for the 's' character to be received from the serial monitor.
+ * 
+ * @note This function assumes that the NewDataReadyISR function is defined elsewhere.
  */
 void adcSetup()
 // TODO pass the conversion value to labview<
@@ -833,7 +855,15 @@ void adcSetup()
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
 
-// Executive Actions
+
+/**
+ * @brief Performs the logging action based on the current mode.
+ * 
+ * This function is responsible for executing the appropriate logging action based on the current mode.
+ * It checks the current mode and performs the corresponding action, such as printing to Serial, storing data in an array, or displaying on a graphic display.
+ * 
+ * @note This function assumes that the necessary variables and objects (e.g., currentMode, new_data, measurement, ads) have been properly initialized.
+ */
 void loggerAct()
 {
 
