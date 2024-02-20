@@ -151,6 +151,7 @@ int Measurement::getLastMeasurement()
 
 Measurement measurement(860);
 char serial;
+
 void setup()
 {
   Serial.begin(250000);
@@ -166,7 +167,8 @@ while(true) {
     }
 }
 
-  Serial.println("Greve");
+  Serial.println("CURRENT");
+  Serial.println("860");
 
 
   int i=0;
@@ -179,7 +181,7 @@ void loop()
   if (!measurement.isArrayFull())
         {
             // Serial.println(ads.getLastConversionResults());
-            measurement.insertMeasurement(i++);
+            measurement.insertMeasurement(i++ + random(0, 20));
             //Serial.println(measurement.getLastMeasurement());
             Serial.write(0xCC); // Start byte
             Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
