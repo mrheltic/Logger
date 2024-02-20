@@ -171,10 +171,6 @@ void setup()
         }
     }
 
-    for(int i = 0; i < 1500; i++)
-    {
-        Serial.println("BOH ");
-    }
     Serial.println("START");
 
     delay(1000);
@@ -195,7 +191,7 @@ void loop()
         // Serial.println(measurement.getLastMeasurement());
         Serial.write(0xCC);                                           // Start byte
         Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
-        Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte
+        Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte 
     }
     else
     {
