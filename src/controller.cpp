@@ -802,30 +802,38 @@ void adcSetup()
     Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
-    char serial;
-
-    while (true)
+    if (currentMode == SERIAL_ONLY)
     {
-        if (Serial.available() > 0)
+        char serial;
+
+        while (true)
         {
-            serial = Serial.read();
-            Serial.println(serial, HEX);
-            if (serial == 's')
+            if (Serial.available() > 0)
             {
-                // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
-                break; // Esce dal ciclo while quando riceve 's'
+                serial = Serial.read();
+                Serial.println(serial, HEX);
+                if (serial == 's')
+                {
+                    // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
+                    break; // Esce dal ciclo while quando riceve 's'
+                }
             }
+
+            
         }
+
+        delay(1000);
+
+        Serial.println("START");
+
+        Serial.println(currentChannelString);
+        Serial.println(currentSampleRate);
+        
     }
-
-    Serial.println("START");
-
-    delay(1000);
 
     Measurement measurement(currentSampleRate);
 
-    Serial.println(currentChannelString);
-    Serial.println(currentSampleRate);
+
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
@@ -864,7 +872,6 @@ void loggerAct()
 
         break;
 
-
     case SERIAL_ONLY:
 
         if (!new_data)
@@ -889,14 +896,14 @@ void loggerAct()
             measurement.setArrayFull(false);
             loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
         }
-            new_data = false;
+        new_data = false;
 
-            break;
+        break;
 
-        default:
-            Serial.println("\n\n\n\n-----------------------------");
-            Serial.println("Error selecting output\n");
-            Serial.println("\n\n\n\n-----------------------------");
-            break;
-        }
+    default:
+        Serial.println("\n\n\n\n-----------------------------");
+        Serial.println("Error selecting output\n");
+        Serial.println("\n\n\n\n-----------------------------");
+        break;
     }
+}
