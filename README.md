@@ -90,6 +90,7 @@ There are many ADCs available on the market for various applications: Ramping, S
 ΔΣ ADCs are now ideal for converting analog signals over a wide range of frequencies, from DC to several megahertz. Basically, these converters consist of an oversampling modulator followed by a digital filter that together produce a high-resolution data-stream output. The ADS1115 has an adjustable gain(PGA), an interal voltage reference, a clock oscillator, an I2C interface, and also a programmable digital comparator that provides an alert on a dedicated pin. The latter played an important role in carrying out the sampling at the maximum achievable speed of 860SPS. Thanks to the mux the adc has four single-ended(to measure
 each channel with respect to ground) or two differential inputs and two available conversion mode: single-shot mode(power saving mode) and continuous mode. In continuous conversion mode, the adc automatically begins a conversion of the input as soon as the previous conversion is completed and the rate is programmed by software.
 To achieve high accuracy measurements it's a mandatory following several step:
+
 - Use the Maximum Resolution in the readings
 - Adjust the PGA to match the voltage range of your input signal(all specifications can be found in the datasheet)
 - Use an external voltage reference instead of the integrated
