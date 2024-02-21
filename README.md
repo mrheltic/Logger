@@ -2,16 +2,17 @@
 
 ## Table of Contents
 - [About](#about)
-- [Getting Started](#getting_started)
+- [Getting Started](#getting-started)
 - [Description](#description)
 - [Usage](#usage)
-- [Performance](#evaluation)
+- [Performance](#performance-evaluation)
 - [Contributing](#contributing)
 - [Authors](#authors)
+- [Repo Activity](#repo-activity)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
-## About <a name = "about"></a>
+## About
 This project is a data acquisition system built using an ESP8266 microcontroller board. The system incorporates an ADS1115 analog-to-digital converter, an SSD1306 display, and three buttons for user interaction. It is designed to store data on an SD card or send it to a pc for further analysis.
 
 ### Features
@@ -23,7 +24,7 @@ This project is a data acquisition system built using an ESP8266 microcontroller
 - Transmission of data to a computer for centralized analysis
 
 
-## Getting Started <a name = "getting_started"></a>
+## Getting Started
 
 
 
@@ -56,25 +57,29 @@ This project is a data acquisition system built using an ESP8266 microcontroller
 - Monitor the serial output to ensure successful connection to the sensors.
 - Verify the functionality by checking the sensor readings on the SSD1306 display and the data storage on the SD card.
 
-## Description <a name = "description"></a>
+## Description
 
-## Usage <a name = "usage"></a>
+## Usage
 A few examples of useful commands and/or tasks.
 
-## Performance Evaluation <a name = "performance_evaluation"></a>
+## Performance Evaluation
 Discuss how the performance of the logger was evaluated.
 
-## Contributing <a name = "contributing"></a>
+## Contributing
 
 Contributions to this project are welcome. If you encounter any issues or have ideas for improvements, please submit a pull request or open an issue on the project repository.
 
-## ✍️ Authors <a name = "authors"></a>
+## ✍️ Authors
 - [@mrheltic](https://github.com/mrheltic)
 - [@Phersax](https://github.com/Phersax)
 - [@dav01luffy](https://github.com/dav01luffy)
 
-## License <a name = "license"></a>
+## Repo Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/d41f5a09ed4fdf91b97787200df89b38aa1a0af6.svg "Repobeats analytics image")
+
+## License
 Details about the license.
 
-## Acknowledgments <a name = "acknowledgments"></a>
+## Acknowledgments
 Any acknowledgments (optional).
