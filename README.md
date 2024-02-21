@@ -12,7 +12,7 @@
 - [Acknowledgments](#acknowledgments)
 
 ## About <a name = "about"></a>
-This project is a data acquisition system built using an ESP8266 microcontroller board. The system incorporates an ADS1115 analog-to-digital converter, an SSD1306 display, and three buttons for user interaction. It is designed to store data on an SD card or send it to a pc for further analysis.
+This project is a data acquisition system built using an ESP32 microcontroller board. The system incorporates an ADS1115 analog-to-digital converter, an SSD1306 display, and three buttons for user interaction. It is designed to store data on an SD card or send it to a pc for further analysis.
 
 ### Features
 
