@@ -53,7 +53,11 @@ This project is a data acquisition system built using an ESP32 microcontroller b
   - SD (for SD card storage)
   - <other libraries as required>
 
-### Installation using Arduino IDE
+
+### Installation
+
+<details open>
+<summary><i>Installation using Arduino IDE</i></summary>
 
 - Clone or download the project repository from GitHub.
 - Open the Arduino IDE and install the ESP32 board manager if not already installed.
@@ -62,8 +66,10 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 - Upload the code to the ESP32 board using the Arduino IDE.
 - Monitor the serial output to ensure successful connection to the sensors.
 - Verify the functionality by checking the sensor readings on the SSD1306 display and the data storage on the SD card.
+</details>
 
-### Installation using Visual Studio Code
+<details open>
+<summary><i>Installation using Visual Studio Code</i></summary>
 
 - Clone or download the project repository from GitHub.
 - Open VS and compile the software (changing the details on platform.ini according to your hardware).
@@ -71,6 +77,8 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 - Upload the code to the ESP32 board using the upload tool.
 - Monitor the serial output to ensure successful connection to the sensors.
 - Verify the functionality by checking the sensor readings on the SSD1306 display and the data storage on the SD card.
+
+</details>
 
 ## Description
 
