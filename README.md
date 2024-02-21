@@ -14,9 +14,11 @@
 ## Table of Contents
 - [About](#about)
 - [Getting Started](#getting-started)
+- [Hardware](#hardware-required)
 - [Description](#description)
-- [Usage](#usage)
-- [Performance](#performance-evaluation)
+- [SD Mode](#sd-mode)
+- [Display Mode](#display-mode)
+- [Serial Mode](#serial-mode)
 - [Contributing](#contributing)
 - [Authors](#authors)
 - [Repo Activity](#repo-activity)
@@ -34,6 +36,7 @@ This project is a data acquisition system built using an ESP8266 microcontroller
 - Storage of acquired data on an SD card for offline access
 - Transmission of data to a computer for centralized analysis
 
+## Hardware Required
 
 ## Getting Started
 
@@ -70,20 +73,37 @@ This project is a data acquisition system built using an ESP8266 microcontroller
 
 ## Description
 
-## Usage
-A few examples of useful commands and/or tasks.
 
-## Performance Evaluation
-Discuss how the performance of the logger was evaluated.
+
+## Display Mode
+
+### Usage
+
+### Performance Evaluation
+
+
+## SD Mode
+
+### Usage
+
+### Performance Evaluation
+
+
+## Serial Mode
+
+### Usage
+
+### Performance Evaluation
+
 
 ## Contributing
 
 Contributions to this project are welcome. If you encounter any issues or have ideas for improvements, please submit a pull request or open an issue on the project repository.
 
 ## ✍️ Authors
-- [@mrheltic](https://github.com/mrheltic)
-- [@Phersax](https://github.com/Phersax)
-- [@dav01luffy](https://github.com/dav01luffy)
+- [@mrheltic](https://github.com/mrheltic) - Florio Vincenzo Pio
+- [@Phersax](https://github.com/Phersax) - Stasi Francesco
+- [@dav01luffy](https://github.com/dav01luffy) - Tonti Davide
 
 ## Repo Activity
 
