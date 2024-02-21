@@ -86,6 +86,82 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ## ⌨️ Code
 
+All the code was written using the arduino Framework, for an ESP32. This gave us significant advantages in terms of ease of writing, online documentation, and especially in terms of click-through, which is considerably greater than for an arduino Uno. We followed a kind of MVC model, where each component is separate from the others and deals only with the things it is responsible for, invoking higher-level primitives. This allowed us to manage different components more smoothly.
+
+### Main
+
+The main substantially is a method wrapper and deals at a higher level with handling scrolling through the various menus. Initially (in setup) it asks the controller to initialize devices (the basic ones, such as buttons, screen, ...)
+
+```cpp
+while (!initializeDevices()){
+}
+
+updateMenu();
+```
+
+After this handles menu selection
+
+```cpp
+if (stateMenu){
+  if (goDown()){
+    menu++;
+  }
+  if (goUp()){
+    menu--;
+  }
+  if (select()){
+    executeAction(); //Enters in the selected menu
+  }
+}
+```
+
+### Controller
+
+The controller is the component that manages all component behavior and is directly responsible for making measurements. Besides that it initializes all the devices and the serial. The initializations that are done can be blocking or non-blocking, depending on the type of component we want to initialize: a failure of the fundamental components results in a program block inside a loop, which will not allow the execution of the remaining code, while the other components may not be initialized at all. The reference with respect to the success or failure of initialization we have it by returning a boolean value true when the method is terminated, so it does not take into account subsequent failures. The whole initial part is devoted to declaring all pins connected to the board, and in case of custom configurations they can be changed before compilation. 
+
+After all parameters have been selected, data acquisition will proceed. This involves an initial setup phase, in which, based on what parameters are selected (saved as global variables in the controller) it will go to set the mode (and consequently the channels to read from), the data rate, and calculate gain and offset. Depending on the output selected it could change significantly, but we will also have an output on the serial that tells us what is happening. Also in this part I am going to initialize the measurement object, which will handle the calculations made for mean and std.
+
+```cpp
+void adcSetup()
+{
+  setRate(currentSampleRate); //Physically setting the sample rate with ADS function
+  setChannel(); //Setting the channel, gain and other useful parameters
+
+  K_value = calculateCoefficient();
+  O_value = calculateOffset();
+
+  Measurement measurement(currentSampleRate); //Instantiate the object
+}
+```
+
+After running the setup you enter the loggerAct, which is the method that takes care of the measurement. Here, depending on the mode that will be selected it will have different behavior, but basically what it does is:
+
+```cpp
+// The microcontroller is waiting for an interrupt from the ADC
+if (!new_data)
+  {
+    return;
+  }
+
+// When the adc is alerted via the alert pin the code continues
+
+if (!measurement.isArrayFull())
+  {
+    measurement.insertMeasurement(adcValue); // Get the misuration and stores in the array
+  }
+
+else
+  {
+    measurement.setArrayFull(false); // Empties the array and compute mean and std
+    loggerGraphic(mode, channel, timestamp, mean); // Print on display the parameters
+  }
+
+new_data = false;
+```
+
+### View
+
+### Model
 
 ## Theoretical Notions
 <details open>
