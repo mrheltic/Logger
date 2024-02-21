@@ -56,7 +56,11 @@ const static char *WeekDays[] =
         "Sunday"};
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 23
+#define BUZZER 33
+int scrollFrequency = 200;
+int scrollDuration = 200;
+int selectFrequency = 300;
+int selectDuration = 200;
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 32
@@ -370,34 +374,23 @@ boolean select()
  * followed by a delay of 40 milliseconds. Then, the buzzer is turned off using the noTone() function,
  * followed by a delay of 100 milliseconds.
  */
-void soundBuzzerScroll()
+void soundBuzzer(int frequency, int duration)
 {
-    // tone(BUZZER, 200, 1000);
-
-    delay(40);
-
-    // noTone(BUZZER);
-
-    delay(100);
-}
-
-/**
- * Function to sound the buzzer with a specific frequency and duration.
- */
-void soundBuzzerSelect()
-{
-    // tone(BUZZER, 1000, 300);
-
-    delay(40);
-
-    // noTone(BUZZER);
-
-    delay(250);
+    int period = 1000000 / frequency;      
+    int halfPeriod = period / 2;             
+    int cycles = frequency * duration / 1000; 
+    for (int i = 0; i < cycles; i++)
+    {                                  
+        digitalWrite(BUZZER, HIGH);  
+        delayMicroseconds(halfPeriod); 
+        digitalWrite(BUZZER, LOW);    
+        delayMicroseconds(halfPeriod); 
+    }
 }
 
 /**
  * @brief Get the current timestamp as a string.
- * 
+ *
  * @return String The current timestamp as a string.
  */
 String getTimeStamp()
@@ -433,14 +426,13 @@ void outputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = DISPLAY_ONLY;
             Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
         if (goUp())
         {
-            soundBuzzerScroll();
-
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = SERIAL_ONLY;
             Serial.println("Mode selected: SERIAL_ONLY\n");
         }
@@ -449,13 +441,13 @@ void outputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = SERIAL_ONLY;
             Serial.println("Mode selected: SERIAL_ONLY\n");
         }
         if (goUp()) // Check on sd card
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = SD_ONLY;
             Serial.println("Mode selected: SD_ONLY\n");
         }
@@ -465,13 +457,13 @@ void outputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = SD_ONLY;
             Serial.println("Mode selected: SD_ONLY\n");
         }
         if (goUp())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentMode = DISPLAY_ONLY;
             Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
@@ -487,13 +479,12 @@ void outputModeAct()
     delay(10);
 }
 
-
 /**
  * @brief Performs the action for the input mode.
- * 
+ *
  * This function is responsible for handling the input mode action.
  * It performs the necessary operations based on the current input mode.
- * 
+ *
  * @return void
  */
 void inputModeAct()
@@ -505,13 +496,13 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = CURRENT;
             Serial.println("Input selected: CURRENT\n");
         }
         if (goUp())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = RESISTANCE;
             Serial.println("Input selected: RESISTANCE\n");
         }
@@ -521,13 +512,13 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = RESISTANCE;
             Serial.println("Input selected: RESISTANCE\n");
         }
         if (goUp())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = VOLTAGE;
             Serial.println("Input selected: VOLTAGE\n");
         }
@@ -537,13 +528,13 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = VOLTAGE;
             Serial.println("Input selected: VOLTAGE\n");
         }
         if (goUp())
         {
-            soundBuzzerScroll();
+            soundBuzzer(scrollFrequency, scrollDuration);
             currentChannel = CURRENT;
             Serial.println("Input selected: CURRENT\n");
         }
@@ -664,7 +655,6 @@ void setRate(int value)
     }
 }
 
-
 /**
  * Function to perform the sample set action.
  * This function updates the sample rate based on user input and displays the selected sample rate.
@@ -676,7 +666,7 @@ void sampleSetAct()
     if (goDown())
     {
         int i = 0;
-        soundBuzzerScroll();
+        soundBuzzer(scrollFrequency, scrollDuration);
         for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == currentSampleRate)
@@ -693,7 +683,7 @@ void sampleSetAct()
     if (goUp())
     {
         int i = 0;
-        soundBuzzerScroll();
+        soundBuzzer(scrollFrequency, scrollDuration);
         for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == currentSampleRate)
@@ -712,7 +702,7 @@ void sampleSetAct()
 
 /**
  * @brief Performs preliminary control checks.
- * 
+ *
  * @return true if the preliminary control checks pass, false otherwise.
  */
 boolean preliminaryControl()
@@ -739,12 +729,11 @@ boolean preliminaryControl()
     return controlResult;
 }
 
-
 /**
  * @brief Calculates the coefficient.
- * 
+ *
  * This function calculates the coefficient based on certain criteria.
- * 
+ *
  * @return The calculated coefficient.
  */
 float calculateCoefficient()
@@ -794,14 +783,13 @@ float calculateOffset()
     return offset;
 }
 
-
 /**
  * @brief Sets up the ADC configuration and initializes necessary variables.
- * 
+ *
  * This function attaches an interrupt to the ALERT_PIN, sets the sample rate and channel,
  * calculates the gain and offset values, and initializes the Measurement object.
  * If the current mode is SERIAL_ONLY, it waits for the 's' character to be received from the serial monitor.
- * 
+ *
  * @note This function assumes that the NewDataReadyISR function is defined elsewhere.
  */
 void adcSetup()
@@ -828,14 +816,14 @@ void adcSetup()
     {
         char serial;
         waitSerialGraphic();
-        
+
         while (true)
         {
             if (Serial.available() > 0)
             {
                 serial = Serial.read();
                 Serial.println(serial, HEX);
-                if (serial == 'F')
+                if (serial == 's')
                 {
                     // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
                     break; // Esce dal ciclo while quando riceve 's'
@@ -856,13 +844,12 @@ void adcSetup()
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
 
-
 /**
  * @brief Performs the logging action based on the current mode.
- * 
+ *
  * This function is responsible for executing the appropriate logging action based on the current mode.
  * It checks the current mode and performs the corresponding action, such as printing to Serial, storing data in an array, or displaying on a graphic display.
- * 
+ *
  * @note This function assumes that the necessary variables and objects (e.g., currentMode, new_data, measurement, ads) have been properly initialized.
  */
 void loggerAct()
