@@ -269,11 +269,8 @@ For more in-depth information you can visit the python code repository directly:
 ### Performance Evaluation
 
 ## ⛏️ Built Using
-- [MongoDB](https://www.mongodb.com/) - Database
-- [Express](https://expressjs.com/) - Server Framework
-- [VueJs](https://vuejs.org/) - Web Framework
-- [NodeJs](https://nodejs.org/en/) - Server Environment
-
+- [PlatformIO](https://platformio.org) - PlatformIO
+- [Arduino Framework](https://www.arduino.cc) - Arduino Framework
 
 ## 🫂 Contributing
 
