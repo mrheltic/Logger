@@ -102,14 +102,18 @@ updateMenu();
 After this handles menu selection
 
 ```cpp
-if (stateMenu){
-  if (goDown()){
+if (stateMenu)
+{
+  if (goDown())
+  {
     menu++;
   }
-  if (goUp()){
+  if (goUp())
+  {
     menu--;
   }
-  if (select()){
+  if (select())
+  {
     executeAction(); //Enters in the selected menu
   }
 }
@@ -161,7 +165,32 @@ new_data = false;
 
 ### View
 
+The view component deals with screen management. Here it is initialized and passing it the necessary parameters updates the screen. Bipmap images of the various modes and associated sliders are also saved here. The view also provides functions to be used directly by the controller, such as the one used during the loggerAct, which takes care of printing media (for each second), timestamp, mode, and output
+
 ### Model
+
+The model is the component that manages the "measurements" class and takes care of the array. This provides various functions to calculate different values useful for measurements, such as mean and standard deviation. In fact, when we go to initialize the object an array is created, of length equal to the data rate, and we go to calculate mean and std for each second. Each time the adc returns us the value, from the controller, we go to invoke a function that is used to insert the measured value (already possibly multiplied by the gain and summed with the offset) at the tail of the array. 
+
+```cpp
+class Measurement
+{
+private:
+    int *measurements;
+    float mean;
+    float std; 
+    bool arrayFull;
+
+public:
+    Measurement(int len);
+    ~Measurement();
+    void insertMeasurement(int value);
+    void calculateMean();
+    void calculateStd();
+    void reset();
+    bool isArrayFull();
+    int getLength();
+};
+```
 
 ## Theoretical Notions
 <details open>
