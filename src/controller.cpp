@@ -827,7 +827,8 @@ void adcSetup()
     if (currentMode == SERIAL_ONLY)
     {
         char serial;
-
+        waitSerialGraphic();
+        
         while (true)
         {
             if (Serial.available() > 0)
