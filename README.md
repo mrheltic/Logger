@@ -159,6 +159,8 @@ start_byte = ser.read(1)  # Read the start byte
 
 - `measurement = (ord(high_byte) << 8) | ord(low_byte)` merges the high byte and the low byte to reconstruct the original measurement. The `ord()` function is used to get the integer value of a byte. The `<< 8` operation shifts the bits of the high byte 8 places to the left, effectively moving it to the position of the high byte in a 16-bit number. The `|` operation is a bitwise OR, which combines the high byte and the low byte into a single 16-bit number.
 
+For more in-depth information you can visit the python code repository directly: [Serial Mode Logger](https://github.com/mrheltic/Serial-Mode-Logger)
+
 ### Performance Evaluation
 
 ## ⛏️ Built Using
