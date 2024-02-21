@@ -82,7 +82,23 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ## Description
 
-
+## Theoretical Notions
+<details open>
+<summary><i>Adc</i></summary>
+In this project we use the ADS1115 that is a very small, low-power, 16-bit, delta-sigma (ΔΣ) analog-to-digital converters (ADCs).
+There are many ADCs available on the market for various applications: Ramping, SAR, delta-sigma, Flash and so on. 
+ΔΣ ADCs are now ideal for converting analog signals over a wide range of frequencies, from DC to several megahertz. Basically, these converters consist of an oversampling modulator followed by a digital filter that together produce a high-resolution data-stream output. The ADS1115 has an adjustable gain(PGA), an interal voltage reference, a clock oscillator, an I2C interface, and also a programmable digital comparator that provides an alert on a dedicated pin. The latter played an important role in carrying out the sampling at the maximum achievable speed of 860SPS. Thanks to the mux the adc has four single-ended(to measure
+each channel with respect to ground) or two differential inputs and two available conversion mode: single-shot mode(power saving mode) and continuous mode. In continuous conversion mode, the adc automatically begins a conversion of the input as soon as the previous conversion is completed and the rate is programmed by software.
+To achieve high accuracy measurements it's a mandatory following several step:
+- Use the Maximum Resolution in the readings
+- Adjust the PGA to match the voltage range of your input signal(all specifications can be found in the datasheet)
+- Use an external voltage reference instead of the integrated
+- Implement appropriate filtering and signal conditioning techniques to minimize noise and Interference
+- Periodically calibrate the system to compensate any drift
+- Avoid common source of error such as impedance mismatches
+- Select data rate based on dynamic meausurements or slow signals
+- Minimize signal path lengths.
+</details>
 
 ## 🖥️ Display Mode
 
