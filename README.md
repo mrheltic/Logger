@@ -16,6 +16,8 @@
 - [Getting Started](#🏁-getting-started)
 - [Hardware](#🔧-hardware-required)
 - [Description](#description)
+- [Theoretical Notions](#theoretical-notions)
+- [Code](#⌨️-code)
 - [Display Mode](#🖥️-display-mode)
 - [SD Mode](#💾-sd-mode)
 - [Serial Mode](#💻-serial-mode)
@@ -82,6 +84,9 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ## Description
 
+## ⌨️ Code
+
+
 ## Theoretical Notions
 <details open>
 <summary><i>Adc</i></summary>
@@ -118,6 +123,41 @@ To achieve high accuracy measurements it's a mandatory following several step:
 ## 💻 Serial Mode
 
 ### Usage
+
+### Explanation
+
+In the data acquisition stage, data is sent to the pc, which is processed through python. The manufacturer of the module, in the datasheet indicates that the conversion time is exactly equivalent to 1/DR (worst case: 860SPS), so there will certainly be a small delay due to data processing due to the microcontroller. This, in turn, will have to be added to a time, albeit very small, due to communication via serial. We had initially opted to send the data via the `Serial.println()` function, but this route, following some testing, seemed impractical. This was because, while having a readable result directly from the serial would have made it easy and intuitive to retrieve the data, it introduced a considerable delay, far in excess of the 1/DR value, even orders of magnitude (about tenths of a second). We therefore opted for the `Serial.write()` function, but again there were problems, since the measured values are 16-bit integers, so they needed to be split in two and sent (so as to send 8 bits at a time). 
+
+```cpp
+Serial.write(0xCC);                   // Start byte
+Serial.write((ADCvalue >> 8) & 0xFF); // High byte
+Serial.write(ADCvalue & 0xFF);       // Low byte
+```
+- `Serial.write(0xCC)` sends a start byte. The Serial.write() function writes binary data to the serial port. 0xCC is the hexadecimal representation of the start byte. The microcontroller need to send this to communicate that a new set of data is starting.
+
+- `Serial.write((ADCvalue >> 8) & 0xFF)` sends the high byte of ADCvalue. The >> 8 operation shifts the bits of ADCvalue 8 places to the right, effectively moving the high byte to the position of the low byte. The & 0xFF operation then masks the lower byte, so only the original high byte of ADCvalue remains.
+
+- `Serial.write(ADCvalue & 0xFF)` sends the low byte of ADCvalue. The & 0xFF operation masks the high byte of ADCvalue, so only the low byte remains.
+
+After the microcontroller sends the measured value this way, python will have to deal with reconstructing it and converting it to a readable value, like this:
+
+```python
+start_byte = ser.read(1)  # Read the start byte
+    if start_byte == b'\xCC':  # Verify the start byte
+        high_byte = ser.read(1)  # Read the high byte
+        low_byte = ser.read(1)  # Read the low byte
+        measurement = (ord(high_byte) << 8) | ord(low_byte)  # Merge the bytes
+```
+
+- `start_byte = ser.read(1)` reads one byte from the serial port and assigns it to the variable start_byte.
+
+- `if start_byte == b'\xCC'` checks if the start byte is equal to b'\xCC', which is the byte representation of the hexadecimal number 0xCC. If the start byte is 0xCC, the code inside the if statement will be executed. This is used to verify that the data transmission is starting correctly.
+
+- `high_byte = ser.read(1)` reads the next byte (after the start byte) from the serial port, which is the high byte of the measurement.
+
+- `low_byte = ser.read(1)` reads the next byte from the serial port, which is the low byte of the measurement.
+
+- `measurement = (ord(high_byte) << 8) | ord(low_byte)` merges the high byte and the low byte to reconstruct the original measurement. The `ord()` function is used to get the integer value of a byte. The `<< 8` operation shifts the bits of the high byte 8 places to the left, effectively moving it to the position of the high byte in a 16-bit number. The `|` operation is a bitwise OR, which combines the high byte and the low byte into a single 16-bit number.
 
 ### Performance Evaluation
 
