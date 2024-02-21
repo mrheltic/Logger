@@ -64,12 +64,11 @@ void executeAction()
     while (!select() && stateMenu == 0)
     {
       sampleSetAct();
-      // Serial.println("oi");
     }
     stateMenu = 1;
     break;
   }
-  soundBuzzerSelect();
+  soundBuzzer(440, 500);
   updateMenu(menu);
 }
 
@@ -93,20 +92,20 @@ void loop()
   {
     if (goDown())
     {
-      soundBuzzerScroll();
+      soundBuzzer(scrollFrequency, scrollDuration);
       menu++;
       menu = updateMenu(menu);
     }
     if (goUp())
     {
-      soundBuzzerScroll();
+      soundBuzzer(scrollFrequency, scrollDuration);
       menu--;
       menu = updateMenu(menu);
     }
     if (select())
     {
       stateMenu = 0;
-      soundBuzzerSelect();
+      soundBuzzer(selectFrequency, selectFrequency);
       executeAction();
     }
   }

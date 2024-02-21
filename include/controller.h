@@ -27,6 +27,10 @@ enum CHANNEL
 extern MODE currentMode;
 extern CHANNEL currentChannel;
 extern int currentSampleRate;
+extern int scrollFrequency;
+extern int scrollDuration;
+extern int selectFrequency;
+extern int selectDuration;
 
 // Dichiarazione delle funzioni
 void initializeSerial();
@@ -42,8 +46,7 @@ boolean initializeDevices();
 boolean goUp();
 boolean goDown();
 boolean select();
-void soundBuzzerSelect();
-void soundBuzzerScroll();
+void soundBuzzer(int frequency, int duration);
 void loggerAct();
 void outputModeAct();
 void inputModeAct();
