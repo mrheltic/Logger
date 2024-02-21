@@ -981,6 +981,12 @@ int updateMenu(int menu)
   return menu;
 }
 
+/**
+ * Displays an error message graphic on the display based on the current mode.
+ * 
+ * @param currentMode The current mode indicating the type of error.
+ *                    1 for Wi-Fi error, 0 for SD card error.
+ */
 void errorMessageGraphic(int currentMode)
 {
   display.clearDisplay();
@@ -989,6 +995,9 @@ void errorMessageGraphic(int currentMode)
   display.display();
 }
 
+/**
+ * @brief Displays a waiting animation on the screen while waiting for serial communication.
+ */
 void waitSerialGraphic()
 {
   display.clearDisplay();
@@ -1044,6 +1053,7 @@ void loggerGraphic(int mode, int channel, String currentTime, float measure)
   display.println(measure);
   display.display();
 }
+
 /**
  * @brief Outputs the graphic mode based on the given mode.
  *
@@ -1056,6 +1066,7 @@ void outputModeGraphic(int channel)
   updateContextCursor(channel);
   display.display();
 }
+
 /**
  * Sets the input mode for the graphic display.
  *
@@ -1068,6 +1079,7 @@ void inputModeGraphic(int mode)
   updateContextCursor(mode);
   display.display();
 }
+
 /**
  * @brief Displays an information graphic based on the state of various components.
  *
@@ -1105,6 +1117,7 @@ void infoGraphic(bool WifiState, bool sdState, bool RTCState)
   display.println(versionFirmware);
   display.display();
 }
+
 /**
  * @brief Sets the graphic for the given sample.
  *
@@ -1122,6 +1135,7 @@ void sampleSetGraphic(int sample)
   display.print(sample);
   display.display();
 }
+
 /**
  * @brief Controls the graphic representation of the sample set selector.
  *
