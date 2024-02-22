@@ -1,7 +1,6 @@
 # Logger
 
 ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
-![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
 ![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
@@ -210,6 +209,39 @@ To achieve high accuracy measurements it's a mandatory following several step:
 - Select data rate based on dynamic meausurements or slow signals
 - Minimize signal path lengths.
 </details>
+
+### Interrupt
+An interrupt is a signal to the processor, emitted by hardware or software, indicating an event that needs immediate attention. It’s a way of controlling the flow of the processor’s instructions. When an interrupt signal is received, the processor halts its current operations and switches to execute the interrupt service routine (ISR), which is specifically designed to deal with the occurrence of the same interrupt.
+
+The `IRAM_ATTR` macro is used to place functions in the instruction RAM (IRAM) instead of the flash memory. This is done for functions that need to be executed quickly, such as interrupt service routines (ISRs). If IRAM_ATTR is not defined, it’s defined as an empty macro, which means it won’t have any effect on the code.
+
+The `new_data variable` is declared as volatile, which means it can be modified unexpectedly by something outside the current code block, such as an ISR. This keyword prevents the compiler from optimizing the code related to this variable, ensuring that the program always reads the actual value from the memory location.
+
+The function `NewDataReadyISR()` is an ISR that’s called when new data is ready to be processed. In this function, the new_data flag is set to true. This flag will be checked in the `loggerAct()` to know when new data is available. Once the data is processed, the flag should be reset to false until the next interrupt occurs.
+
+After, in the `adcSetup()` is declared the `attachInterrupt()` function,  used to specify a function to be called when an interrupt occurs. In this case, the function NewDataReadyISR() will be called when a falling edge is detected on the `ALERT_PIN`.
+
+Here’s a breakdown of the parameters:
+
+- `digitalPinToInterrupt(ALERT_PIN)` is the interrupt number. `digitalPinToInterrupt()` is a function that returns the interrupt number for a specific pin. Here, `ALERT_PIN` is the pin number where the interrupt signal is expected.
+- `NewDataReadyISR` is the function to be called when the interrupt occurs. This function must take no parameters and return no value.
+- `FALLING` is the mode of the interrupt. In this case, it’s FALLING, which means the interrupt will be triggered when the pin goes from HIGH to LOW.
+
+```cpp
+if (!new_data)
+  {
+    // No data ready
+  return;
+  }
+
+// New data ready
+// Follows the routing according to output mode
+
+[...]
+
+
+new_data = false;
+```
 
 ## 🖥️ Display Mode
 
