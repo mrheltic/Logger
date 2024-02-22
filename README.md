@@ -85,7 +85,7 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ## ⌨️ Code
 
-All the code has been written using the arduino Framework, for an ESP32. This gave us significant advantages in terms of ease of writing, online documentation, and especially in terms of click-through, which is considerably greater than an arduino Uno. We followed a kind of MVC model, where each component is separate from the others and deals only with the things it is responsible for, invoking higher-level primitives. This allowed us to manage different components more smoothly.
+All the code has been written using the arduino Framework, for an ESP32. This gave us significant advantages in terms of ease of writing, online documentation, and especially in terms of clock, which is considerably greater than an arduino Uno. We followed a kind of MVC model, where each component is separate from the others and deals only with the things it is responsible for, invoking higher-level primitives. This allowed us to manage different components more smoothly.
 
 ### Main
 
