@@ -1041,6 +1041,8 @@ void loggerGraphic(int mode, int channel, String currentTime, float measure)
     break;
   }
 
+  if (abs(measure) < 0.005) measure = abs(measure);
+  
   display.setCursor(0, 0);
   display.setTextSize(1);
   display.setTextColor(WHITE);

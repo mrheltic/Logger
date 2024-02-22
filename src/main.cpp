@@ -28,15 +28,35 @@ void executeAction()
   switch (menu)
   {
   case 1:
+  adcSetup();
     if (preliminaryControl())
     {
-      adcSetup();
-      while (!select() && stateMenu == 0)
+      switch (currentMode)
       {
-        loggerAct();
+      case 0:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActDisplay();
+        }
+        break;
+
+      case 1:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActSerial();
+        }
+        break;
+
+      case 2:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActSD();
+        }
+        break;
       }
     }
-    else ESP.restart();
+    else
+      ESP.restart();
     stateMenu = 1;
     break;
   case 2:
@@ -68,7 +88,7 @@ void executeAction()
     stateMenu = 1;
     break;
   }
-  soundBuzzer(440, 500);
+  soundBuzzer(selectFrequency, selectDuration);
   updateMenu(menu);
 }
 

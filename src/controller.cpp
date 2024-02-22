@@ -32,13 +32,19 @@ int16_t adcValue;
 // Variables current measurement
 const float FACTOR = 30;               // 30A/1V from teh CT
 const float multiplier_I = 0.00003125; // for current measurement and gain four (1.024V / 2^16 * 2)
+// const float multiplier_I = 0.000015625; // for current measurement and gain eight (0.512 / 2^16 * 2)
 float current;
 
 // Variables voltage measurement
 float R1 = 33280;                     // Resistor beetween Vin and A0 [ohm]
 float R2 = 9981;                      // Resistor beetween A0 and GND [ohm]
-const float multiplier_V = 0.0001875; // for current measurement and gain four (6.144V / 2^16 * 2)
+const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
 float voltage;
+
+// Variables resistance measurement
+float R3 = 1000; // Resistor beetween A1 and GND [ohm]
+float resistance;
+const float multiplier_R = 0.0001875;
 
 float K_value;
 float O_value;
@@ -59,7 +65,7 @@ const static char *WeekDays[] =
 #define BUZZER 33
 int scrollFrequency = 200;
 int scrollDuration = 200;
-int selectFrequency = 300;
+int selectFrequency = 200;
 int selectDuration = 200;
 
 // DECLARING VARIABLES FOR ADS
@@ -75,8 +81,9 @@ String currentChannelString; // Used to communicate the current channel to the u
 int currentSampleRate = 860;
 
 // DECLARING VARIABLES FOR EMPHIRICALLY EVALUATE PERFORMANCES
+unsigned long serialWaitingTime = 0;
 unsigned long time_now = 0;
-unsigned long time_old = 0;
+String currentTime;
 
 // DECLARING THE OBJECT OF MEASUREMENTS
 Measurement measurement(8);
@@ -376,15 +383,15 @@ boolean select()
  */
 void soundBuzzer(int frequency, int duration)
 {
-    int period = 1000000 / frequency;      
-    int halfPeriod = period / 2;             
-    int cycles = frequency * duration / 1000; 
+    int period = 1000000 / frequency;
+    int halfPeriod = period / 2;
+    int cycles = frequency * duration / 1000;
     for (int i = 0; i < cycles; i++)
-    {                                  
-        digitalWrite(BUZZER, HIGH);  
-        delayMicroseconds(halfPeriod); 
-        digitalWrite(BUZZER, LOW);    
-        delayMicroseconds(halfPeriod); 
+    {
+        digitalWrite(BUZZER, HIGH);
+        delayMicroseconds(halfPeriod);
+        digitalWrite(BUZZER, LOW);
+        delayMicroseconds(halfPeriod);
     }
 }
 
@@ -707,19 +714,52 @@ void sampleSetAct()
  */
 boolean preliminaryControl()
 {
-    boolean controlResult;
+    boolean controlResult = false;
 
     switch (currentMode)
     {
     case SD_ONLY:
+    
         controlResult = initializeSDcard();
+        /*
+        appendFile(SD, "/dataStorage.txt", "START\n");
+        appendFile(SD, "/dataStorage.txt", "Current Channel" + currentChannelString + "\n");
+        appendFile(SD, "/dataStorage.txt", "Sample Rate" + char(currentSampleRate) + "\n");
+        appendFile(SD, "/dataStorage.txt", "K value" + char(K_value) + "\n");
+        appendFile(SD, "/dataStorage.txt", "O value" + char(O_value) + "\n");
+        appendFile(SD, "/dataStorage.txt", char(currentTime) + "\n");
+        */
         break;
+
+    case SERIAL_ONLY:
+        char serial;
+        waitSerialGraphic();
+        serialWaitingTime = millis();
+        while (true)
+        {
+            if (Serial.available() > 0)
+            {
+                serial = Serial.read();
+                Serial.println(serial, HEX);
+                if (serial == 'F')
+                {
+                    controlResult = true;
+                    // Aggiungi qui il tuo codice da eseguire quando ricevi 'F'
+                    break; // Esce dal ciclo while quando riceve 'F'
+                }
+            }
+        }
+        break;
+
 
     default:
         controlResult = true;
         break;
     }
 
+    Serial.println(serialWaitingTime);
+
+    //TODO update error graphic message
     if (!controlResult)
     {
         errorMessageGraphic(currentMode);
@@ -738,23 +778,23 @@ boolean preliminaryControl()
  */
 float calculateCoefficient()
 {
-    float K_value;
+    float gain;
     switch (currentChannel)
     {
     case VOLTAGE:
-        K_value = multiplier_V * (R1 + R2) / R1;
+        gain = multiplier_V * (R1 + R2) / R2;
         break;
     case CURRENT:
-        K_value = multiplier_I * FACTOR;
+        gain = multiplier_I * FACTOR;
         break;
     case RESISTANCE:
-        K_value = 6.144;
+        gain = 6.144;
         break;
     default:
-        K_value = 1;
+        gain = 1;
         break;
     }
-    return K_value;
+    return gain;
 }
 
 /**
@@ -771,7 +811,7 @@ float calculateOffset()
         offset = 0;
         break;
     case CURRENT:
-        offset = 0;
+        offset = 0.04;
         break;
     case RESISTANCE:
         offset = 0;
@@ -808,116 +848,92 @@ void adcSetup()
     K_value = calculateCoefficient();
     O_value = calculateOffset();
 
-    Serial.println("Gain: " + String(K_value) + "\n" + "Offset: " + String(O_value) + "\n");
+    Serial.println("Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n");
     Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
-    if (currentMode == SERIAL_ONLY)
-    {
-        char serial;
-        waitSerialGraphic();
-
-        while (true)
-        {
-            if (Serial.available() > 0)
-            {
-                serial = Serial.read();
-                Serial.println(serial, HEX);
-                if (serial == 's')
-                {
-                    // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
-                    break; // Esce dal ciclo while quando riceve 's'
-                }
-            }
-        }
-
-        delay(1000);
-
-        Serial.println("START");
-
-        Serial.println(currentChannelString);
-        Serial.println(currentSampleRate);
-    }
-
-    Measurement measurement(currentSampleRate);
+Measurement measurement(currentSampleRate);
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
 
-/**
- * @brief Performs the logging action based on the current mode.
- *
- * This function is responsible for executing the appropriate logging action based on the current mode.
- * It checks the current mode and performs the corresponding action, such as printing to Serial, storing data in an array, or displaying on a graphic display.
- *
- * @note This function assumes that the necessary variables and objects (e.g., currentMode, new_data, measurement, ads) have been properly initialized.
- */
-void loggerAct()
+void loggerActSD()
 {
-
-    switch (currentMode)
+    if (!new_data)
     {
-    case SD_ONLY:
-        Serial.println("Not implemented yet");
-        break;
-
-    case DISPLAY_ONLY:
-
-        if (!new_data)
-        {
-            // Serial.println("No new data ready!");
-            return;
-        }
-
-        // Serial.println("New data ready!");
-
-        if (!measurement.isArrayFull())
-        {
-            measurement.insertMeasurement(ads.getLastConversionResults());
-        }
-        else
-        {
-            measurement.setArrayFull(false);
-            loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
-            Serial.println("Mean: " + String(measurement.getMean()));
-        }
-
-        new_data = false;
-
-        break;
-
-    case SERIAL_ONLY:
-
-        if (!new_data)
-        {
-            // Serial.println("No new data ready!");
-            return;
-        }
-
-        // Serial.println("New data ready!");
-
-        if (!measurement.isArrayFull())
-        {
-            // Serial.println(ads.getLastConversionResults());
-            measurement.insertMeasurement(ads.getLastConversionResults());
-            // Serial.println(measurement.getLastMeasurement());
-            Serial.write(0xCC);                                           // Start byte
-            Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
-            Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte
-        }
-        else
-        {
-            measurement.setArrayFull(false);
-            loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
-        }
-        new_data = false;
-
-        break;
-
-    default:
-        Serial.println("\n\n\n\n-----------------------------");
-        Serial.println("Error selecting output\n");
-        Serial.println("\n\n\n\n-----------------------------");
-        break;
+        // Serial.println("No new data ready!");
+        return;
     }
+
+    // Serial.println("New data ready!");
+
+    if (!measurement.isArrayFull())
+    {
+        // Serial.println(ads.getLastConversionResults());
+        measurement.insertMeasurement(ads.getLastConversionResults());
+        // Serial.println(measurement.getLastMeasurement());
+        appendFile(SD, "/dataStorage.txt", char(measurement.getLastMeasurement()) + " ");
+    }
+    else
+    {
+        currentTime = getTimeStamp();
+        measurement.setArrayFull(false);
+        //appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
+        loggerGraphic(currentMode, currentChannel, currentTime, (measurement.getMean() * K_value) - O_value);
+    }
+    new_data = false;
+}
+
+void loggerActSerial()
+{
+    if (!new_data)
+    {
+        // Serial.println("No new data ready!");
+        return;
+    }
+
+    // Serial.println("New data ready!");
+
+    if (!measurement.isArrayFull())
+    {
+        // Serial.println(ads.getLastConversionResults());
+        measurement.insertMeasurement(ads.getLastConversionResults());
+        // Serial.println(measurement.getLastMeasurement());
+        Serial.write(0xCC);                                           // Start byte
+        Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+        Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte
+    }
+    else
+    {
+        measurement.setArrayFull(false);
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), (measurement.getMean() * K_value) - O_value);
+    }
+    new_data = false;
+}
+
+void loggerActDisplay()
+{
+    if (!new_data)
+    {
+        // Serial.println("No new data ready!");
+        return;
+    }
+
+    // Serial.println("New data ready!");
+
+    if (!measurement.isArrayFull())
+    {
+        measurement.insertMeasurement(ads.getLastConversionResults());
+        current = ads.getLastConversionResults() * K_value;
+    }
+    else
+    {
+        measurement.setArrayFull(false);
+        // current = sqrt(sum / 860) - O_value;
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), current);
+        Serial.println("Mean: " + String(measurement.getMean()));
+        // sum = 0;
+    }
+
+    new_data = false;
 }
