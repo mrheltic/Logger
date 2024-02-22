@@ -213,11 +213,12 @@ To achieve high accuracy measurements it's a mandatory following several step:
 
 <details open>
 <summary><i>Input Configuration</i></summary>
-The ADS1115 allow us to choose between two different input configuration: <b>Differential Terminal Configuration</b>(DIFF) and <b>Referenced Single-Ended Terminal Configuration</b>(Ground Referenced RSE).<br />
-DIFF measures the potential difference between the AIN_p and AIN_n, this is in general the recommended configuration because of errors caused by ground loops and noise injection from ground nodes.
-The RSE measures the potential difference between the AI and the GND of the Adc connected by a switch within the multiplexer.<br />
+The ADS1115 allow us to choose between two different input configuration: <b>Differential Terminal Configuration</b>(DIFF) and <b>Referenced Single-Ended Terminal Configuration</b>(Ground Referenced RSE).
 
-It's important to know what type of source(differential, flaoting single-ended or grounded single-ended ) is in order to make the connection. <br />
+DIFF measures the potential difference between the AIN_p and AIN_n, this is in general the recommended configuration because of errors caused by ground loops and noise injection from ground nodes.
+The RSE measures the potential difference between the AI and the GND of the Adc connected by a switch within the multiplexer.
+
+It's important to know what type of source(differential, flaoting single-ended or grounded single-ended ) is in order to make the connection.
 To sum up:
 
 - A grounded source can be connected only to differential channel to avoid ground loops.
