@@ -750,6 +750,17 @@ boolean preliminaryControl()
                 }
             }
         }
+
+        
+        delay(1000);
+
+        Serial.println("START");
+
+        Serial.println(currentChannelString);
+        Serial.println(currentSampleRate);
+        Serial.println(K_value,50);
+        Serial.println(O_value,50);
+        
         break;
 
     default:
