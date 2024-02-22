@@ -85,11 +85,11 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ## ⌨️ Code
 
-All the code was written using the arduino Framework, for an ESP32. This gave us significant advantages in terms of ease of writing, online documentation, and especially in terms of click-through, which is considerably greater than for an arduino Uno. We followed a kind of MVC model, where each component is separate from the others and deals only with the things it is responsible for, invoking higher-level primitives. This allowed us to manage different components more smoothly.
+All the code has been written using the arduino Framework, for an ESP32. This gave us significant advantages in terms of ease of writing, online documentation, and especially in terms of click-through, which is considerably greater than an arduino Uno. We followed a kind of MVC model, where each component is separate from the others and deals only with the things it is responsible for, invoking higher-level primitives. This allowed us to manage different components more smoothly.
 
 ### Main
 
-The main substantially is a method wrapper and deals at a higher level with handling scrolling through the various menus. Initially (in setup) it asks the controller to initialize devices (the basic ones, such as buttons, screen, ...)
+The main substantially is a method wrapper and deals, at a higher level, with handling scrolling through the various menus. Initially (in setup) it asks the controller to initialize devices (the basic ones, such as buttons, screen, ...)
 
 ```cpp
 while (!initializeDevices()){
@@ -122,7 +122,7 @@ if (stateMenu)
 
 The controller is the component that manages all component behavior and is directly responsible for making measurements. Besides that it initializes all the devices and the serial. The initializations that are done can be blocking or non-blocking, depending on the type of component we want to initialize: a failure of the fundamental components results in a program block inside a loop, which will not allow the execution of the remaining code, while the other components may not be initialized at all. The reference with respect to the success or failure of initialization we have it by returning a boolean value true when the method is terminated, so it does not take into account subsequent failures. The whole initial part is devoted to declaring all pins connected to the board, and in case of custom configurations they can be changed before compilation. 
 
-After all parameters have been selected, data acquisition will proceed. This involves an initial setup phase, in which, based on what parameters are selected (saved as global variables in the controller) it will go to set the mode (and consequently the channels to read from), the data rate, and calculate gain and offset. Depending on the output selected it could change significantly, but we will also have an output on the serial that tells us what is happening. Also in this part I am going to initialize the measurement object, which will handle the calculations made for mean and std.
+After all parameters have been selected, data acquisition will proceed. This involves an initial setup phase, in which, based on selected parameters (saved as global variables in the controller) it will go to set the mode (and consequently the channels to read from), the data rate, and calculate gain and offset. Depending on the output selected it could change significantly, but we will also have an output on the serial that tells us what is happening. Finally it's initialized the measurement object, which will handle the calculations made for mean and std.
 
 ```cpp
 void adcSetup()
@@ -137,7 +137,7 @@ void adcSetup()
 }
 ```
 
-After running the setup you enter the loggerAct, which is the method that takes care of the measurement. Here, depending on the mode that will be selected it will have different behavior, but basically what it does is:
+After running the setup you will access to the loggerAct, which is the method that takes care of the measurement. Here, depending on the mode that will be selected it will have different behavior, but basically what it does is:
 
 ```cpp
 // The microcontroller is waiting for an interrupt from the ADC
@@ -164,7 +164,7 @@ new_data = false;
 
 ### View
 
-The view component deals with screen management. Here it is initialized and passing it the necessary parameters updates the screen. Bipmap images of the various modes and associated sliders are also saved here. The view also provides functions to be used directly by the controller, such as the one used during the loggerAct, which takes care of printing media (for each second), timestamp, mode, and output
+The view component deals with screen management. Here it is initialized and passing it the necessary parameters updates the screen. Bipmap images of the various modes and associated sliders are also saved here. The view also provides functions to be used directly by the controller, such as the one used during the loggerAct, which takes care of printing media (for each second), timestamp, mode, and output.
 
 ### Model
 
@@ -207,7 +207,22 @@ To achieve high accuracy measurements it's a mandatory following several step:
 - Periodically calibrate the system to compensate any drift
 - Avoid common source of error such as impedance mismatches
 - Select data rate based on dynamic meausurements or slow signals
-- Minimize signal path lengths.
+- Minimize signal path lengths
+</details>
+
+<details open>
+<summary><i>Input Configuration</i></summary>
+The ADS1115 allow us to choose between two different input configuration: <b>Differential Terminal Configuration</b>(DIFF) and <b>Referenced Single-Ended Terminal Configuration</b>(Ground Referenced RSE).
+
+DIFF measures the potential difference between the AIN_p and AIN_n, this is in general the recommended configuration because of errors caused by ground loops and noise injection from ground nodes.
+The RSE measures the potential difference between the AI and the GND of the Adc connected by a switch within the multiplexer.
+
+It's important to know what type of source(differential, flaoting single-ended or grounded single-ended ) is in order to make the connection.
+To sum up:
+
+- A grounded source can be connected only to differential channel to avoid ground loops.
+- A floating source can be connnected to both the configuration
+
 </details>
 
 ### Interrupt
