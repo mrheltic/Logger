@@ -57,7 +57,7 @@ This project is a data acquisition system built using an ESP32 microcontroller b
 
 ### Installation
 
-<details open>
+<details>
 <summary><i>Installation using Arduino IDE</i></summary>
 
 - Clone or download the project repository from GitHub.
@@ -340,6 +340,15 @@ I²C uses only two bidirectional lines: the Serial Data Line (SDA) and the Seria
 ## ⛏️ Built Using
 - [PlatformIO](https://platformio.org) - PlatformIO
 - [Arduino Framework](https://www.arduino.cc) - Arduino Framework
+
+
+## Further Improvements
+- Use the Espressif IoT Development Framework
+- Add a Wifi mode 
+
+
+
+
 
 ## 🫂 Contributing
 
