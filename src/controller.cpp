@@ -238,15 +238,14 @@ void writeFile(fs::FS &fs, const char *path, const char *message)
 
 void appendFile(fs::FS &fs, const char *path, const char *message)
 {
-    Serial.printf("Appending to file: %s\n", path);
-
     File file = fs.open(path, FILE_APPEND);
+    /*
     if (!file)
     {
         // Serial.println("Failed to open file for appending");
         return;
     }
-    if (file.print(message))
+    if ()
     {
         // Serial.println("Message appended");
     }
@@ -254,6 +253,8 @@ void appendFile(fs::FS &fs, const char *path, const char *message)
     {
         // Serial.println("Append failed");
     }
+    */
+    file.print(message);
     file.close();
 }
 
@@ -719,8 +720,8 @@ boolean preliminaryControl()
     switch (currentMode)
     {
     case SD_ONLY:
-    
         controlResult = initializeSDcard();
+        
         /*
         appendFile(SD, "/dataStorage.txt", "START\n");
         appendFile(SD, "/dataStorage.txt", "Current Channel" + currentChannelString + "\n");
@@ -751,7 +752,6 @@ boolean preliminaryControl()
         }
         break;
 
-
     default:
         controlResult = true;
         break;
@@ -759,7 +759,7 @@ boolean preliminaryControl()
 
     Serial.println(serialWaitingTime);
 
-    //TODO update error graphic message
+    // TODO update error graphic message
     if (!controlResult)
     {
         errorMessageGraphic(currentMode);
@@ -852,12 +852,14 @@ void adcSetup()
     Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
     Serial.println("\n\n\n\n-----------------------------");
 
-Measurement measurement(currentSampleRate);
+    Measurement measurement(currentSampleRate);
 
     loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
 }
 
+
 void loggerActSD()
+
 {
     if (!new_data)
     {
@@ -872,13 +874,15 @@ void loggerActSD()
         // Serial.println(ads.getLastConversionResults());
         measurement.insertMeasurement(ads.getLastConversionResults());
         // Serial.println(measurement.getLastMeasurement());
-        appendFile(SD, "/dataStorage.txt", char(measurement.getLastMeasurement()) + " ");
+        //appendFile(SD, "/dataStorage.txt", "d");
+        File file = SD.open("/dataStorage.txt", FILE_APPEND);
+        file.print("d");
     }
     else
     {
         currentTime = getTimeStamp();
         measurement.setArrayFull(false);
-        //appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
+        // appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
         loggerGraphic(currentMode, currentChannel, currentTime, (measurement.getMean() * K_value) - O_value);
     }
     new_data = false;
@@ -924,15 +928,11 @@ void loggerActDisplay()
     if (!measurement.isArrayFull())
     {
         measurement.insertMeasurement(ads.getLastConversionResults());
-        current = ads.getLastConversionResults() * K_value;
     }
     else
     {
         measurement.setArrayFull(false);
-        // current = sqrt(sum / 860) - O_value;
-        loggerGraphic(currentMode, currentChannel, getTimeStamp(), current);
-        Serial.println("Mean: " + String(measurement.getMean()));
-        // sum = 0;
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), (measurement.getMean() * K_value) - O_value);
     }
 
     new_data = false;
