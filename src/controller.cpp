@@ -74,8 +74,8 @@ int selectDuration = 200;
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL
-MODE currentMode = SD_ONLY;
-CHANNEL currentChannel = VOLTAGE;
+MODE currentMode = DISPLAY_ONLY;
+CHANNEL currentChannel = RESISTANCE;
 String currentChannelString; // Used to communicate the current channel to the user through the serial
 
 int currentSampleRate = 860;
@@ -895,7 +895,7 @@ void adcSetup()
 
     Measurement measurement(currentSampleRate);
 
-    loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
+    loggerGraphic(getTimeStamp(), 0);
 }
 
 
@@ -924,7 +924,7 @@ void loggerActSD()
         file.close();
         measurement.setArrayFull(false);
         // appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
-        loggerGraphic(currentMode, currentChannel, currentTime, conversionMeasurement());
+        loggerGraphic(currentTime, conversionMeasurement());
         file = SD.open("/dataStorage.txt", FILE_APPEND);
     }
     new_data = false;
@@ -952,7 +952,7 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
-        loggerGraphic(currentMode, currentChannel, getTimeStamp(), conversionMeasurement());
+        loggerGraphic(getTimeStamp(), conversionMeasurement());
     }
     new_data = false;
 }
@@ -974,7 +974,7 @@ void loggerActDisplay()
     else
     {
         measurement.setArrayFull(false);
-        loggerGraphic(currentMode, currentChannel, getTimeStamp(), conversionMeasurement());
+        loggerGraphic(getTimeStamp(), conversionMeasurement());
     }
 
     new_data = false;
