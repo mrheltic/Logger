@@ -193,7 +193,7 @@ void adcSetup()
 }
 ```
 
-After running the setup you will access to the loggerAct, which is the method that takes care of the measurement. Here, depending on the mode that will be selected it will have different behavior, but basically what it does is:
+After running the setup you will access to the `loggerAct()`, which is the method that takes care of the measurement. Here, depending on the mode that will be selected it will have different behavior, but basically what it does is:
 
 ```cpp
 // The microcontroller is waiting for an interrupt from the ADC

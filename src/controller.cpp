@@ -44,7 +44,7 @@ float voltage;
 // Variables resistance measurement
 float R3 = 1000; // Resistor beetween A1 and GND [ohm]
 float resistance;
-const float multiplier_R = 0.0001875;
+const float multiplier_R = 0.000125; // for voltage measurement and unit gain (4.096 / 2^16 * 2)
 
 float K_value;
 float O_value;
@@ -74,7 +74,7 @@ int selectDuration = 200;
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL
-MODE currentMode = SERIAL_ONLY;
+MODE currentMode = SD_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 String currentChannelString; // Used to communicate the current channel to the user through the serial
 
@@ -90,6 +90,9 @@ Measurement measurement(8);
 
 // File creditsFile;
 // File dataStorage;
+
+// DECLARING VARIABLES FOR SD CARD
+File file;
 
 #ifndef IRAM_ATTR
 #define IRAM_ATTR
@@ -574,6 +577,7 @@ void setChannel()
     {
         ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
+        measurement.setMode(1);
         Serial.println("Reading channel A0\n");
         currentChannelString = "Voltage";
     }
@@ -582,14 +586,16 @@ void setChannel()
     {
         ads.setGain(GAIN_FOUR);
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
+        measurement.setMode(2);
         Serial.println("Reading channel A2-A3\n");
         currentChannelString = "Current";
     }
 
     else if (currentChannel == RESISTANCE)
     {
-        ads.setGain(GAIN_TWOTHIRDS);
+        ads.setGain(GAIN_ONE);
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_1, true);
+        measurement.setMode(1);
         Serial.println("Reading channel A1\n");
         currentChannelString = "Resistance";
     }
@@ -722,14 +728,16 @@ boolean preliminaryControl()
     case SD_ONLY:
         controlResult = initializeSDcard();
         
-        /*
-        appendFile(SD, "/dataStorage.txt", "START\n");
-        appendFile(SD, "/dataStorage.txt", "Current Channel" + currentChannelString + "\n");
-        appendFile(SD, "/dataStorage.txt", "Sample Rate" + char(currentSampleRate) + "\n");
-        appendFile(SD, "/dataStorage.txt", "K value" + char(K_value) + "\n");
-        appendFile(SD, "/dataStorage.txt", "O value" + char(O_value) + "\n");
-        appendFile(SD, "/dataStorage.txt", char(currentTime) + "\n");
-        */
+        file = SD.open("/dataStorage.txt", FILE_APPEND);
+
+        file.println("#Current Channel: " + currentChannelString);
+        file.print("#Sample Rate: ");
+        file.println(currentSampleRate);
+        file.print("#K value: ");
+        file.println(K_value, 35);
+        file.print("#O value: ");
+        file.println(O_value, 35);
+        file.print(getTimeStamp() + " ");
         break;
 
     case SERIAL_ONLY:
@@ -793,13 +801,13 @@ float calculateCoefficient()
     switch (currentChannel)
     {
     case VOLTAGE:
-        gain = multiplier_V * (R1 + R2) / R2;
+        gain = multiplier_V;
         break;
     case CURRENT:
-        gain = multiplier_I * FACTOR;
+        gain = multiplier_I;
         break;
     case RESISTANCE:
-        gain = 6.144;
+        gain = multiplier_R;
         break;
     default:
         gain = 1;
@@ -832,6 +840,28 @@ float calculateOffset()
         break;
     }
     return offset;
+}
+
+float conversionMeasurement()
+{
+    float measure; 
+    switch (currentChannel)
+    {
+    case VOLTAGE:
+       measure = (measurement.getMean() * K_value * (R1 + R2) / R2) - O_value;
+        break;
+    case CURRENT:
+       measure = (sqrt(measurement.getMean()) * K_value * FACTOR) - O_value;
+        break;
+    case RESISTANCE:
+        measure = R3*3.3/(measurement.getMean() * K_value) - R3;
+        break;
+    default:
+        measure = 0;
+        break;
+    }
+    Serial.println(measure);
+    return measure;
 }
 
 /**
@@ -872,6 +902,7 @@ void adcSetup()
 void loggerActSD()
 
 {
+
     if (!new_data)
     {
         // Serial.println("No new data ready!");
@@ -882,19 +913,19 @@ void loggerActSD()
 
     if (!measurement.isArrayFull())
     {
-        // Serial.println(ads.getLastConversionResults());
         measurement.insertMeasurement(ads.getLastConversionResults());
-        // Serial.println(measurement.getLastMeasurement());
-        //appendFile(SD, "/dataStorage.txt", "d");
-        File file = SD.open("/dataStorage.txt", FILE_APPEND);
-        file.print("d");
+        file.print(measurement.getLastMeasurement());
+        file.print(" ");
     }
     else
     {
         currentTime = getTimeStamp();
+        file.print("\n" + currentTime + " ");
+        file.close();
         measurement.setArrayFull(false);
         // appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
-        loggerGraphic(currentMode, currentChannel, currentTime, (measurement.getMean() * K_value) - O_value);
+        loggerGraphic(currentMode, currentChannel, currentTime, conversionMeasurement());
+        file = SD.open("/dataStorage.txt", FILE_APPEND);
     }
     new_data = false;
 }
@@ -921,7 +952,7 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
-        loggerGraphic(currentMode, currentChannel, getTimeStamp(), (measurement.getMean() * K_value) - O_value);
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), conversionMeasurement());
     }
     new_data = false;
 }
@@ -943,7 +974,7 @@ void loggerActDisplay()
     else
     {
         measurement.setArrayFull(false);
-        loggerGraphic(currentMode, currentChannel, getTimeStamp(), (measurement.getMean() * K_value) - O_value);
+        loggerGraphic(currentMode, currentChannel, getTimeStamp(), conversionMeasurement());
     }
 
     new_data = false;
