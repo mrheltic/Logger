@@ -28,7 +28,7 @@ void executeAction()
   switch (menu)
   {
   case 1:
-  adcSetup();
+    adcSetup();
     if (preliminaryControl())
     {
       switch (currentMode)
@@ -56,7 +56,10 @@ void executeAction()
       }
     }
     else
-      ESP.restart();
+    {
+      if (currentMode == SD_ONLY)
+        ESP.restart();
+    }
     stateMenu = 1;
     break;
   case 2:

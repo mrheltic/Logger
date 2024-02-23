@@ -33,23 +33,18 @@ int16_t adcValue;
 const float FACTOR = 30;               // 30A/1V from teh CT
 const float multiplier_I = 0.00003125; // for current measurement and gain four (1.024V / 2^16 * 2)
 // const float multiplier_I = 0.000015625; // for current measurement and gain eight (0.512 / 2^16 * 2)
-float current;
 
 // Variables voltage measurement
 float R1 = 33280;                     // Resistor beetween Vin and A0 [ohm]
 float R2 = 9981;                      // Resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
-float voltage;
 
 // Variables resistance measurement
-float R3 = 1000; // Resistor beetween A1 and GND [ohm]
-float resistance;
+float R3 = 1000;                     // Resistor beetween A1 and GND [ohm]
 const float multiplier_R = 0.000125; // for voltage measurement and unit gain (4.096 / 2^16 * 2)
 
 float K_value;
 float O_value;
-
-// SPIClass SPI = SPIClass(VSPI);
 
 const static char *WeekDays[] =
     {
@@ -73,9 +68,9 @@ int selectDuration = 200;
 
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
-// DECLARING VARIABLES FOR MODE AND CHANNEL
+// DECLARING VARIABLES FOR MODE AND CHANNEL DEFAULT CONTIONS
 MODE currentMode = DISPLAY_ONLY;
-CHANNEL currentChannel = RESISTANCE;
+CHANNEL currentChannel = VOLTAGE;
 String currentChannelString; // Used to communicate the current channel to the user through the serial
 
 int currentSampleRate = 860;
@@ -85,11 +80,11 @@ unsigned long serialWaitingTime = 0;
 unsigned long time_now = 0;
 String currentTime;
 
+// DECLARING TIMEOUT RESPONSE SERIAL
+#define TIMEOUT 6000
+
 // DECLARING THE OBJECT OF MEASUREMENTS
 Measurement measurement(8);
-
-// File creditsFile;
-// File dataStorage;
 
 // DECLARING VARIABLES FOR SD CARD
 File file;
@@ -727,7 +722,7 @@ boolean preliminaryControl()
     {
     case SD_ONLY:
         controlResult = initializeSDcard();
-        
+
         file = SD.open("/dataStorage.txt", FILE_APPEND);
 
         file.println("#Current Channel: " + currentChannelString);
@@ -743,9 +738,12 @@ boolean preliminaryControl()
     case SERIAL_ONLY:
         char serial;
         waitSerialGraphic();
-        serialWaitingTime = millis();
-        while (true)
+        serialWaitingTime = time_now = millis();
+        Serial.println(time_now);
+
+        while (time_now - serialWaitingTime < TIMEOUT)
         {
+
             if (Serial.available() > 0)
             {
                 serial = Serial.read();
@@ -753,22 +751,21 @@ boolean preliminaryControl()
                 if (serial == 'F')
                 {
                     controlResult = true;
-                    // Aggiungi qui il tuo codice da eseguire quando ricevi 'F'
-                    break; // Esce dal ciclo while quando riceve 'F'
+                    controlResult = true;
+                    Serial.println("START");
+                    Serial.println(currentChannelString);
+                    Serial.println(currentSampleRate);
+                    Serial.println(K_value, 35);
+                    Serial.println(O_value, 35);
+                    break;
                 }
             }
+
+            time_now = millis();
         }
 
-        
-        delay(1000);
-
-        Serial.println("START");
-
-        Serial.println(currentChannelString);
-        Serial.println(currentSampleRate);
-        Serial.println(K_value,50);
-        Serial.println(O_value,50);
-        
+        if (serial != 'F')
+            Serial.println("Expired time: no valid response received");
         break;
 
     default:
@@ -776,13 +773,12 @@ boolean preliminaryControl()
         break;
     }
 
-    Serial.println(serialWaitingTime);
-
     // TODO update error graphic message
     if (!controlResult)
     {
         errorMessageGraphic(currentMode);
-        delay(2000);
+        soundBuzzer(1000, 2000);
+        delay(3000);
     }
 
     return controlResult;
@@ -844,17 +840,17 @@ float calculateOffset()
 
 float conversionMeasurement()
 {
-    float measure; 
+    float measure;
     switch (currentChannel)
     {
     case VOLTAGE:
-       measure = (measurement.getMean() * K_value * (R1 + R2) / R2) - O_value;
+        measure = (measurement.getMean() * K_value * (R1 + R2) / R2) - O_value;
         break;
     case CURRENT:
-       measure = (sqrt(measurement.getMean()) * K_value * FACTOR) - O_value;
+        measure = (sqrt(measurement.getMean()) * K_value * FACTOR) - O_value;
         break;
     case RESISTANCE:
-        measure = R3*3.3/(measurement.getMean() * K_value) - R3;
+        measure = R3 * 3.3 / (measurement.getMean() * K_value) - R3;
         break;
     default:
         measure = 0;
@@ -897,7 +893,6 @@ void adcSetup()
 
     loggerGraphic(getTimeStamp(), 0);
 }
-
 
 void loggerActSD()
 
