@@ -826,7 +826,7 @@ float calculateOffset()
         offset = 0;
         break;
     case CURRENT:
-        offset = 0.04;
+        offset = 0;
         break;
     case RESISTANCE:
         offset = 0;

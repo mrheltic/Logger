@@ -77,7 +77,7 @@ void loop ()
         Serial.println("RTC lost confidence in the DateTime!");
     }
 
-    delay(100); // ten seconds
+    delay(10000); // ten seconds
 }
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
