@@ -30,17 +30,16 @@
 int16_t adcValue;
 
 // Variables current measurement
-const float FACTOR = 30;               // 30A/1V from teh CT
+const float FACTOR_I = 30;               // 30A/1V from teh current transformer 
 const float multiplier_I = 0.00003125; // for current measurement and gain four (1.024V / 2^16 * 2)
 // const float multiplier_I = 0.000015625; // for current measurement and gain eight (0.512 / 2^16 * 2)
 
 // Variables voltage measurement
-float R1 = 33280;                     // Resistor beetween Vin and A0 [ohm]
-float R2 = 9981;                      // Resistor beetween A0 and GND [ohm]
+const float FACTOR_V = 4.334335237; //FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
 
 // Variables resistance measurement
-float R3 = 1000;                     // Resistor beetween A1 and GND [ohm]
+const float FACTOR_R = 1000; //FACTOR_R = R3 resistor beetween A1 and GND [ohm]
 const float multiplier_R = 0.000125; // for voltage measurement and unit gain (4.096 / 2^16 * 2)
 
 float K_value;
@@ -71,7 +70,7 @@ int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 // DECLARING VARIABLES FOR MODE AND CHANNEL DEFAULT CONTIONS
 MODE currentMode = DISPLAY_ONLY;
 CHANNEL currentChannel = VOLTAGE;
-String currentChannelString; // Used to communicate the current channel to the user through the serial
+String currentChannelString = "Voltage"; // Used to communicate the current channel to the user through the serial
 
 int currentSampleRate = 860;
 
@@ -714,24 +713,37 @@ void sampleSetAct()
  *
  * @return true if the preliminary control checks pass, false otherwise.
  */
+
+String preliminaryMessage(){
+    String message = "Current measure: " + currentChannelString + "\n" + "Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n" + "Array length (Sample rate): " + String(measurement.getLength()) + "\n";
+    
+    switch(currentChannel){
+        case VOLTAGE:
+        message = message + "FACTOR_V= " + String(FACTOR_V) + "\n";
+        break;
+
+    case CURRENT:
+       message = message + "FACTOR_I= " + String(FACTOR_I) + "\n";
+        break;
+
+    case RESISTANCE:
+    message = message + "FACTOR_R= " + String(FACTOR_R) + "\n";
+        break;
+    }
+    return message;
+}
+
 boolean preliminaryControl()
 {
     boolean controlResult = false;
-
+    String message = preliminaryMessage();
     switch (currentMode)
     {
     case SD_ONLY:
         controlResult = initializeSDcard();
 
         file = SD.open("/dataStorage.txt", FILE_APPEND);
-
-        file.println("#Current Channel: " + currentChannelString);
-        file.print("#Sample Rate: ");
-        file.println(currentSampleRate);
-        file.print("#K value: ");
-        file.println(K_value, 35);
-        file.print("#O value: ");
-        file.println(O_value, 35);
+        file.print(message);
         file.print(getTimeStamp() + " ");
         break;
 
@@ -739,7 +751,6 @@ boolean preliminaryControl()
         char serial;
         waitSerialGraphic();
         serialWaitingTime = time_now = millis();
-        Serial.println(time_now);
 
         while (time_now - serialWaitingTime < TIMEOUT)
         {
@@ -751,12 +762,9 @@ boolean preliminaryControl()
                 if (serial == 'F')
                 {
                     controlResult = true;
-                    controlResult = true;
                     Serial.println("START");
-                    Serial.println(currentChannelString);
-                    Serial.println(currentSampleRate);
-                    Serial.println(K_value, 35);
-                    Serial.println(O_value, 35);
+                    Serial.println(message);
+                    delayMicroseconds(100);
                     break;
                 }
             }
@@ -844,13 +852,13 @@ float conversionMeasurement()
     switch (currentChannel)
     {
     case VOLTAGE:
-        measure = (measurement.getMean() * K_value * (R1 + R2) / R2) - O_value;
+        measure = (measurement.getMean() * K_value * FACTOR_V) - O_value;
         break;
     case CURRENT:
-        measure = (sqrt(measurement.getMean()) * K_value * FACTOR) - O_value;
+        measure = (sqrt(measurement.getMean()) * K_value * FACTOR_I) - O_value;
         break;
     case RESISTANCE:
-        measure = R3 * 3.3 / (measurement.getMean() * K_value) - R3;
+        measure = FACTOR_R * 3.3 / (measurement.getMean() * K_value) - FACTOR_R;
         break;
     default:
         measure = 0;
@@ -885,10 +893,6 @@ void adcSetup()
     K_value = calculateCoefficient();
     O_value = calculateOffset();
 
-    Serial.println("Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n");
-    Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
-    Serial.println("\n\n\n\n-----------------------------");
-
     Measurement measurement(currentSampleRate);
 
     loggerGraphic(getTimeStamp(), 0);
@@ -900,11 +904,8 @@ void loggerActSD()
 
     if (!new_data)
     {
-        // Serial.println("No new data ready!");
         return;
     }
-
-    // Serial.println("New data ready!");
 
     if (!measurement.isArrayFull())
     {

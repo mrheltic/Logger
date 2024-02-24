@@ -56,6 +56,7 @@ void infoAct(boolean subSetup);
 void sampleSetAct();
 void setRate(uint16_t value);
 float conversionMeasurement();
+String preliminaryMessage();
 boolean preliminaryControl();
 void adcSetup();
 void setChannel(CHANNEL channel);
