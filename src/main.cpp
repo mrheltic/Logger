@@ -163,7 +163,7 @@ void setup()
         {
             serial = Serial.read();
             Serial.println(serial, HEX);
-            if (serial == 's')
+            if (serial == 'F')
             {
                 // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
                 break; // Esce dal ciclo while quando riceve 's'
