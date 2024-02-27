@@ -30,16 +30,16 @@
 int16_t adcValue;
 
 // Variables current measurement
-const float FACTOR_I = 30;               // 30A/1V from teh current transformer 
+const float FACTOR_I = 30;             // 30A/1V from teh current transformer
 const float multiplier_I = 0.00003125; // for current measurement and gain four (1.024V / 2^16 * 2)
 // const float multiplier_I = 0.000015625; // for current measurement and gain eight (0.512 / 2^16 * 2)
 
 // Variables voltage measurement
-const float FACTOR_V = 4.334335237; //FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
+const float FACTOR_V = 4.334335237;   // FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
 
 // Variables resistance measurement
-const float FACTOR_R = 1000; //FACTOR_R = R3 resistor beetween A1 and GND [ohm]
+const float FACTOR_R = 999;          // FACTOR_R = R3 resistor beetween A1 and GND [ohm]
 const float multiplier_R = 0.000125; // for voltage measurement and unit gain (4.096 / 2^16 * 2)
 
 float K_value;
@@ -714,34 +714,36 @@ void sampleSetAct()
  * @return true if the preliminary control checks pass, false otherwise.
  */
 
-String preliminaryMessage(){
-    String message = "Current measure: " + currentChannelString + "\n" + "Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n" + "Array length (Sample rate): " + String(measurement.getLength()) + "\n";
-    
-    switch(currentChannel){
-        case VOLTAGE:
-        message = message + "FACTOR_V= " + String(FACTOR_V) + "\n";
+float currentFactor()
+{
+    float factor;
+    switch (currentChannel)
+    {
+    case VOLTAGE:
+        factor = FACTOR_V;
         break;
 
     case CURRENT:
-       message = message + "FACTOR_I= " + String(FACTOR_I) + "\n";
+        factor = FACTOR_I;
         break;
 
     case RESISTANCE:
-    message = message + "FACTOR_R= " + String(FACTOR_R) + "\n";
+        factor = FACTOR_R;
         break;
     }
-    return message;
+    return factor;
 }
 
 boolean preliminaryControl()
 {
     boolean controlResult = false;
-    String message = preliminaryMessage();
+    String message = "Current measure: " + currentChannelString + "\n" + "Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n" + "Array length (Sample rate): " + String(measurement.getLength()) + "\n";
+
     switch (currentMode)
     {
     case SD_ONLY:
         controlResult = initializeSDcard();
-
+        message = message + "Factor: " + String(currentFactor()) + "\n";
         file = SD.open("/dataStorage.txt", FILE_APPEND);
         file.print(message);
         file.print(getTimeStamp() + " ");
@@ -749,6 +751,7 @@ boolean preliminaryControl()
 
     case SERIAL_ONLY:
         char serial;
+        Serial.println("Write 'F' and send to start the serial acquisition: ");
         waitSerialGraphic();
         serialWaitingTime = time_now = millis();
 
@@ -763,12 +766,15 @@ boolean preliminaryControl()
                 {
                     controlResult = true;
                     Serial.println("START");
-                    Serial.println(message);
+                    Serial.println(currentChannelString);
+                    Serial.println(K_value, 35);
+                    Serial.println(O_value, 35);
+                    Serial.println(currentSampleRate);
+                    Serial.println(currentFactor());
                     delayMicroseconds(100);
                     break;
                 }
             }
-
             time_now = millis();
         }
 
@@ -864,7 +870,6 @@ float conversionMeasurement()
         measure = 0;
         break;
     }
-    Serial.println(measure);
     return measure;
 }
 
