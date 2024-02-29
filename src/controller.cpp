@@ -80,7 +80,7 @@ unsigned long time_now = 0;
 String currentTime;
 
 // DECLARING TIMEOUT RESPONSE SERIAL
-#define TIMEOUT 6000
+#define TIMEOUT 10000
 
 // DECLARING THE OBJECT OF MEASUREMENTS
 Measurement measurement(8);
@@ -954,6 +954,7 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
+        Serial.println(getTimeStamp());
         loggerGraphic(getTimeStamp(), conversionMeasurement());
     }
     new_data = false;
