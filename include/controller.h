@@ -47,6 +47,8 @@ boolean goUp();
 boolean goDown();
 boolean select();
 void soundBuzzer(int frequency, int duration);
+String getTimeStamp();
+String getDateStamp();
 void loggerActDisplay();
 void loggerActSerial();
 void loggerActSD();

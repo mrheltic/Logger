@@ -1223,34 +1223,28 @@ void inputModeGraphic(int mode)
  * @param sdState The state of the SD card component.
  * @param RTCState The state of the RTC (Real-Time Clock) component.
  */
-void infoGraphic(bool WifiState, bool sdState, bool RTCState)
+void infoGraphic(String TimeStamp, String DateStamp)
 {
-  String wifiStateString = "connected";
-  String SDCardStateString = "detected";
-  String RTCStateString = "initializide";
+  // String wifiStateString = "connected";
+  // String SDCardStateString = "detected";
+  // String RTCStateString = "initializide";
   String versionFirmware = "-v2.4.3";
-
-  if (!WifiState)
-    wifiStateString = "NOT " + wifiStateString;
-  if (!sdState)
-    SDCardStateString = "NOT " + SDCardStateString;
-  if (!RTCState)
-    RTCStateString = "NOT " + RTCStateString;
 
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(1, 2);
-  display.print(F("WiFi "));
-  display.println(wifiStateString);
-  display.setCursor(1, 18);
-  display.print(F("SD "));
-  display.println(SDCardStateString);
-  display.setCursor(1, 34);
-  display.print(F("RTC "));
-  display.println(RTCStateString);
-  display.setCursor(1, 50);
+  display.print(F("Firmware:  "));
   display.println(versionFirmware);
+  display.setCursor(1, 18);
+  display.print(F("Time: "));
+  display.println(TimeStamp);
+  display.setCursor(1, 34);
+  display.print(F("Date: "));
+  display.println(DateStamp);
+  display.setCursor(1, 50);
+  display.print(F("Battery: "));
+  display.println("89%");
   display.display();
 }
 

@@ -418,6 +418,27 @@ String getTimeStamp()
     return currentTime;
 }
 
+String getDateStamp()
+{
+    Ds1302::DateTime now;
+    rtc.getDateTime(&now);
+
+
+    String currentDate = "";
+
+    if (now.month < 10)
+        currentDate = currentDate + "0";
+    currentDate = currentDate + now.month + "/"; // 01-12
+    if (now.day < 10)
+        currentDate = currentDate + "0";
+    currentDate = currentDate + now.day; // 01-3
+    currentDate = currentDate + "/" + now.year; // 2021
+
+    return currentDate;
+}
+
+
+
 /**
  * @brief This function handles the output mode activation.
  */
@@ -613,12 +634,7 @@ void setChannel()
  */
 void infoAct(boolean subSetup)
 {
-    if (subSetup || goUp() || goDown())
-    {
-        // infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC()); //TODO fix methods
-        //  submenu setup
-        subSetup = 0;
-    }
+    infoGraphic(getTimeStamp(), getDateStamp());
 }
 
 /**

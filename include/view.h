@@ -14,7 +14,7 @@ void waitSerialGraphic();
 void loggerGraphic(String currentTime, float measure);
 void outputModeGraphic(int mode);
 void inputModeGraphic(int channel);
-void infoGraphic(bool WifiState, bool sdState, bool RTCState);
+void infoGraphic(String TimeStamp, String DateStamp);
 void sampleSetGraphic(int sample);
 void sampleSetSelectorGraphic(boolean arrowup);
 #endif // VIEW_H
