@@ -771,6 +771,7 @@ boolean preliminaryControl()
                     Serial.println(O_value, 35);
                     Serial.println(currentSampleRate);
                     Serial.println(currentFactor());
+                    Serial.println(getTimeStamp());
                     delayMicroseconds(100);
                     break;
                 }
