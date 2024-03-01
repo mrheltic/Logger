@@ -644,9 +644,9 @@ void infoAct(boolean subSetup)
  *
  * @param value The rate value to be set.
  */
+
 void setRate(int value)
 {
-
     switch (value)
     {
     case 860:
@@ -787,7 +787,6 @@ boolean preliminaryControl()
                     Serial.println(O_value, 35);
                     Serial.println(currentSampleRate);
                     Serial.println(currentFactor());
-                    Serial.println(getTimeStamp());
                     delayMicroseconds(100);
                     break;
                 }
