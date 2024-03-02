@@ -321,15 +321,13 @@ new_data = false;
 
 The ESP32 is a powerful, low-cost microcontroller with integrated Wi-Fi and dual-mode Bluetooth, making it an ideal choice for a wide range of applications. It employs a Tensilica Xtensa LX6 microprocessor, which can operate at 160 or 240 MHz. This makes it significantly more powerful than many other microcontrollers on the market (for example an Arduino Uno, operating at 16MHz). It also has larger RAM and flash memory, allowing for more extensive programs.
 
-One of the key reasons for choosing the ESP32 for this project is its cost-effectiveness. Despite its high performance and extensive features, the ESP32 is relatively cheap, making it a great choice for projects that need this power.
-
-Despite these advantages, the ESP32 can be more complex to program than some other microcontrollers (using the ESP-IDF frameworj). That’s where the Arduino framework comes in. The Arduino framework provides a simple and consistent programming model, and it’s supported by a large, active community making it easier to find something related to this device on the scientific literature. Even though the ESP32 and Arduino are different hardware platforms, the ESP32 can be programmed using the Arduino framework, which means we can implement the existing Arduino libraries and development tools.
+One of the key reasons for choosing the ESP32 for this project is its cost-effectiveness. Despite its high performance and extensive features, the ESP32 is relatively cheap, making it a great choice for projects that need this power otherwise it can be more complex to program than some other microcontrollers (using the ESP-IDF framework). That’s where the Arduino framework comes in. The Arduino framework provides a simple and consistent programming model, and it’s supported by a large, active community making it easier to find something related to this device on the scientific literature. Even though the ESP32 and Arduino are different hardware platforms, the ESP32 can be programmed using the Arduino framework, which means we can implement the existing Arduino libraries and development tools.
 </details>
 
 <details>
 <summary><i>I2C</i></summary>
 
-The I²C (Inter-Integrated Circuit) protocol, also known as I2C or IIC, is a synchronous, multi-master/multi-slave, single-ended, serial communication bus invented in 1982 by Philips Semiconductors. It’s widely used for attaching lower-speed peripheral ICs to processors and microcontrollers in short-distance, intra-board communication1.
+The I²C (Inter-Integrated Circuit) protocol, also known as I2C or IIC, is a synchronous, multi-master/multi-slave, single-ended, serial communication bus invented in 1982 by Philips Semiconductors. It’s widely used for attaching lower-speed peripheral ICs to processors and microcontrollers in short-distance, intra-board communication.
 
 I²C uses only two bidirectional lines: the Serial Data Line (SDA) and the Serial Clock Line (SCL). This simplicity makes it a popular choice for connecting a wide range of devices such as sensors, EEPROMs, and display drivers. One of the strengths of I²C is the capability of a microcontroller to control a network of device chips with just two general-purpose I/O pins and software1. This makes I²C a very efficient protocol for communicating between components on a single board.
 </details>
