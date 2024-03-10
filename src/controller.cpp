@@ -12,9 +12,9 @@
 #include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 39
+#define DOWN_BUTTON 35
 #define SELECT_BUTTON 34
-#define UP_BUTTON 35
+#define UP_BUTTON 39
 
 // DECLARING VARIABLES FOR RTC
 #define PIN_ENA 14
@@ -37,6 +37,7 @@ const float multiplier_I = 0.00003125; // for current measurement and gain four 
 // Variables voltage measurement
 const float FACTOR_V = 4.334335237;   // FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
+//const float multiplier_V = 0.000125;
 
 // Variables resistance measurement
 const float FACTOR_R = 999;          // FACTOR_R = R3 resistor beetween A1 and GND [ohm]
@@ -295,7 +296,7 @@ boolean initializeADC() // TODO finish function
     if (!ads.begin())
     {
         Serial.println("Failed to initialize ADS.");
-        while (1)
+        while (10)
             ;
     }
 
