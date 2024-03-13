@@ -203,13 +203,13 @@ boolean initializeSDcard()
 void logfileSDcard()
 {
 
-    if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
+    if (SD.exists("/dataStorage.ds32")) // if the file exists it'll be removed
     {
-        SD.remove("/dataStorage.txt");
+        SD.remove("/dataStorage.ds32");
     }
 
-    Serial.println("Creating dataStorage.txt..."); // create and open the file ready to be written
-    writeFile(SD, "/dataStorage.txt", "");
+    Serial.println("Creating dataStorage.ds32..."); // create and open the file ready to be written
+    writeFile(SD, "/dataStorage.ds32", "");
     writeFile(SD, "/creditsFile.txt", creditString);
 }
 
@@ -761,7 +761,7 @@ boolean preliminaryControl()
     case SD_ONLY:
         controlResult = initializeSDcard();
         message = message + "Factor: " + String(currentFactor()) + "\n";
-        file = SD.open("/dataStorage.txt", FILE_APPEND);
+        file = SD.open("/dataStorage.ds32", FILE_APPEND);
         file.print(message);
         file.print(getTimeStamp() + " ");
         break;
@@ -941,9 +941,9 @@ void loggerActSD()
         file.print("\n" + currentTime + " ");
         file.close();
         measurement.setArrayFull(false);
-        // appendFile(SD, "/dataStorage.txt", "\n" + currentTime + "\n");
+        // appendFile(SD, "/dataStorage.ds32", "\n" + currentTime + "\n");
         loggerGraphic(currentTime, conversionMeasurement());
-        file = SD.open("/dataStorage.txt", FILE_APPEND);
+        file = SD.open("/dataStorage.ds32", FILE_APPEND);
     }
     new_data = false;
 }
