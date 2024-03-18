@@ -37,7 +37,7 @@ const float multiplier_I = 0.00003125; // for current measurement and gain four 
 // Variables voltage measurement
 const float FACTOR_V = 4.334335237;   // FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
 const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
-//const float multiplier_V = 0.000125;
+// const float multiplier_V = 0.000125;
 
 // Variables resistance measurement
 const float FACTOR_R = 999;          // FACTOR_R = R3 resistor beetween A1 and GND [ohm]
@@ -58,10 +58,13 @@ const static char *WeekDays[] =
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
 #define BUZZER 33
+#define LED1 12
+#define LED2 13
 int scrollFrequency = 200;
 int scrollDuration = 200;
 int selectFrequency = 200;
 int selectDuration = 200;
+static char trig;
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 32
@@ -155,8 +158,11 @@ boolean initializeOutputDevices()
     Serial.println("Initializing output devices...");
 
     pinMode(BUZZER, OUTPUT);
+    pinMode(LED1, OUTPUT);
+    pinMode(LED2, OUTPUT);
+    
 
-    Serial.println("Output devices initialized\n");
+        Serial.println("Output devices initialized\n");
 
     return true;
 }
@@ -424,7 +430,6 @@ String getDateStamp()
     Ds1302::DateTime now;
     rtc.getDateTime(&now);
 
-
     String currentDate = "";
 
     if (now.month < 10)
@@ -432,13 +437,11 @@ String getDateStamp()
     currentDate = currentDate + now.month + "/"; // 01-12
     if (now.day < 10)
         currentDate = currentDate + "0";
-    currentDate = currentDate + now.day; // 01-3
+    currentDate = currentDate + now.day;        // 01-3
     currentDate = currentDate + "/" + now.year; // 2021
 
     return currentDate;
 }
-
-
 
 /**
  * @brief This function handles the output mode activation.
@@ -591,7 +594,7 @@ void setChannel()
 {
     if (currentChannel == VOLTAGE)
     {
-        ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+        ads.setGain(GAIN_ONE); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
         measurement.setMode(1);
         Serial.println("Reading channel A0\n");
@@ -938,6 +941,8 @@ void loggerActSD()
     else
     {
         currentTime = getTimeStamp();
+        trig = trig ^ 0b00000001;
+        digitalWrite(LED2, trig);
         file.print("\n" + currentTime + " ");
         file.close();
         measurement.setArrayFull(false);
@@ -970,8 +975,10 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
-        Serial.println(getTimeStamp());
-        loggerGraphic(getTimeStamp(), conversionMeasurement());
+        //Serial.println(getTimeStamp());
+        //loggerGraphic(getTimeStamp(), conversionMeasurement());
+        //trig = trig ^ 0b00000001;
+        //digitalWrite(LED2, trig);
     }
     new_data = false;
 }
@@ -993,7 +1000,9 @@ void loggerActDisplay()
     else
     {
         measurement.setArrayFull(false);
-        loggerGraphic(getTimeStamp(), conversionMeasurement());
+        //loggerGraphic(getTimeStamp(), conversionMeasurement());
+        //trig = trig ^ 0b00000001;
+        //digitalWrite(LED2, trig);
     }
 
     new_data = false;
