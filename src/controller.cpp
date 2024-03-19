@@ -57,7 +57,7 @@ const static char *WeekDays[] =
         "Sunday"};
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 33
+#define BUZZER 0
 #define LED1 12
 #define LED2 13
 int scrollFrequency = 200;
@@ -72,7 +72,7 @@ static char trig;
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL DEFAULT CONTIONS
-MODE currentMode = DISPLAY_ONLY;
+MODE currentMode = SERIAL_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 String currentChannelString = "Voltage"; // Used to communicate the current channel to the user through the serial
 
@@ -594,7 +594,7 @@ void setChannel()
 {
     if (currentChannel == VOLTAGE)
     {
-        ads.setGain(GAIN_ONE); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
+        ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
         measurement.setMode(1);
         Serial.println("Reading channel A0\n");
@@ -777,13 +777,14 @@ boolean preliminaryControl()
 
         while (time_now - serialWaitingTime < TIMEOUT)
         {
-
             if (Serial.available() > 0)
             {
-                serial = Serial.read();
-                Serial.println(serial, HEX);
+                byte serial = Serial.read();
+                //Serial.println(serial, HEX);
+                
                 if (serial == 'F')
                 {
+                    delayMicroseconds(50);
                     controlResult = true;
                     Serial.println("START");
                     Serial.println(currentChannelString);
@@ -796,9 +797,10 @@ boolean preliminaryControl()
                 }
             }
             time_now = millis();
+            delayMicroseconds(100);
         }
 
-        if (serial != 'F')
+        if (serial != 0b10101101)
             Serial.println("Expired time: no valid response received");
         break;
 
@@ -814,6 +816,8 @@ boolean preliminaryControl()
         soundBuzzer(1000, 2000);
         delay(3000);
     }
+
+    loggerGraphic(getTimeStamp(), 0);
 
     return controlResult;
 }
@@ -919,8 +923,6 @@ void adcSetup()
     O_value = calculateOffset();
 
     Measurement measurement(currentSampleRate);
-
-    loggerGraphic(getTimeStamp(), 0);
 }
 
 void loggerActSD()
@@ -941,13 +943,11 @@ void loggerActSD()
     else
     {
         currentTime = getTimeStamp();
-        trig = trig ^ 0b00000001;
-        digitalWrite(LED2, trig);
+        digitalWrite(LED2, !digitalRead(LED2));
         file.print("\n" + currentTime + " ");
         file.close();
         measurement.setArrayFull(false);
         // appendFile(SD, "/dataStorage.ds32", "\n" + currentTime + "\n");
-        loggerGraphic(currentTime, conversionMeasurement());
         file = SD.open("/dataStorage.ds32", FILE_APPEND);
     }
     new_data = false;
@@ -975,10 +975,7 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
-        //Serial.println(getTimeStamp());
-        //loggerGraphic(getTimeStamp(), conversionMeasurement());
-        //trig = trig ^ 0b00000001;
-        //digitalWrite(LED2, trig);
+        //digitalWrite(LED2, !digitalRead(LED2));
     }
     new_data = false;
 }
@@ -1000,9 +997,8 @@ void loggerActDisplay()
     else
     {
         measurement.setArrayFull(false);
-        //loggerGraphic(getTimeStamp(), conversionMeasurement());
-        //trig = trig ^ 0b00000001;
-        //digitalWrite(LED2, trig);
+        loggerGraphic(getTimeStamp(), conversionMeasurement());
+        digitalWrite(LED2, !digitalRead(LED2));
     }
 
     new_data = false;
