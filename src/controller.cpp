@@ -135,7 +135,7 @@ const char *creditString = "-------------------------------\nLogger\n-----------
 void initializeSerial()
 {
     // INITIALIZING SERIAL MONITOR
-    Serial.begin(250000);
+    Serial.begin(115200);
 
     while (!Serial)
     {
