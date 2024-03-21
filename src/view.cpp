@@ -1190,6 +1190,7 @@ void waitSerialGraphic()
  * @param mode The mode of the logger.
  * @param channel The channel of the logger.
  */
+
 void loggerGraphic(String currentTime, float measure)
 {
   display.clearDisplay();
@@ -1209,8 +1210,40 @@ void loggerGraphic(String currentTime, float measure)
   {
   case DISPLAY_ONLY:
     display.drawBitmap(0, 16, bitmap_display, 16, 16, WHITE);
+    printMeasureValue(measure);
+    break;
+  case SERIAL_ONLY:
+    display.drawBitmap(0, 16, bitmap_usb, 16, 16, WHITE);
+    display.drawBitmap(17,0, bitmap_USB_connection, 111, 47, WHITE);
+    printBitmapIcon();
+    break;
+  case SD_ONLY:
+    display.drawBitmap(0, 16, bitmap_sd_card, 16, 16, WHITE);
+    display.drawBitmap(17,0, bitmap_SD_connection, 111, 47, WHITE);
+    printBitmapIcon();
+    break;
+  }
 
-    switch (currentChannel)
+  display.display();
+}
+
+void printBitmapIcon(){
+  switch (currentChannel)
+    {
+    case VOLTAGE:
+      display.drawBitmap(0, 32, bitmap_volt, 16, 16, WHITE);
+      break;
+    case CURRENT:
+      display.drawBitmap(0, 32, bitmap_ampere, 16, 16, WHITE);
+      break;
+    case RESISTANCE:
+      display.drawBitmap(0, 32, bitmap_ohm, 16, 16, WHITE);
+      break;
+    }
+}
+
+void printMeasureValue(float measure){
+  switch (currentChannel)
     {
     case VOLTAGE:
       display.setTextSize(1);
@@ -1270,19 +1303,6 @@ void loggerGraphic(String currentTime, float measure)
     default:
       break;
     }
-
-    break;
-  case SERIAL_ONLY:
-    display.drawBitmap(0, 16, bitmap_usb, 16, 16, WHITE);
-    display.drawBitmap(17, 0, bitmap_USB_connection, 111, 47, WHITE);
-    break;
-  case SD_ONLY:
-    display.drawBitmap(0, 16, bitmap_sd_card, 16, 16, WHITE);
-    display.drawBitmap(17, 0, bitmap_SD_connection, 111, 47, WHITE);
-    break;
-  }
-
-  display.display();
 }
 
 /**
