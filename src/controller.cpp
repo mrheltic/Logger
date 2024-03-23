@@ -71,7 +71,7 @@ int selectDuration = 200;
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL DEFAULT CONTIONS
-MODE currentMode = DISPLAY_ONLY;
+MODE currentMode = SERIAL_ONLY;
 CHANNEL currentChannel = VOLTAGE;
 String currentChannelString = "Voltage"; // Used to communicate the current channel to the user through the serial
 
@@ -801,6 +801,10 @@ boolean preliminaryControl()
         if (serial != 'F')
             // Serial.println("Expired time: no valid response received");
             break;
+
+    case DISPLAY_ONLY:
+        controlResult = true;
+        break;
 
     default:
         controlResult = false;
