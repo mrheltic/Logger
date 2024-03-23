@@ -930,7 +930,7 @@ void errorMessageGraphic(int currentMode)
  * @param mode The mode of the logger.
  * @param channel The channel of the logger.
  */
-void loggerGraphic(int mode, int channel, String currentTime, float measure)
+void loggerGraphic(String currentTime, float measure)
 {
   display.clearDisplay();
   display.drawBitmap(0, 0, bitmap_logger, 128, 64, WHITE);
@@ -965,12 +965,87 @@ void loggerGraphic(int mode, int channel, String currentTime, float measure)
   display.setCursor(24, 54);
   display.println(currentTime);
   display.setCursor(0, 0);
-  display.setTextSize(3);
-  display.setTextColor(WHITE);
-  display.setCursor(30, 20);
-  display.println(measure);
+
+  switch (currentMode)
+  {
+  case DISPLAY_ONLY:
+    display.drawBitmap(0, 16, bitmap_display, 16, 16, WHITE);
+
+    switch (currentChannel)
+    {
+    case VOLTAGE:
+      display.setTextSize(1);
+      display.setCursor(23, 0);
+      display.print("0-26V  Mean Value");
+      display.drawBitmap(0, 32, bitmap_volt, 16, 16, WHITE);
+      display.setTextSize(3);
+      display.setTextColor(WHITE);
+      display.setCursor(30, 20);
+      display.println(measure);
+      break;
+    case CURRENT:
+      display.setTextSize(1);
+      display.setCursor(67, 0);
+      display.print("RMS Value");
+      display.drawBitmap(0, 32, bitmap_ampere, 16, 16, WHITE);
+      display.setTextSize(3);
+      display.setTextColor(WHITE);
+      display.setCursor(30, 20);
+      display.println(measure);
+      break;
+    case RESISTANCE:
+      display.setTextSize(1);
+      display.setCursor(59, 0);
+      display.print("Mean Value");
+      display.drawBitmap(0, 32, bitmap_ohm, 16, 16, WHITE);
+      display.setTextSize(2);
+      display.setTextColor(WHITE);
+
+      display.setCursor(26, 28);
+
+      if (abs(measure) >= 10000000)
+      {
+        display.drawBitmap(17, 0, bitmap_inf, 110, 47, WHITE);
+      }
+      else if (abs(measure) >= 1000000)
+      {
+        display.println(measure / 1000000);
+        display.drawBitmap(105, 26, bitmap_10_6, 20, 15, WHITE);
+      }
+      else if (abs(measure) >= 1000)
+      {
+        display.println(measure / 1000);
+        display.drawBitmap(105, 26, bitmap_10_3, 20, 15, WHITE);
+      }
+      else if (abs(measure) < 1000 && abs(measure) > 20)
+      {
+        display.println(measure);
+      }
+      else
+      {
+        display.drawBitmap(17, 0, bitmap_short, 110, 47, WHITE);
+      }
+
+      break;
+
+    default:
+      break;
+    }
+
+    break;
+  case SERIAL_ONLY:
+    display.drawBitmap(0, 16, bitmap_usb, 16, 16, WHITE);
+    display.drawBitmap(17, 0, bitmap_USB_connection, 111, 47, WHITE);
+    break;
+  case SD_ONLY:
+    display.drawBitmap(0, 16, bitmap_sd_card, 16, 16, WHITE);
+    display.drawBitmap(17, 0, bitmap_SD_connection, 111, 47, WHITE);
+    break;
+  }
+
   display.display();
 }
+
 /**
  * @brief Outputs the graphic mode based on the given mode.
  *
