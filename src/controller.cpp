@@ -135,7 +135,11 @@ void initializeSerial()
     }
     // Print contributors
 <<<<<<< HEAD
+<<<<<<< HEAD
     Serial.println(creditString);
+=======
+    //Serial.println(creditString);
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
 =======
     //Serial.println(creditString);
 >>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
@@ -749,6 +753,7 @@ boolean preliminaryControl()
 
                     controlResult = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
                     Serial.println("START");
                     Serial.println(currentChannelString);
                     Serial.println(K_value, 35);
@@ -757,6 +762,8 @@ boolean preliminaryControl()
                     Serial.println(currentFactor());
                     delay(350);
 =======
+=======
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
                       Serial.println("START");
                       Serial.println(currentChannelString);
                       Serial.println(K_value, 35);
@@ -772,10 +779,13 @@ boolean preliminaryControl()
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (serial != 'F')
             // Serial.println("Expired time: no valid response received");
             break;
 =======
+=======
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
         if (serial != 0b10101101)
             //Serial.println("Expired time: no valid response received");
         break;
