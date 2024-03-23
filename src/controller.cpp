@@ -134,7 +134,7 @@ const char *creditString = "-------------------------------\nLogger\n-----------
 void initializeSerial()
 {
     // INITIALIZING SERIAL MONITOR
-    Serial.begin(250000);
+    Serial.begin(115200);
 
     while (!Serial)
     {
@@ -777,12 +777,13 @@ boolean preliminaryControl()
         {
             if (Serial.available() > 0)
             {
+                delay(1500);
                 byte serial = Serial.read();
                 // Serial.println(serial, HEX);
 
                 if (serial == 'F')
                 {
-                    delayMicroseconds(50);
+
                     controlResult = true;
                     Serial.println("START");
                     Serial.println(currentChannelString);
@@ -790,21 +791,16 @@ boolean preliminaryControl()
                     Serial.println(O_value, 35);
                     Serial.println(currentSampleRate);
                     Serial.println(currentFactor());
-                    delayMicroseconds(100);
+                    delay(350);
                     break;
                 }
             }
             time_now = millis();
-            delayMicroseconds(100);
         }
 
-        if (serial != 0b10101101)
+        if (serial != 'F')
             // Serial.println("Expired time: no valid response received");
             break;
-
-    case DISPLAY_ONLY:
-        controlResult = true;
-        break;
 
     default:
         controlResult = false;
