@@ -12,11 +12,9 @@ void updateContextCursor(int position);
 void errorMessageGraphic(int currentMode);
 void waitSerialGraphic();
 void loggerGraphic(String currentTime, float measure);
-void printBitmapIcon();
-void printMeasureValue(float measure);
 void outputModeGraphic(int mode);
 void inputModeGraphic(int channel);
-void infoGraphic(String TimeStamp, String DateStamp);
+void infoGraphic(bool WifiState, bool sdState, bool RTCState);
 void sampleSetGraphic(int sample);
 void sampleSetSelectorGraphic(boolean arrowup);
 #endif // VIEW_H
