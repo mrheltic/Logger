@@ -134,7 +134,11 @@ void initializeSerial()
         ; // wait for serial port to connect. Needed for native USB port only
     }
     // Print contributors
+<<<<<<< HEAD
     Serial.println(creditString);
+=======
+    //Serial.println(creditString);
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
 }
 
 /**
@@ -744,6 +748,7 @@ boolean preliminaryControl()
                 {
 
                     controlResult = true;
+<<<<<<< HEAD
                     Serial.println("START");
                     Serial.println(currentChannelString);
                     Serial.println(K_value, 35);
@@ -751,15 +756,30 @@ boolean preliminaryControl()
                     Serial.println(currentSampleRate);
                     Serial.println(currentFactor());
                     delay(350);
+=======
+                      Serial.println("START");
+                      Serial.println(currentChannelString);
+                      Serial.println(K_value, 35);
+                      Serial.println(O_value, 35);
+                      Serial.println(currentSampleRate);
+                      Serial.println(currentFactor());
+                    delayMicroseconds(100);
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
                     break;
                 }
             }
             time_now = millis();
         }
 
+<<<<<<< HEAD
         if (serial != 'F')
             // Serial.println("Expired time: no valid response received");
             break;
+=======
+        if (serial != 0b10101101)
+            //Serial.println("Expired time: no valid response received");
+        break;
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
 
     default:
         controlResult = true;
