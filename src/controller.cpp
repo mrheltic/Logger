@@ -12,9 +12,9 @@
 #include <Ds1302.h>
 
 // DECLARING VARIABLES FOR BUTTONS
-#define DOWN_BUTTON 35
+#define DOWN_BUTTON 39
 #define SELECT_BUTTON 34
-#define UP_BUTTON 39
+#define UP_BUTTON 35
 
 // DECLARING VARIABLES FOR RTC
 #define PIN_ENA 14
@@ -30,21 +30,20 @@
 int16_t adcValue;
 
 // Variables current measurement
-const float FACTOR_I = 30;             // 30A/1V from teh current transformer
+const float FACTOR = 30;               // 30A/1V from teh CT
 const float multiplier_I = 0.00003125; // for current measurement and gain four (1.024V / 2^16 * 2)
-// const float multiplier_I = 0.000015625; // for current measurement and gain eight (0.512 / 2^16 * 2)
+float current;
 
 // Variables voltage measurement
-const float FACTOR_V = 4.334335237;   // FACTOR_V = (R1 + R2) / R2    R1 resistor beetween Vin and A0 [ohm] and R2 resistor beetween A0 and GND [ohm]
-const float multiplier_V = 0.0001875; // for voltage measurement and gain twothirds (6.144V / 2^16 * 2)
-// const float multiplier_V = 0.000125;
-
-// Variables resistance measurement
-const float FACTOR_R = 999;          // FACTOR_R = R3 resistor beetween A1 and GND [ohm]
-const float multiplier_R = 0.000125; // for voltage measurement and unit gain (4.096 / 2^16 * 2)
+float R1 = 33280;                     // Resistor beetween Vin and A0 [ohm]
+float R2 = 9981;                      // Resistor beetween A0 and GND [ohm]
+const float multiplier_V = 0.0001875; // for current measurement and gain four (6.144V / 2^16 * 2)
+float voltage;
 
 float K_value;
 float O_value;
+
+// SPIClass SPI = SPIClass(VSPI);
 
 const static char *WeekDays[] =
     {
@@ -57,13 +56,14 @@ const static char *WeekDays[] =
         "Sunday"};
 
 // DECLARING VARIABLES FOR OUTPUT DEVICES
-#define BUZZER 33
+#define BUZZER 0
 #define LED1 12
 #define LED2 13
 int scrollFrequency = 200;
 int scrollDuration = 200;
 int selectFrequency = 200;
 int selectDuration = 200;
+static char trig;
 
 // DECLARING VARIABLES FOR ADS
 #define ALERT_PIN 32
@@ -71,25 +71,20 @@ int selectDuration = 200;
 int dataRateValues[] = {8, 16, 32, 64, 128, 250, 475, 860};
 
 // DECLARING VARIABLES FOR MODE AND CHANNEL DEFAULT CONTIONS
-MODE currentMode = DISPLAY_ONLY;
+MODE currentMode = SERIAL_ONLY;
 CHANNEL currentChannel = VOLTAGE;
-String currentChannelString = "Voltage"; // Used to communicate the current channel to the user through the serial
+String currentChannelString;
 
 int currentSampleRate = 860;
 
-// DECLARING VARIABLES FOR EMPHIRICALLY EVALUATE PERFORMANCES
-unsigned long serialWaitingTime = 0;
 unsigned long time_now = 0;
-String currentTime;
+unsigned long time_old = 0;
+int count = 0;
 
-// DECLARING TIMEOUT RESPONSE SERIAL
-#define TIMEOUT 10000
-
-// DECLARING THE OBJECT OF MEASUREMENTS
 Measurement measurement(8);
 
-// DECLARING VARIABLES FOR SD CARD
-File file;
+// File creditsFile;
+// File dataStorage;
 
 #ifndef IRAM_ATTR
 #define IRAM_ATTR
@@ -116,10 +111,8 @@ const char *password = "logger1234";
 
 bool isExecuted = false;
 
-// DECLARING RTC
 Ds1302 rtc(PIN_ENA, PIN_CLK, PIN_DAT);
 
-// DECLARING ADC
 Adafruit_ADS1115 ads;
 
 const char *creditString = "-------------------------------\nLogger\n-------------------------------\nContributors:\n- Vincenzo Pio Florio\n- Francesco Stasi\n- Davide Tonti\n-------------------------------\n";
@@ -134,14 +127,18 @@ const char *creditString = "-------------------------------\nLogger\n-----------
 void initializeSerial()
 {
     // INITIALIZING SERIAL MONITOR
-    Serial.begin(250000);
+    Serial.begin(115200);
 
     while (!Serial)
     {
         ; // wait for serial port to connect. Needed for native USB port only
     }
     // Print contributors
-    // Serial.println(creditString);
+<<<<<<< HEAD
+    Serial.println(creditString);
+=======
+    //Serial.println(creditString);
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
 }
 
 /**
@@ -154,13 +151,14 @@ void initializeSerial()
 
 boolean initializeOutputDevices()
 {
-    // Serial.println("Initializing output devices...");
+    //Serial.println("Initializing output devices...");
 
     pinMode(BUZZER, OUTPUT);
     pinMode(LED1, OUTPUT);
     pinMode(LED2, OUTPUT);
+    
 
-    // Serial.println("Output devices initialized\n");
+        //Serial.println("Output devices initialized\n");
 
     return true;
 }
@@ -175,26 +173,26 @@ boolean initializeOutputDevices()
 boolean initializeInputDevices()
 {
 
-    // Serial.println("Initializing input devices...");
+    //Serial.println("Initializing input devices...");
 
     pinMode(UP_BUTTON, INPUT);
     pinMode(SELECT_BUTTON, INPUT);
     pinMode(DOWN_BUTTON, INPUT);
 
-    // Serial.println("Input devices initialized\n");
+    //Serial.println("Input devices initialized\n");
 
     return true;
 }
 
 boolean initializeSDcard()
 {
-    // Serial.println("Initializing SD card...\n");
+    //Serial.println("Initializing SD card...\n");
 
     SPI.begin(SCK, MISO, MOSI, CS);
 
     if (!SD.begin(CS, SPI))
     {
-        // Serial.println("Card Mount Failed");
+        //Serial.println("Card Mount Failed");
         return false;
     }
     else
@@ -207,56 +205,55 @@ boolean initializeSDcard()
 void logfileSDcard()
 {
 
-    if (SD.exists("/dataStorage.ds32")) // if the file exists it'll be removed
+    if (SD.exists("/dataStorage.txt")) // if the file exists it'll be removed
     {
-        SD.remove("/dataStorage.ds32");
+        SD.remove("/dataStorage.txt");
     }
 
-    // Serial.println("Creating dataStorage.ds32..."); // create and open the file ready to be written
+    //Serial.println("Creating dataStorage.ds32..."); // create and open the file ready to be written
     writeFile(SD, "/dataStorage.ds32", "");
     writeFile(SD, "/creditsFile.txt", creditString);
 }
 
 void writeFile(fs::FS &fs, const char *path, const char *message)
 {
-    // //Serial.printf("Writing file: %s\n", path);
+    // Serial.printf("Writing file: %s\n", path);
 
     File file = fs.open(path, FILE_WRITE);
     if (!file)
     {
-        // Serial.println("Failed to open file for writing");
+        //Serial.println("Failed to open file for writing");
         return;
     }
     if (file.print(message))
     {
-        // //Serial.println("File written");
+        // Serial.println("File written");
     }
     else
     {
-        // //Serial.println("Write failed");
+        // Serial.println("Write failed");
     }
     file.close();
 }
 
 void appendFile(fs::FS &fs, const char *path, const char *message)
 {
+    Serial.printf("Appending to file: %s\n", path);
+
     File file = fs.open(path, FILE_APPEND);
-    /*
     if (!file)
     {
-        // //Serial.println("Failed to open file for appending");
+        // Serial.println("Failed to open file for appending");
         return;
     }
-    if ()
+    if (file.print(message))
     {
-        // //Serial.println("Message appended");
+        // Serial.println("Message appended");
     }
     else
     {
-        // //Serial.println("Append failed");
+        // Serial.println("Append failed");
     }
-    */
-    file.print(message);
     file.close();
 }
 
@@ -269,7 +266,7 @@ boolean initializeRTC()
 boolean initializeWifi()
 {
 
-    // Serial.println("Initializing Wifi...");
+    //Serial.println("Initializing Wifi...");
 
     // IP Address details
     IPAddress local_ip(192, 168, 1, 1);
@@ -281,30 +278,30 @@ boolean initializeWifi()
     WiFi.softAP(ssid, password);
     WiFi.softAPConfig(local_ip, gateway, subnet);
 
-    // Serial.print("Connect to My access point: ");
-    // Serial.println(ssid);
+    //Serial.print("Connect to My access point: ");
+    //Serial.println(ssid);
 
     // server.on("/", server.send(200, "text/html", HTML));
 
     server.begin();
-    // Serial.println("HTTP server started");
+    //Serial.println("HTTP server started");
 
-    // Serial.println("Wifi initialized\n");
+    //Serial.println("Wifi initialized\n");
     return true;
 }
 
 boolean initializeADC() // TODO finish function
 {
-    // Serial.println("Initializing ADC...");
+    //Serial.println("Initializing ADC...");
 
     if (!ads.begin())
     {
-        // Serial.println("Failed to initialize ADS.");
+        //Serial.println("Failed to initialize ADS.");
         while (10)
             ;
     }
 
-    // Serial.println("ADC initialized");
+    //Serial.println("ADC initialized");
 
     return true;
 }
@@ -316,12 +313,12 @@ boolean initializeADC() // TODO finish function
  */
 boolean initializeDevices()
 {
-    // Serial.println("Initializing devices...");
+    //Serial.println("Initializing devices...");
 
     initializeSerial();
 
-    // Serial.println("Initialized devices!\n");
-    //  Initialize only essential devices to correct work of logger
+    //Serial.println("Initialized devices!\n");
+    // Initialize only essential devices to correct work of logger
     return initializeOutputDevices() &&
            initializeInputDevices() &&
            initializeScreen() && initializeADC() && initializeRTC();
@@ -384,25 +381,31 @@ boolean select()
  * followed by a delay of 40 milliseconds. Then, the buzzer is turned off using the noTone() function,
  * followed by a delay of 100 milliseconds.
  */
-void soundBuzzer(int frequency, int duration)
+void soundBuzzerScroll()
 {
-    int period = 1000000 / frequency;
-    int halfPeriod = period / 2;
-    int cycles = frequency * duration / 1000;
-    for (int i = 0; i < cycles; i++)
-    {
-        digitalWrite(BUZZER, HIGH);
-        delayMicroseconds(halfPeriod);
-        digitalWrite(BUZZER, LOW);
-        delayMicroseconds(halfPeriod);
-    }
+    // tone(BUZZER, 200, 1000);
+
+    delay(40);
+
+    // noTone(BUZZER);
+
+    delay(100);
 }
 
 /**
- * @brief Get the current timestamp as a string.
- *
- * @return String The current timestamp as a string.
+ * Function to sound the buzzer with a specific frequency and duration.
  */
+void soundBuzzerSelect()
+{
+    // tone(BUZZER, 1000, 300);
+
+    delay(40);
+
+    // noTone(BUZZER);
+
+    delay(250);
+}
+
 String getTimeStamp()
 {
 
@@ -423,24 +426,6 @@ String getTimeStamp()
     return currentTime;
 }
 
-String getDateStamp()
-{
-    Ds1302::DateTime now;
-    rtc.getDateTime(&now);
-
-    String currentDate = "";
-
-    if (now.month < 10)
-        currentDate = currentDate + "0";
-    currentDate = currentDate + now.month + "/"; // 01-12
-    if (now.day < 10)
-        currentDate = currentDate + "0";
-    currentDate = currentDate + now.day;        // 01-3
-    currentDate = currentDate + "/" + now.year; // 2021
-
-    return currentDate;
-}
-
 /**
  * @brief This function handles the output mode activation.
  */
@@ -454,30 +439,31 @@ void outputModeAct()
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentMode = DISPLAY_ONLY;
-            // Serial.println("Mode selected: DISPLAY_ONLY\n");
+            //Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
         if (goUp())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
+
             currentMode = SERIAL_ONLY;
-            // Serial.println("Mode selected: SERIAL_ONLY\n");
+            //Serial.println("Mode selected: SERIAL_ONLY\n");
         }
         break;
     case DISPLAY_ONLY:
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentMode = SERIAL_ONLY;
-            // Serial.println("Mode selected: SERIAL_ONLY\n");
+            //Serial.println("Mode selected: SERIAL_ONLY\n");
         }
         if (goUp()) // Check on sd card
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentMode = SD_ONLY;
-            // Serial.println("Mode selected: SD_ONLY\n");
+            //Serial.println("Mode selected: SD_ONLY\n");
         }
         break;
 
@@ -485,22 +471,22 @@ void outputModeAct()
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentMode = SD_ONLY;
-            // Serial.println("Mode selected: SD_ONLY\n");
+            //Serial.println("Mode selected: SD_ONLY\n");
         }
         if (goUp())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentMode = DISPLAY_ONLY;
-            // Serial.println("Mode selected: DISPLAY_ONLY\n");
+            //Serial.println("Mode selected: DISPLAY_ONLY\n");
         }
         break;
 
     default:
-        // Serial.println("\n\n\n\n-----------------------------");
-        // Serial.println("Error selecting channel\n");
-        // Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("Error selecting channel\n");
+        //Serial.println("\n\n\n\n-----------------------------");
         break;
     }
 
@@ -524,15 +510,15 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = CURRENT;
-            // Serial.println("Input selected: CURRENT\n");
+            //Serial.println("Input selected: CURRENT\n");
         }
         if (goUp())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = RESISTANCE;
-            // Serial.println("Input selected: RESISTANCE\n");
+            //Serial.println("Input selected: RESISTANCE\n");
         }
         break;
 
@@ -540,15 +526,15 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = RESISTANCE;
-            // Serial.println("Input selected: RESISTANCE\n");
+            //Serial.println("Input selected: RESISTANCE\n");
         }
         if (goUp())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = VOLTAGE;
-            // Serial.println("Input selected: VOLTAGE\n");
+            //Serial.println("Input selected: VOLTAGE\n");
         }
         break;
 
@@ -556,22 +542,22 @@ void inputModeAct()
 
         if (goDown())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = VOLTAGE;
-            // Serial.println("Input selected: VOLTAGE\n");
+            //Serial.println("Input selected: VOLTAGE\n");
         }
         if (goUp())
         {
-            soundBuzzer(scrollFrequency, scrollDuration);
+            soundBuzzerScroll();
             currentChannel = CURRENT;
-            // Serial.println("Input selected: CURRENT\n");
+            //Serial.println("Input selected: CURRENT\n");
         }
         break;
 
     default:
-        // Serial.println("\n\n\n\n-----------------------------");
-        // Serial.println("Error selecting channel");
-        // Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("Error selecting channel");
+        //Serial.println("\n\n\n\n-----------------------------");
         break;
     }
     delay(10);
@@ -595,7 +581,7 @@ void setChannel()
         ads.setGain(GAIN_TWOTHIRDS); // 2/3x gain +/- 6.144V  1 bit = 3mV      0.1875mV (default)
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_0, true);
         measurement.setMode(1);
-        // Serial.println("Reading channel A0\n");
+        //Serial.println("Reading channel A0\n");
         currentChannelString = "Voltage";
     }
 
@@ -604,24 +590,24 @@ void setChannel()
         ads.setGain(GAIN_FOUR);
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_DIFF_2_3, true);
         measurement.setMode(2);
-        // Serial.println("Reading channel A2-A3\n");
+        //Serial.println("Reading channel A2-A3\n");
         currentChannelString = "Current";
     }
 
     else if (currentChannel == RESISTANCE)
     {
-        ads.setGain(GAIN_ONE);
+        ads.setGain(GAIN_TWOTHIRDS);
         ads.startADCReading(ADS1X15_REG_CONFIG_MUX_SINGLE_1, true);
         measurement.setMode(1);
-        // Serial.println("Reading channel A1\n");
+        //Serial.println("Reading channel A1\n");
         currentChannelString = "Resistance";
     }
 
     else
     {
-        // Serial.println("\n\n\n\n-----------------------------");
-        // Serial.println("Error selecting channel");
-        // Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("\n\n\n\n-----------------------------");
+        //Serial.println("Error selecting channel");
+        //Serial.println("\n\n\n\n-----------------------------");
     }
 }
 
@@ -636,7 +622,12 @@ void setChannel()
  */
 void infoAct(boolean subSetup)
 {
-    infoGraphic(getTimeStamp(), getDateStamp());
+    if (subSetup || goUp() || goDown())
+    {
+        // infoGraphic(initializeWifi(), initializeSDcard(), initializeRTC()); //TODO fix methods
+        //  submenu setup
+        subSetup = 0;
+    }
 }
 
 /**
@@ -646,9 +637,9 @@ void infoAct(boolean subSetup)
  *
  * @param value The rate value to be set.
  */
-
 void setRate(int value)
 {
+
     switch (value)
     {
     case 860:
@@ -676,14 +667,13 @@ void setRate(int value)
         ads.setDataRate(RATE_ADS1115_8SPS);
         break;
     default:
-        // Serial.println("ErrorSetDataRate");
+        //Serial.println("ErrorSetDataRate");
         break;
     }
 }
 
 /**
- * Function to perform the sample set action.
- * This function updates the sample rate based on user input and displays the selected sample rate.
+ * @brief Sets the sample act.
  */
 void sampleSetAct()
 {
@@ -692,7 +682,7 @@ void sampleSetAct()
     if (goDown())
     {
         int i = 0;
-        soundBuzzer(scrollFrequency, scrollDuration);
+        soundBuzzerScroll();
         for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == currentSampleRate)
@@ -704,12 +694,12 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(0);
-        // Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
+        //Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
     }
     if (goUp())
     {
         int i = 0;
-        soundBuzzer(scrollFrequency, scrollDuration);
+        soundBuzzerScroll();
         for (int j = 0; j < 8; j++)
         {
             if (dataRateValues[j] == currentSampleRate)
@@ -721,41 +711,14 @@ void sampleSetAct()
             currentSampleRate = dataRateValues[i];
         }
         sampleSetSelectorGraphic(1);
-        // Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
+        //Serial.println("Selected sample rate: " + String(currentSampleRate) + "\n");
     }
     delay(10);
 }
 
-/**
- * @brief Performs preliminary control checks.
- *
- * @return true if the preliminary control checks pass, false otherwise.
- */
-
-float currentFactor()
-{
-    float factor;
-    switch (currentChannel)
-    {
-    case VOLTAGE:
-        factor = FACTOR_V;
-        break;
-
-    case CURRENT:
-        factor = FACTOR_I;
-        break;
-
-    case RESISTANCE:
-        factor = FACTOR_R;
-        break;
-    }
-    return factor;
-}
-
 boolean preliminaryControl()
 {
-    boolean controlResult = false;
-    String message = "Current measure: " + currentChannelString + "\n" + "Gain: " + String(K_value, 30) + "\n" + "Offset: " + String(O_value) + "\n" + "Array length (Sample rate): " + String(measurement.getLength()) + "\n";
+    boolean controlResult;
 
     switch (currentMode)
     {
@@ -769,7 +732,7 @@ boolean preliminaryControl()
 
     case SERIAL_ONLY:
         char serial;
-        // Serial.println("Write 'F' and send to start the serial acquisition: ");
+        //Serial.println("Write 'F' and send to start the serial acquisition: ");
         waitSerialGraphic();
         serialWaitingTime = time_now = millis();
 
@@ -777,81 +740,89 @@ boolean preliminaryControl()
         {
             if (Serial.available() > 0)
             {
+                delay(1500);
                 byte serial = Serial.read();
-                // Serial.println(serial, HEX);
-
+                //Serial.println(serial, HEX);
+                
                 if (serial == 'F')
                 {
-                    delayMicroseconds(50);
+
                     controlResult = true;
+<<<<<<< HEAD
                     Serial.println("START");
                     Serial.println(currentChannelString);
                     Serial.println(K_value, 35);
                     Serial.println(O_value, 35);
                     Serial.println(currentSampleRate);
                     Serial.println(currentFactor());
+                    delay(350);
+=======
+                      Serial.println("START");
+                      Serial.println(currentChannelString);
+                      Serial.println(K_value, 35);
+                      Serial.println(O_value, 35);
+                      Serial.println(currentSampleRate);
+                      Serial.println(currentFactor());
                     delayMicroseconds(100);
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
                     break;
                 }
             }
             time_now = millis();
-            delayMicroseconds(100);
         }
 
-        if (serial != 0b10101101)
+<<<<<<< HEAD
+        if (serial != 'F')
             // Serial.println("Expired time: no valid response received");
             break;
-
-    case DISPLAY_ONLY:
-        controlResult = true;
+=======
+        if (serial != 0b10101101)
+            //Serial.println("Expired time: no valid response received");
         break;
+>>>>>>> parent of 2ed7c40 (Fixed preliminary control function)
 
     default:
-        controlResult = false;
+        controlResult = true;
         break;
     }
 
-    // TODO update error graphic message
     if (!controlResult)
     {
         errorMessageGraphic(currentMode);
         soundBuzzer(1000, 2000);
         delay(3000);
     }
-    else
-    {
-        loggerGraphic(getTimeStamp(), 0);
-    }
+
+    loggerGraphic(getTimeStamp(), 0);
 
     return controlResult;
 }
 
 /**
- * @brief Calculates the coefficient.
+ * Calculates the gain value.
  *
- * This function calculates the coefficient based on certain criteria.
- *
- * @return The calculated coefficient.
+ * @return The calculated gain value as a float. After, it is used to calculate the voltage, current, and resistance values.
  */
+
 float calculateCoefficient()
 {
-    float gain;
+    float K_value;
     switch (currentChannel)
     {
     case VOLTAGE:
-        gain = multiplier_V;
+        K_value = multiplier_V * (R1 + R2) / R1;
         break;
     case CURRENT:
-        gain = multiplier_I;
+        K_value = multiplier_I * FACTOR;
         break;
     case RESISTANCE:
-        gain = multiplier_R;
+        K_value = 6.144;
         break;
     default:
-        gain = 1;
+        K_value = 1;
         break;
     }
-    return gain;
+    return K_value;
 }
 
 /**
@@ -880,44 +851,20 @@ float calculateOffset()
     return offset;
 }
 
-float conversionMeasurement()
-{
-    float measure;
-    switch (currentChannel)
-    {
-    case VOLTAGE:
-        measure = (measurement.getMean() * K_value * FACTOR_V) - O_value;
-        break;
-    case CURRENT:
-        measure = (sqrt(measurement.getMean()) * K_value * FACTOR_I) - O_value;
-        break;
-    case RESISTANCE:
-        measure = FACTOR_R * 3.3 / (measurement.getMean() * K_value) - FACTOR_R;
-        break;
-    default:
-        measure = 0;
-        break;
-    }
-    return measure;
-}
-
 /**
- * @brief Sets up the ADC configuration and initializes necessary variables.
+ * @brief Sets up the ADC (Analog-to-Digital Converter).
  *
- * This function attaches an interrupt to the ALERT_PIN, sets the sample rate and channel,
- * calculates the gain and offset values, and initializes the Measurement object.
- * If the current mode is SERIAL_ONLY, it waits for the 's' character to be received from the serial monitor.
- *
- * @note This function assumes that the NewDataReadyISR function is defined elsewhere.
+ * This function initializes the ADC module and configures its settings.
+ * It prepares the ADC for reading analog values from sensors or other sources.
  */
 void adcSetup()
 // TODO pass the conversion value to labview<
 {
-    // Serial.println("\n\n\n\n-----------------------------");
-    // Serial.println("ENTERED IN ADC SETUP\n\n\n\n");
-    //  We get a falling edge every time a new sample is ready.
+    //Serial.println("\n\n\n\n-----------------------------");
+    //Serial.println("ENTERED IN ADC SETUP\n\n\n\n");
+    // We get a falling edge every time a new sample is ready.
     attachInterrupt(digitalPinToInterrupt(ALERT_PIN), NewDataReadyISR, FALLING);
-    // Serial.println("Interrupt attached (falling edge for new data ready)))");
+    //Serial.println("Interrupt attached (falling edge for new data ready)))");
     setRate(currentSampleRate);
     setChannel();
 
@@ -926,23 +873,109 @@ void adcSetup()
     K_value = calculateCoefficient();
     O_value = calculateOffset();
 
-    Measurement measurement(currentSampleRate);
-}
+    Serial.println("Gain: " + String(K_value) + "\n" + "Offset: " + String(O_value) + "\n");
+    Serial.println("Array length (Sample rate): " + String(measurement.getLength()) + "\n");
+    Serial.println("\n\n\n\n-----------------------------");
 
-void loggerActSD()
-
-{
-
-    if (!new_data)
+    if (currentMode == SERIAL_ONLY)
     {
-        return;
+        char serial;
+
+        while (true)
+        {
+            if (Serial.available() > 0)
+            {
+                serial = Serial.read();
+                Serial.println(serial, HEX);
+                if (serial == 's')
+                {
+                    // Aggiungi qui il tuo codice da eseguire quando ricevi 's'
+                    break; // Esce dal ciclo while quando riceve 's'
+                }
+            }
+        }
+
+        delay(1000);
+
+        Serial.println("START");
+
+        Serial.println(currentChannelString);
+        Serial.println(currentSampleRate);
     }
 
-    if (!measurement.isArrayFull())
+    Measurement measurement(currentSampleRate);
+
+    loggerGraphic(currentMode, currentChannel, getTimeStamp(), 0);
+}
+
+// Executive Actions
+void loggerAct()
+{
+
+    switch (currentMode)
     {
-        measurement.insertMeasurement(ads.getLastConversionResults());
-        file.print(measurement.getLastMeasurement());
-        file.print(" ");
+    case SD_ONLY:
+        Serial.println("Not implemented yet");
+        break;
+
+    case DISPLAY_ONLY:
+
+        if (!new_data)
+        {
+            // Serial.println("No new data ready!");
+            return;
+        }
+
+        // Serial.println("New data ready!");
+
+        if (!measurement.isArrayFull())
+        {
+            measurement.insertMeasurement(ads.getLastConversionResults());
+        }
+        else
+        {
+            measurement.setArrayFull(false);
+            loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
+            Serial.println("Mean: " + String(measurement.getMean()));
+        }
+
+        new_data = false;
+
+        break;
+
+    case SERIAL_ONLY:
+
+        if (!new_data)
+        {
+            // Serial.println("No new data ready!");
+            return;
+        }
+
+        // Serial.println("New data ready!");
+
+        if (!measurement.isArrayFull())
+        {
+            // Serial.println(ads.getLastConversionResults());
+            measurement.insertMeasurement(ads.getLastConversionResults());
+            // Serial.println(measurement.getLastMeasurement());
+            Serial.write(0xCC);                                           // Start byte
+            Serial.write((measurement.getLastMeasurement() >> 8) & 0xFF); // High byte
+            Serial.write(measurement.getLastMeasurement() & 0xFF);        // Low byte
+        }
+        else
+        {
+            measurement.setArrayFull(false);
+            loggerGraphic(currentMode, currentChannel, getTimeStamp(), measurement.getMean());
+        }
+        new_data = false;
+
+        break;
+
+    default:
+        Serial.println("\n\n\n\n-----------------------------");
+        Serial.println("Error selecting output\n");
+        Serial.println("\n\n\n\n-----------------------------");
+        break;
     }
     else
     {
@@ -979,7 +1012,7 @@ void loggerActSerial()
     else
     {
         measurement.setArrayFull(false);
-        // digitalWrite(LED2, !digitalRead(LED2));
+        //digitalWrite(LED2, !digitalRead(LED2));
     }
     new_data = false;
 }
