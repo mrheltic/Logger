@@ -10,6 +10,7 @@ private:
     float mean;              // Media
     float std; 
     float sum;              // Deviazione standard
+    int mode;
     unsigned long timestamp; // Timestamp della prima misurazione
     bool arrayFull;
 
@@ -17,9 +18,12 @@ public:
     Measurement(int len);
     ~Measurement();
     void setLength(int len);
+    void setMode(int mode);
     void insertMeasurement(int value);
+    void insertMeasurementCurrent(int value);
     void calculateMean();
     void calculateStd();
+    float getSum();
     void reset();
     void setTimestamp(unsigned long timestamp);
     float getMean();
@@ -92,11 +96,11 @@ void Measurement::insertMeasurement(int value)
         count = 0;
         arrayFull = true;
         calculateMean();
-        calculateStd();
+        //calculateStd();
         sum = 0;
     }
 
-    sum += value;
+    sum += pow(value, mode);
 }
 
 void Measurement::reset()
@@ -117,6 +121,11 @@ float Measurement::getMean()
 float Measurement::getStd()
 {
     return std;
+}
+
+float Measurement::getSum()
+{
+    return sum;
 }
 
 int *Measurement::getMeasurements()
@@ -146,6 +155,11 @@ int Measurement::getArrayLenght(){
 int Measurement::getLastMeasurement()
 {
     return measurements[count];
+}
+
+void Measurement::setMode(int mode)
+{
+    this->mode = mode;
 }
 
 // Print the mean of measurement returning 2 value: the 4 digits most significant and the power of 10

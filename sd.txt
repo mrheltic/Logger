@@ -1,0 +1,101 @@
+void loggerAct()
+{
+    /*
+   uint8_t arrayTesthigh(860);
+   uint8_t arrayTestlow(860);
+   int counter=0;
+   uint16_t sample;
+
+           switch (currentMode)
+           {
+           case SD_ONLY:
+               Serial.println("Not implemented yet");
+               break;
+
+           case WIFI_ONLY:
+               Serial.println("Not implemented yet");
+               break;
+
+           case DISPLAY_ONLY:
+
+               if (!new_data)
+               {
+                   // Serial.println("No new data ready!");
+                   return;
+               }
+
+               // Serial.println("New data ready!");
+
+               if (counter<860)
+               {
+                   // Serial.println(ads.getLastConversionResults());
+                   sample=ads.getLastConversionResults();
+                   Byte high= highByte(sample);
+                   Byte low= lowByte(sample);
+                   arrayTesthigh[counter]=high;
+                   arrayTestlow[counter]=low;
+                   counter++;
+
+               }
+               else
+               {
+
+                   Serial.write(arrayTest, sizeof(arrayTest));
+                   //Serial.println("Mean: " + String(measurement.getMean()));
+                   //Serial.println("------------------------------------------------------------------------------");
+                   // Serial.println("Std: " + String(measurement.getStd()));
+                  // Serial.println("Array full, resetted");
+                   //Serial.println("Array length: " + String(measurement.getLength()) + "\n");
+                   measurement.setArrayFull(false);
+                   loggerGraphic(currentMode, currentChannel, getTimeStamp());
+               }
+
+               new_data = false;
+
+               break;
+
+           default:
+               Serial.println("\n\n\n\n-----------------------------");
+               Serial.println("Error selecting output\n");
+               Serial.println("\n\n\n\n-----------------------------");
+               break;
+           }
+
+       int i = 0;
+       while (i < 100)
+       {
+           appendFile(SD, "/dataStorage.txt", "Bastardooooooooooooo\n");
+           i++;
+           delay(100);
+       }
+
+       delay(1);*/
+
+    // If we don't have new data, skip this iteration.
+
+    if (!new_data)
+    {
+        return;
+    }
+
+
+    adcValue = ads.getLastConversionResults();
+    current = K * (adcValue + O);
+    //Serial.println(adcValue);
+    //const char* p =  getTimeStamp.c_str();
+    appendFile(SD, "/dataStorage", p);
+    //Serial.println(adcValue);
+    sum = sum + sq(current);
+
+    new_data = false;
+
+    if (j == 860){
+    Serial.println(sqrt(sum/860));
+    Serial.println();
+    loggerGraphic(currentMode, currentChannel, getTimeStamp(), sqrt(sum/860));
+
+    sum = 0.0;
+    j = 0;
+    }
+    j++;
+}

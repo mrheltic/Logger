@@ -28,15 +28,38 @@ void executeAction()
   switch (menu)
   {
   case 1:
+    adcSetup();
     if (preliminaryControl())
     {
-      adcSetup();
-      while (!select() && stateMenu == 0)
+      switch (currentMode)
       {
-        loggerAct();
+      case 0:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActDisplay();
+        }
+        break;
+
+      case 1:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActSerial();
+        }
+        break;
+
+      case 2:
+        while (!select() && stateMenu == 0)
+        {
+          loggerActSD();
+        }
+        break;
       }
     }
-    else ESP.restart();
+    else
+    {
+      if (currentMode == SD_ONLY)
+        ESP.restart();
+    }
     stateMenu = 1;
     break;
   case 2:
@@ -64,12 +87,11 @@ void executeAction()
     while (!select() && stateMenu == 0)
     {
       sampleSetAct();
-      // Serial.println("oi");
     }
     stateMenu = 1;
     break;
   }
-  soundBuzzerSelect();
+  soundBuzzer(selectFrequency, selectDuration);
   updateMenu(menu);
 }
 
@@ -93,20 +115,20 @@ void loop()
   {
     if (goDown())
     {
-      soundBuzzerScroll();
+      soundBuzzer(scrollFrequency, scrollDuration);
       menu++;
       menu = updateMenu(menu);
     }
     if (goUp())
     {
-      soundBuzzerScroll();
+      soundBuzzer(scrollFrequency, scrollDuration);
       menu--;
       menu = updateMenu(menu);
     }
     if (select())
     {
       stateMenu = 0;
-      soundBuzzerSelect();
+      soundBuzzer(selectFrequency, selectFrequency);
       executeAction();
     }
   }
