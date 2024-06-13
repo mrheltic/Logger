@@ -278,7 +278,7 @@ Contributions to this project are welcome. If you encounter any issues or have i
 ## ✍️ Authors
 - [@mrheltic](https://github.com/mrheltic) - Florio Vincenzo Pio
 - [@Phersax](https://github.com/Phersax) - Stasi Francesco
-- [@dav01luffy](https://github.com/murcie443) - Tonti Davide
+- [@murcie443](https://github.com/murcie443) - Tonti Davide
 
 ## Repo Activity
 
